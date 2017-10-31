@@ -54,24 +54,24 @@ namespace Schukin.XDataConv.Core
             mainGrid.AutoGenerateColumns = false;
             mainGrid.DataSource = bindingSource;
             mainGrid.Columns.AddRange(
-                new DataGridViewTextBoxColumn {HeaderText = "FAMIL", DataPropertyName = "Famil", Width = 120},
-                new DataGridViewTextBoxColumn {HeaderText = "IMJA", DataPropertyName = "Imja", Width = 120},
-                new DataGridViewTextBoxColumn {HeaderText = "OTCH", DataPropertyName = "Otch", Width = 120},
-                new DataGridViewTextBoxColumn {HeaderText = "DROG", DataPropertyName = "Drog", Width = 90},
-                new DataGridViewTextBoxColumn {HeaderText = "POSEL", DataPropertyName = "Posel", Width = 120},
-                new DataGridViewTextBoxColumn {HeaderText = "NASP", DataPropertyName = "Nasp", Width = 120},
-                new DataGridViewTextBoxColumn {HeaderText = "YLIC", DataPropertyName = "Ylic", Width = 120},
-                new DataGridViewTextBoxColumn {HeaderText = "NDOM", DataPropertyName = "Ndom", Width = 70},
-                new DataGridViewTextBoxColumn {HeaderText = "NKORP", DataPropertyName = "Nkorp", Width = 70},
-                new DataGridViewTextBoxColumn {HeaderText = "NKW", DataPropertyName = "Nkw", Width = 70},
-                new DataGridViewTextBoxColumn {HeaderText = "NKOMN", DataPropertyName = "Nkomn", Width = 70},
-                new DataGridViewTextBoxColumn {HeaderText = "ILCHET", DataPropertyName = "IlChet", Width = 90},
-                new DataGridViewTextBoxColumn {HeaderText = "VIDGF", DataPropertyName = "VidGf", Width = 160},
+                new DataGridViewTextBoxColumn {HeaderText = "FAMIL", DataPropertyName = "Famil", Width = 120, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "IMJA", DataPropertyName = "Imja", Width = 120, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "OTCH", DataPropertyName = "Otch", Width = 120, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "DROG", DataPropertyName = "Drog", Width = 90, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "POSEL", DataPropertyName = "Posel", Width = 120, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "NASP", DataPropertyName = "Nasp", Width = 120, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "YLIC", DataPropertyName = "Ylic", Width = 120, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "NDOM", DataPropertyName = "Ndom", Width = 70, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "NKORP", DataPropertyName = "Nkorp", Width = 70, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "NKW", DataPropertyName = "Nkw", Width = 70, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "NKOMN", DataPropertyName = "Nkomn", Width = 70, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "ILCHET", DataPropertyName = "IlChet", Width = 90, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "VIDGF", DataPropertyName = "VidGf", Width = 160, ReadOnly = true},
                 new DataGridViewTextBoxColumn {HeaderText = "OPL", DataPropertyName = "Opl", Width = 70},
                 new DataGridViewTextBoxColumn {HeaderText = "OTPL", DataPropertyName = "Otpl", Width = 70},
                 new DataGridViewTextBoxColumn {HeaderText = "KOLZR", DataPropertyName = "KolZr", Width = 50},
-                new DataGridViewTextBoxColumn {HeaderText = "GKU", DataPropertyName = "Gku", Width = 160},
-                new DataGridViewTextBoxColumn {HeaderText = "ORG", DataPropertyName = "Org", Width = 160},
+                new DataGridViewTextBoxColumn {HeaderText = "GKU", DataPropertyName = "Gku", Width = 160, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "ORG", DataPropertyName = "Org", Width = 160, ReadOnly = true},
                 new DataGridViewTextBoxColumn {HeaderText = "VIDTAR", DataPropertyName = "VidTar", Width = 50},
                 new DataGridViewTextBoxColumn {HeaderText = "TARIF", DataPropertyName = "Tarif", Width = 70},
                 new DataGridViewTextBoxColumn {HeaderText = "FAKT", DataPropertyName = "Fakt", Width = 70},
@@ -79,8 +79,8 @@ namespace Schukin.XDataConv.Core
                 new DataGridViewTextBoxColumn {HeaderText = "SUMDOLG", DataPropertyName = "SumDolg", Width = 70},
                 new DataGridViewTextBoxColumn {HeaderText = "OPLDOLG", DataPropertyName = "OplDolg", Width = 70},
                 new DataGridViewTextBoxColumn {HeaderText = "DATDOLG", DataPropertyName = "DatDolg", Width = 90},
-                new DataGridViewTextBoxColumn {HeaderText = "MONTH", DataPropertyName = "Month", Width = 70},
-                new DataGridViewTextBoxColumn {HeaderText = "YEAR", DataPropertyName = "Year", Width = 70}
+                new DataGridViewTextBoxColumn {HeaderText = "MONTH", DataPropertyName = "Month", Width = 70, ReadOnly = true},
+                new DataGridViewTextBoxColumn {HeaderText = "YEAR", DataPropertyName = "Year", Width = 70, ReadOnly = true}
             );
         }
 

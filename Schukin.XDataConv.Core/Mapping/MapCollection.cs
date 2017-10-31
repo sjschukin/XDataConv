@@ -4,21 +4,21 @@ using System.Linq;
 
 namespace Schukin.XDataConv.Core
 {
-    public class MapCollection : IEnumerable<Map>
+    public class MapCollection : IEnumerable<MapItem>
     {
-        private readonly Map[] _items;
+        private readonly MapItem[] _items;
 
-        public MapCollection(Map[] items)
+        public MapCollection(MapItem[] items)
         {
             _items = items;
         }
 
-        public Map this[string column]
+        public MapItem this[string column]
         {
             get { return _items.First(item => item.Name == column); }
         }
 
-        public IEnumerator<Map> GetEnumerator()
+        public IEnumerator<MapItem> GetEnumerator()
         {
             return _items.ToList().GetEnumerator();
         }
@@ -28,27 +28,27 @@ namespace Schukin.XDataConv.Core
             return GetEnumerator();
         }
 
-        public IEnumerable<Map> GetActiveItems()
+        public IEnumerable<MapItem> GetActiveItems()
         {
             return _items.Where(item => item.SourceColumnName.Trim() != "");
         }
 
-        public IEnumerable<Map> GetUseForIdentify1()
+        public IEnumerable<MapItem> GetUseForIdentify1()
         {
             return GetActiveItems().Where(item => item.UseForCompare1);
         }
 
-        public IEnumerable<Map> GetUseForIdentify2()
+        public IEnumerable<MapItem> GetUseForIdentify2()
         {
             return GetActiveItems().Where(item => item.UseForCompare2);
         }
 
-        public IEnumerable<Map> GetUseForImport()
+        public IEnumerable<MapItem> GetUseForImport()
         {
             return GetActiveItems().Where(item => item.UseForImport);
         }
 
-        public IEnumerable<Map> GetUseForLog()
+        public IEnumerable<MapItem> GetUseForLog()
         {
             return GetActiveItems().Where(item => item.UseForLog);
         }

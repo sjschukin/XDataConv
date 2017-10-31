@@ -40,9 +40,9 @@ namespace Schukin.XDataConv.Core
             };
         }
 
-        public Map[] DataSource
+        public MapItem[] DataSource
         {
-            get => gridMapping.DataSource as Map[];
+            get => gridMapping.DataSource as MapItem[];
             set => gridMapping.DataSource = value;
         }
 
@@ -212,7 +212,7 @@ namespace Schukin.XDataConv.Core
             if (e.RowIndex < 0 || e.ColumnIndex != gridMapping.Columns["colMatchingList"].Index)
                 return;
 
-            if (!(gridMapping.Rows[e.RowIndex].DataBoundItem is Map item))
+            if (!(gridMapping.Rows[e.RowIndex].DataBoundItem is MapItem item))
                 return;
 
             var formMatching = new MatchSettingsForm(item.MatchLines);

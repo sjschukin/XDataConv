@@ -54,5 +54,17 @@ namespace Schukin.XDataConv.Data
 
             CurrentFileName = filename;
         }
+
+        public IEnumerable<string> GetMappingColumnNames()
+        {
+            var dataItemMap = new DataItemMap();
+            return dataItemMap.MemberMaps.Select(item => item.Data.Names[0]);
+        }
+
+        public IEnumerable<string> GetMappingPropertyNames()
+        {
+            var dataItemMap = new DataItemMap();
+            return dataItemMap.MemberMaps.Select(item => item.Data.Names[0]);
+        }
     }
 }

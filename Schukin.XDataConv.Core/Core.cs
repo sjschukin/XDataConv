@@ -29,15 +29,6 @@ namespace Schukin.XDataConv.Core
                 new XlsModule()
             };
 
-            ColumnNames = new[]
-            {
-                "LDID", "FAMIL", "IMJA", "OTCH", "DROG", "POSEL", "NASP", "YLIC", "NDOM", "NKORP", "NKW", "NKOMN",
-                "ILCHET", "VIDGF", "OPL", "OTPL", "KOLZR", "GKU", "ORG", "VIDTAR", "TARIF", "FAKT", "SUMTAR", "SUMDOLG",
-                "OPLDOLG", "DATDOLG", "MONTH", "YEAR"
-            };
-
-            Mapping = new MapCollection(ColumnNames.Select(item => new Map { Name = item, MatchLines = new List<MatchLine>() }).ToArray());
-
             _mappingForm = new MapSettingsForm();
             _identifyResults = new List<IdentifyResultItem>();
 
@@ -57,15 +48,13 @@ namespace Schukin.XDataConv.Core
             Store = new StoreEngine();
 
             //_logger = LogManager.GetCurrentClassLogger();
-
-            LoadDefaultMapping();
+            Mapping = GetDefaultMap();
         }
 
         public static Core Instance => _instance ?? (_instance = new Core());
         public StoreEngine Store { get; }
         public List<ModuleBase> Modules { get; }
         public MapCollection Mapping { get; }
-        public string[] ColumnNames { get; }
 
         public bool OpenStore()
         {
@@ -162,7 +151,7 @@ namespace Schukin.XDataConv.Core
             }
         }
 
-        public DataRow FindDataRow(IQueryable<DataRow> rows, Map[] identifyMapping, IReadOnlyList<string> values, string lineForLog, Map[] mappingLog)
+        public DataRow FindDataRow(IQueryable<DataRow> rows, MapItem[] identifyMapping, IReadOnlyList<string> values, string lineForLog, MapItem[] mappingLog)
         {
             if (identifyMapping == null)
                 return null;
@@ -244,10 +233,12 @@ namespace Schukin.XDataConv.Core
             return results.FirstOrDefault();
         }
 
-        public DataItem FindDataRow(IQueryable<DataItem> allValues, DataItem value, Map[] maps)
+        public DataItem FindDataRow(DataItem value, MapItem[] map)
         {
-            if (maps == null || value == null)
+            if (map == null || value == null)
                 return null;
+
+            var data = Store.Data.AsQueryable();
 
             //var logItem = new IdentifyResultItem { Name = lineForLog };
 
@@ -256,14 +247,15 @@ namespace Schukin.XDataConv.Core
             var param = Expression.Parameter(typeof(DataItem), "item");
             Expression expression1 = null;
 
-            foreach (var map in maps)
+            foreach (var mapItem in map)
             {
-                var propValue = typeof(DataItem).GetProperty(map.Name)?.GetValue(value);
+                //var prop = 
+                var propValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(value);
 
-                if (map.MatchLinesCount > 0 && propValue is string strValue)
+                if (mapItem.MatchLinesCount > 0 && propValue is string strValue)
                 {
                     var matchLine =
-                        map.MatchLines.FirstOrDefault(item => item.SourceWord == strValue);
+                        mapItem.MatchLines.FirstOrDefault(item => item.SourceWord == strValue);
 
                     if (matchLine != null)
                         propValue = matchLine.AliasWord;
@@ -281,8 +273,8 @@ namespace Schukin.XDataConv.Core
                 return null;
 
             var lambda = Expression.Lambda<Func<DataItem, bool>>(expression1, param);
-            var whereExpression = Expression.Call(typeof(Queryable), "Where", new[] { allValues.ElementType }, allValues.Expression, lambda);
-            var results = allValues.Provider.CreateQuery<DataItem>(whereExpression);
+            var whereExpression = Expression.Call(typeof(Queryable), "Where", new[] { data.ElementType }, data.Expression, lambda);
+            var results = data.Provider.CreateQuery<DataItem>(whereExpression);
             //var count = results.Count();
 
 
@@ -292,25 +284,25 @@ namespace Schukin.XDataConv.Core
 
         public bool LoadMappingOrdinal(IReadOnlyList<string> headerValues)
         {
-            var activeMapping = Mapping.GetActiveItems();
+            var activeMap = Mapping.GetActiveItems();
             bool result = true;
 
-            foreach (var item in activeMapping)
+            foreach (var mapItem in activeMap)
             {
-                item.SourceOrdinal = -1;
+                mapItem.SourceOrdinal = -1;
 
                 for (int i = 0; i < headerValues.Count; i++)
                 {
-                    if (item.SourceColumnName != headerValues[i])
+                    if (mapItem.SourceColumnName != headerValues[i])
                         continue;
 
-                    item.SourceOrdinal = i;
+                    mapItem.SourceOrdinal = i;
                     break;
                 }
 
-                if (item.SourceOrdinal == -1)
+                if (mapItem.SourceOrdinal == -1)
                 {
-                    ShowMessage($"В файле не найдена необходимая колонка {item.SourceColumnName}.");
+                    ShowMessage($"В файле не найдена необходимая колонка {mapItem.SourceColumnName}.");
                     result = false;
                 }
             }
@@ -345,22 +337,27 @@ namespace Schukin.XDataConv.Core
             return MessageBox.Show(message, "XDataConv", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
 
-        private void LoadDefaultMapping()
+        private MapCollection GetDefaultMap()
         {
+            var columnNames = Store.GetMappingColumnNames();
+            var map = new MapCollection(columnNames.Select(item => new MapItem { Name = item, MatchLines = new List<MatchLine>() }).ToArray());
+
             var checkedUseForCompare1 = new[] { "ILCHET", "GKU", "ORG" };
             var checkedUseForCompare2 = new[] { "FAMIL", "IMJA", "OTCH", "POSEL", "NASP", "YLIC", "NDOM", "NKORP", "NKW", "NKOMN", "GKU", "ORG" };
             var checkedUseForImport = new[] { "OPL", "OTPL", "KOLZR", "VIDTAR", "TARIF", "FAKT", "SUMTAR", "SUMDOLG", "DATDOLG" };
             var checkedUseForLog = new[] { "FAMIL", "IMJA", "OTCH", "DROG" };
 
-            foreach (var item in Mapping)
+            foreach (var mapItem in map)
             {
-                item.SourceColumnName = item.Name;
+                mapItem.SourceColumnName = mapItem.Name;
 
-                item.UseForCompare1 = checkedUseForCompare1.Contains(item.Name);
-                item.UseForCompare2 = checkedUseForCompare2.Contains(item.Name);
-                item.UseForImport = checkedUseForImport.Contains(item.Name);
-                item.UseForLog = checkedUseForLog.Contains(item.Name);
+                mapItem.UseForCompare1 = checkedUseForCompare1.Contains(mapItem.Name);
+                mapItem.UseForCompare2 = checkedUseForCompare2.Contains(mapItem.Name);
+                mapItem.UseForImport = checkedUseForImport.Contains(mapItem.Name);
+                mapItem.UseForLog = checkedUseForLog.Contains(mapItem.Name);
             }
+
+            return map;
         }
     }
 }

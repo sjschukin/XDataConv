@@ -48,9 +48,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CsvHelper, Version=4.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
-      <HintPath>..\packages\CsvHelper.4.0.3\lib\net45\CsvHelper.dll</HintPath>
-    </Reference>
     <Reference Include="ExcelDataReader, Version=3.2.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
       <HintPath>..\packages\ExcelDataReader.3.2.0\lib\net45\ExcelDataReader.dll</HintPath>
     </Reference>
@@ -96,7 +93,7 @@
     <Compile Include="Modules\CsvModule.cs" />
     <Compile Include="Mapping\MapCollection.cs" />
     <Compile Include="Mapping\MatchLine.cs" />
-    <Compile Include="Mapping\Map.cs" />
+    <Compile Include="Mapping\MapItem.cs" />
     <Compile Include="Mapping\MatchSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>

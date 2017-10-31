@@ -2,7 +2,7 @@
 
 namespace Schukin.XDataConv.Core
 {
-    public class Map
+    public class MapItem
     {
         public string Name { get; set; }
         public string AliasName => Name.ToUpper();
