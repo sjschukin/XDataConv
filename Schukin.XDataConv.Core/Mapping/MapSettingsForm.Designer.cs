@@ -160,7 +160,7 @@
             // 
             // colDestColumnName
             // 
-            this.colDestColumnName.DataPropertyName = "AliasName";
+            this.colDestColumnName.DataPropertyName = "FieldName";
             this.colDestColumnName.HeaderText = "Поле";
             this.colDestColumnName.Name = "colDestColumnName";
             this.colDestColumnName.ReadOnly = true;
@@ -187,7 +187,7 @@
             // 
             // colUseForImport
             // 
-            this.colUseForImport.DataPropertyName = "UseForImport";
+            this.colUseForImport.DataPropertyName = "UseForAssign";
             this.colUseForImport.HeaderText = "Использовать для импорта";
             this.colUseForImport.Name = "colUseForImport";
             // 

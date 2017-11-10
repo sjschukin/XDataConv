@@ -36,6 +36,8 @@ namespace Schukin.XDataConv.Data
             Map(m => m.DatDolg).Name("DATDOLG");
             Map(m => m.Month).Name("MONTH");
             Map(m => m.Year).Name("YEAR");
+            Map(m => m.IsError).Ignore();
+            Map(m => m.ErrorMessage).Ignore();
         }
     }
 }

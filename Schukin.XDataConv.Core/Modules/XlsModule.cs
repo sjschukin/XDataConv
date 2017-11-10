@@ -1,58 +1,29 @@
 ﻿using System;
-using System.Data;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using ExcelDataReader;
 using NLog;
+using Schukin.XDataConv.Data;
 
 namespace Schukin.XDataConv.Core.Modules
 {
-    public class XlsModule : ModuleBase
+    public class XlsModule : IModule
     {
         private static readonly Logger Logger = LogManager.GetLogger("importLogger");
-        private readonly OpenFileDialog _importDialog;
-
+        
         public XlsModule()
         {
-            Id = new Guid("8044778A-A214-4404-88B6-9B1D2AA70EA7");
-            Name = "Файл XLS";
-            Description = "Импорт файла Excel";
-            HasImport = true;
-            ImportMenuText = "Формат Excel (xls, xlsx) ...";
-            HasExport = false;
-
-            _importDialog = new OpenFileDialog
-            {
-                CheckFileExists = true,
-                Filter = "Файлы Microsoft Excel (*.xls, *.xlsx)|*.xls;*.xlsx"
-            };
+            Name = "Импорт файла Excel";
         }
 
-        public override Guid Id { get; }
-        public override string Name { get; }
-        public override bool HasImport { get; }
-        public override bool HasExport { get; }
-        public override string ImportMenuText { get; }
-        public override string ExportMenuText { get; }
-        public override string Description { get; }
+        public string Name { get; }
 
-        public override void DoImport()
+        public IEnumerable<DataItem> GetDataItems(string filename)
         {
-            if (_importDialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            DataTable table = null; // Core.Instance.Store.DataTable;
-            var filename = _importDialog.FileName;
-
-            if (table.Rows.Count == 0)
-                throw new ApplicationException("Отсутствуют сведения для идентификации. Сначала необходимо загрузить данные.");
-
-            if (Core.Instance.ShowMappingForm() != DialogResult.OK)
-                return;
-
             //Logger.Info($" === Открытие файла {filename}");
+            var importedData = new List<DataItem>();
 
             using (var stream = File.Open(filename, FileMode.Open, FileAccess.Read))
             using (var reader = ExcelReaderFactory.CreateReader(stream))
@@ -63,57 +34,63 @@ namespace Schukin.XDataConv.Core.Modules
 
                 //Logger.Info("Чтение заголовка");
                 if (!Core.Instance.LoadMappingOrdinal(GetValues(reader)))
-                {
                     throw new ApplicationException("Отсутствуют необходимые колонки. Импорт невозможен.");
-                }
 
                 // read the body
-                var rows = table.Rows.Cast<DataRow>().AsQueryable();
-                var mappingIdentify1 = Core.Instance.Mapping.GetUseForIdentify1().ToArray();
-                var mappingIdentify2 = Core.Instance.Mapping.GetUseForIdentify2().ToArray();
-                var mappingImport = Core.Instance.Mapping.GetUseForImport().ToArray();
-                var mappingLog = Core.Instance.Mapping.GetUseForLog().ToArray();
                 int lineNumber = 1;
+                var properties = Core.Instance.Mapping.GetActiveItems()
+                    .Select(mapItem => typeof(DataItem).GetProperty(mapItem.Name))
+                    .ToArray();
 
                 while (reader.Read())
                 {
-                    var values = GetValues(reader);
+                    lineNumber++;
+                    var dataItem = new DataItem();
+
+                    try
+                    {
+                        foreach (var propertyInfo in properties)
+                        {
+                            var value = reader[Core.Instance.Mapping[propertyInfo.Name].SourceOrdinal];
+
+                            if (value == null)
+                                continue;
+
+                            var strValue = value.ToString();
+
+                            propertyInfo.SetValue(dataItem,
+                                Convert.ChangeType(strValue,
+                                    Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+
+                    importedData.Add(dataItem);
 
                     // line for log
-                    var sb = new StringBuilder();
-                    sb.Append("Строка ");
-                    sb.Append(lineNumber);
-                    sb.Append(": ");
+                    //var sb = new StringBuilder();
+                    //sb.Append("Строка ");
+                    //sb.Append(lineNumber);
+                    //sb.Append(": ");
 
-                    foreach (var map in mappingLog)
-                    {
-                        sb.Append(values[map.SourceOrdinal]);
-                        sb.Append(" ");
-                    }
+                    //foreach (var mapItem in mappingLog)
+                    //{
+                    //    sb.Append(values[map.SourceOrdinal]);
+                    //    sb.Append(" ");
+                    //}
 
-                    var lineForLog = sb.ToString();
+                    //var lineForLog = sb.ToString();
 
-                    // find the row
-                    var row = Core.Instance.FindDataRow(rows, mappingIdentify1, values, lineForLog, mappingLog) ??
-                              Core.Instance.FindDataRow(rows, mappingIdentify2, values, lineForLog, mappingLog);
                     lineNumber++;
-
-                    if (row == null)
-                        continue;
-
-                    foreach (var map in mappingImport)
-                    {
-                        row[map.Name] = reader.GetValue(map.SourceOrdinal)?.ToString() ?? "";
-                    }
                 }
             }
-            //Logger.Info(" === Импорт файла завершен.");
-            Core.Instance.ShowMessage("Импорт завершен.");
-        }
 
-        public override void DoExport()
-        {
-            throw new NotImplementedException();
+            return importedData.ToArray();
+            //Logger.Info(" === Импорт файла завершен.");
         }
 
         private string[] GetValues(IExcelDataReader reader)

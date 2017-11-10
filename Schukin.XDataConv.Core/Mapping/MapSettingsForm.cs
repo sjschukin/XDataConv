@@ -59,7 +59,7 @@ namespace Schukin.XDataConv.Core
             }
 
             var invalidMappingImport =
-                Core.Instance.Mapping.Where(item => item.UseForImport && item.UseForCompare1 | item.UseForCompare2).ToArray();
+                Core.Instance.Mapping.Where(item => item.UseForAssign && item.UseForCompare1 | item.UseForCompare2).ToArray();
 
             if (invalidMappingImport.Any())
             {
@@ -69,7 +69,7 @@ namespace Schukin.XDataConv.Core
             }
 
             var invalidMappingImport2 =
-                Core.Instance.Mapping.Where(item => item.UseForImport && item.SourceColumnName.Trim() == "").ToArray();
+                Core.Instance.Mapping.Where(item => item.UseForAssign && item.SourceColumnName.Trim() == "").ToArray();
 
             if (invalidMappingImport2.Any())
             {
@@ -107,7 +107,7 @@ namespace Schukin.XDataConv.Core
                     new XElement("source", item.SourceColumnName),
                     new XElement("useForCompare1", item.UseForCompare1),
                     new XElement("useForCompare2", item.UseForCompare2),
-                    new XElement("useForImport", item.UseForImport),
+                    new XElement("useForImport", item.UseForAssign),
                     new XElement("useForLog", item.UseForLog)
                 );
 
@@ -156,7 +156,7 @@ namespace Schukin.XDataConv.Core
                 if (destinationAttribute == null)
                     continue;
 
-                var mapping = Core.Instance.Mapping.FirstOrDefault(item => item.Name == destinationAttribute.Value);
+                var mapping = Core.Instance.Mapping.FirstOrDefault(item => item.FieldName == destinationAttribute.Value);
                 if (mapping == null)
                     continue;
 
@@ -180,7 +180,7 @@ namespace Schukin.XDataConv.Core
                 if (useForImportElement != null)
                 {
                     bool.TryParse(useForImportElement.Value, out var useForImport);
-                    mapping.UseForImport = useForImport;
+                    mapping.UseForAssign = useForImport;
                 }
 
                 var useForLogElement = mappingElement.Element("useForLog");

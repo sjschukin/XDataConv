@@ -13,9 +13,9 @@ namespace Schukin.XDataConv.Core
             _items = items;
         }
 
-        public MapItem this[string column]
+        public MapItem this[string name]
         {
-            get { return _items.First(item => item.Name == column); }
+            get { return _items.First(item => item.Name == name); }
         }
 
         public IEnumerator<MapItem> GetEnumerator()
@@ -43,9 +43,9 @@ namespace Schukin.XDataConv.Core
             return GetActiveItems().Where(item => item.UseForCompare2);
         }
 
-        public IEnumerable<MapItem> GetUseForImport()
+        public IEnumerable<MapItem> GetUseForAssign()
         {
-            return GetActiveItems().Where(item => item.UseForImport);
+            return GetActiveItems().Where(item => item.UseForAssign);
         }
 
         public IEnumerable<MapItem> GetUseForLog()
@@ -60,7 +60,7 @@ namespace Schukin.XDataConv.Core
                 item.SourceColumnName = "";
                 item.UseForCompare1 = false;
                 item.UseForCompare2 = false;
-                item.UseForImport = false;
+                item.UseForAssign = false;
                 item.SourceOrdinal = -1;
                 item.MatchLines.Clear();
             }

@@ -66,8 +66,8 @@
     <Compile Include="CsvFieldAttribute.cs" />
     <Compile Include="DataItem.cs" />
     <Compile Include="DataItemMap.cs" />
+    <Compile Include="MapInfo.cs" />
     <Compile Include="StoreEngine.cs" />
-    <Compile Include="DbEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

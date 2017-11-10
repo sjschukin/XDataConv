@@ -10,49 +10,30 @@ namespace Schukin.XDataConv.Core
             InitializeComponent();
 
             openMenuItem.Click += OpenMenuItem_Click;
+            openFileTool.Click += OpenMenuItem_Click;
+
             saveMenuItem.Click += SaveMenuItem_Click;
+            saveFileTool.Click += SaveMenuItem_Click;
+
             saveAsMenuItem.Click += SaveAsMenuItem_Click;
+
+            openFileImportMenuItem.Click += OpenFileImportMenuItem_Click;
+            openFileImportTool.Click += OpenFileImportMenuItem_Click;
+
             settingsMenuItem.Click += SettingsMenuItem_Click;
+            settingsImportTool.Click += SettingsMenuItem_Click;
+
             importLogMenuItem.Click += ImportLogMenuItem_Click;
             exitMenuItem.Click += ExitMenuItem_Click;
             aboutMenuItem.Click += AboutMenuItem_Click;
 
-            PopulateModules();
             BindDataGrid();
-        }
-
-        private void PopulateModules()
-        {
-            foreach (var module in Core.Instance.Modules)
-            {
-                if (module.HasImport)
-                {
-                    var menuItem = new ToolStripMenuItem(module.ImportMenuText)
-                    {
-                        Tag = module
-                    };
-
-                    importMenuItem.DropDownItems.Add(menuItem);
-                    menuItem.Click += ModuleImportMenuItem_Click;
-                }
-
-                if (module.HasExport)
-                {
-                    var menuItem = new ToolStripMenuItem(module.ExportMenuText)
-                    {
-                        Tag = module
-                    };
-
-                    exportMenuItem.DropDownItems.Add(menuItem);
-                    menuItem.Click += ModuleExportMenuItem_Click;
-                }
-            }
         }
 
         private void BindDataGrid()
         {
             mainGrid.AutoGenerateColumns = false;
-            mainGrid.DataSource = bindingSource;
+            mainGrid.DataSource = mainSource;
             mainGrid.Columns.AddRange(
                 new DataGridViewTextBoxColumn {HeaderText = "FAMIL", DataPropertyName = "Famil", Width = 120, ReadOnly = true},
                 new DataGridViewTextBoxColumn {HeaderText = "IMJA", DataPropertyName = "Imja", Width = 120, ReadOnly = true},
@@ -84,30 +65,24 @@ namespace Schukin.XDataConv.Core
             );
         }
 
-        private void ModuleImportMenuItem_Click(object sender, EventArgs e)
+        private void BindImportDataGrid()
         {
-            if (!(sender is ToolStripItem menuItem))
-                return;
+            importGrid.AutoGenerateColumns = false;
+            importGrid.Columns.Clear();
+            importGrid.DataSource = importSource;
 
-            Cursor = Cursors.WaitCursor;
-            Core.Instance.ImportData((ModuleBase)menuItem.Tag);
-            Cursor = Cursors.Default;
-        }
-
-        private void ModuleExportMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!(sender is ToolStripItem menuItem))
-                return;
-
-            Cursor = Cursors.WaitCursor;
-            Core.Instance.ExportData((ModuleBase)menuItem.Tag);
-            Cursor = Cursors.Default;
+            foreach (var mapItem in Core.Instance.Mapping.GetActiveItems())
+            {
+                importGrid.Columns.Add(
+                    new DataGridViewTextBoxColumn {HeaderText = mapItem.FieldName, DataPropertyName = mapItem.Name}
+                );
+            }
         }
 
         private void OpenMenuItem_Click(object sender, EventArgs e)
         {
             Core.Instance.OpenStore();
-            bindingSource.DataSource = Core.Instance.Store.Data;
+            mainSource.DataSource = Core.Instance.Store.Data;
         }
 
         private void SaveMenuItem_Click(object sender, EventArgs e)
@@ -120,6 +95,15 @@ namespace Schukin.XDataConv.Core
         {
             if (Core.Instance.SaveStoreAs())
                 Core.Instance.ShowMessage("Сохранение завершено.");
+        }
+
+        private void OpenFileImportMenuItem_Click(object sender, EventArgs e)
+        {
+            importSource.DataSource = null;
+            Core.Instance.OpenFileImport();
+            BindImportDataGrid();
+            importSource.DataSource = Core.Instance.Store.ImportedData;
+            Core.Instance.ShowMessage("Импорт завершен.");
         }
 
         private void SettingsMenuItem_Click(object sender, EventArgs e)

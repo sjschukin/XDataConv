@@ -32,5 +32,7 @@ namespace Schukin.XDataConv.Data
         public DateTime? DatDolg { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }
+        public bool IsError { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

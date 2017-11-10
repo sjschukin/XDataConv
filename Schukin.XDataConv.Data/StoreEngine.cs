@@ -11,6 +11,7 @@ namespace Schukin.XDataConv.Data
     public class StoreEngine
     {
         public IEnumerable<DataItem> Data { get; set; }
+        public IEnumerable<DataItem> ImportedData { get; set; }
         public string CurrentFileName { get; set; }
 
         public void Open(string filename)
@@ -55,16 +56,18 @@ namespace Schukin.XDataConv.Data
             CurrentFileName = filename;
         }
 
-        public IEnumerable<string> GetMappingColumnNames()
+        public IEnumerable<MapInfo> GetMap()
         {
             var dataItemMap = new DataItemMap();
-            return dataItemMap.MemberMaps.Select(item => item.Data.Names[0]);
-        }
 
-        public IEnumerable<string> GetMappingPropertyNames()
-        {
-            var dataItemMap = new DataItemMap();
-            return dataItemMap.MemberMaps.Select(item => item.Data.Names[0]);
+            return dataItemMap.MemberMaps
+                .Where(item => item.Data.Ignore != true)
+                .Select(item => new MapInfo
+                {
+                    PropertyName = item.Data.Member.Name,
+                    FieldName = item.Data.Names.FirstOrDefault(),
+                    MemberInfo = item.Data.Member
+                });
         }
     }
 }
