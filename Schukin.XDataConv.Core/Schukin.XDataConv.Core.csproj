@@ -88,6 +88,12 @@
     <Compile Include="LogForm.Designer.cs">
       <DependentUpon>LogForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Mapping\PossibleOptionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Mapping\PossibleOptionsForm.Designer.cs">
+      <DependentUpon>PossibleOptionsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Modules\XlsModule.cs" />
     <Compile Include="Modules\CsvModule.cs" />
     <Compile Include="Mapping\MapCollection.cs" />
@@ -129,6 +135,9 @@
     <EmbeddedResource Include="Mapping\MapSettingsForm.resx">
       <DependentUpon>MapSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Mapping\PossibleOptionsForm.resx">
+      <DependentUpon>PossibleOptionsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -157,6 +166,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\if_tool_62671.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\if_20_62677.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

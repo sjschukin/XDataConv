@@ -36,15 +36,16 @@
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabMappingSettings = new System.Windows.Forms.TabPage();
             this.gridMapping = new System.Windows.Forms.DataGridView();
+            this.colFieldName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colImportFieldName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colIsConvertImportToUpperCase = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.colIsUseForCompare1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.colIsUseForCompare2 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.colIsUseForInject = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.colIsUseForLog = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.colMatchingList = new System.Windows.Forms.DataGridViewButtonColumn();
             this.buttonSaveTemplate = new System.Windows.Forms.Button();
             this.buttonLoadTemplate = new System.Windows.Forms.Button();
-            this.colDestColumnName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colSourceColumnName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colUseForCompare1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colUseForCompare2 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colUseForImport = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colUseForLog = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colMatchingList = new System.Windows.Forms.DataGridViewButtonColumn();
             this.tabSettings.SuspendLayout();
             this.tabMappingSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridMapping)).BeginInit();
@@ -54,7 +55,7 @@
             // 
             this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(709, 284);
+            this.buttonCancel.Location = new System.Drawing.Point(804, 375);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 0;
@@ -64,7 +65,7 @@
             // buttonOk
             // 
             this.buttonOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonOk.Location = new System.Drawing.Point(628, 284);
+            this.buttonOk.Location = new System.Drawing.Point(723, 375);
             this.buttonOk.Name = "buttonOk";
             this.buttonOk.Size = new System.Drawing.Size(75, 23);
             this.buttonOk.TabIndex = 1;
@@ -80,7 +81,7 @@
             this.tabSettings.Location = new System.Drawing.Point(12, 12);
             this.tabSettings.Name = "tabSettings";
             this.tabSettings.SelectedIndex = 0;
-            this.tabSettings.Size = new System.Drawing.Size(772, 266);
+            this.tabSettings.Size = new System.Drawing.Size(867, 357);
             this.tabSettings.TabIndex = 2;
             // 
             // tabMappingSettings
@@ -89,7 +90,7 @@
             this.tabMappingSettings.Location = new System.Drawing.Point(4, 22);
             this.tabMappingSettings.Name = "tabMappingSettings";
             this.tabMappingSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabMappingSettings.Size = new System.Drawing.Size(764, 240);
+            this.tabMappingSettings.Size = new System.Drawing.Size(859, 331);
             this.tabMappingSettings.TabIndex = 0;
             this.tabMappingSettings.Text = "Соответствия";
             this.tabMappingSettings.UseVisualStyleBackColor = true;
@@ -109,12 +110,13 @@
             this.gridMapping.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.gridMapping.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gridMapping.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colDestColumnName,
-            this.colSourceColumnName,
-            this.colUseForCompare1,
-            this.colUseForCompare2,
-            this.colUseForImport,
-            this.colUseForLog,
+            this.colFieldName,
+            this.colImportFieldName,
+            this.colIsConvertImportToUpperCase,
+            this.colIsUseForCompare1,
+            this.colIsUseForCompare2,
+            this.colIsUseForInject,
+            this.colIsUseForLog,
             this.colMatchingList});
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
@@ -135,13 +137,67 @@
             dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.gridMapping.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
-            this.gridMapping.Size = new System.Drawing.Size(758, 234);
+            this.gridMapping.Size = new System.Drawing.Size(853, 325);
             this.gridMapping.TabIndex = 0;
+            // 
+            // colFieldName
+            // 
+            this.colFieldName.DataPropertyName = "FieldName";
+            this.colFieldName.HeaderText = "Поле";
+            this.colFieldName.Name = "colFieldName";
+            this.colFieldName.ReadOnly = true;
+            this.colFieldName.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.colFieldName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // colImportFieldName
+            // 
+            this.colImportFieldName.DataPropertyName = "ImportFieldName";
+            this.colImportFieldName.HeaderText = "Поле в импортируемом файле";
+            this.colImportFieldName.Name = "colImportFieldName";
+            // 
+            // colIsConvertImportToUpperCase
+            // 
+            this.colIsConvertImportToUpperCase.DataPropertyName = "IsConvertImportToUpperCase";
+            this.colIsConvertImportToUpperCase.HeaderText = "Преобразовать при импорте в верхний регистр";
+            this.colIsConvertImportToUpperCase.Name = "colIsConvertImportToUpperCase";
+            // 
+            // colIsUseForCompare1
+            // 
+            this.colIsUseForCompare1.DataPropertyName = "IsUseForCompare1";
+            this.colIsUseForCompare1.HeaderText = "Использовать для первичной идентификации";
+            this.colIsUseForCompare1.Name = "colIsUseForCompare1";
+            // 
+            // colIsUseForCompare2
+            // 
+            this.colIsUseForCompare2.DataPropertyName = "IsUseForCompare2";
+            this.colIsUseForCompare2.HeaderText = "Использовать для вторичной идентификации";
+            this.colIsUseForCompare2.Name = "colIsUseForCompare2";
+            // 
+            // colIsUseForInject
+            // 
+            this.colIsUseForInject.DataPropertyName = "IsUseForInject";
+            this.colIsUseForInject.HeaderText = "Копировать в источник";
+            this.colIsUseForInject.Name = "colIsUseForInject";
+            // 
+            // colIsUseForLog
+            // 
+            this.colIsUseForLog.DataPropertyName = "IsUseForLog";
+            this.colIsUseForLog.HeaderText = "Отображать в протоколе";
+            this.colIsUseForLog.Name = "colIsUseForLog";
+            // 
+            // colMatchingList
+            // 
+            this.colMatchingList.DataPropertyName = "ImportMatchLinesCount";
+            this.colMatchingList.HeaderText = "Справочник соответствий";
+            this.colMatchingList.Name = "colMatchingList";
+            this.colMatchingList.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.colMatchingList.Text = "Список...";
+            this.colMatchingList.Width = 90;
             // 
             // buttonSaveTemplate
             // 
             this.buttonSaveTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonSaveTemplate.Location = new System.Drawing.Point(12, 284);
+            this.buttonSaveTemplate.Location = new System.Drawing.Point(12, 375);
             this.buttonSaveTemplate.Name = "buttonSaveTemplate";
             this.buttonSaveTemplate.Size = new System.Drawing.Size(80, 23);
             this.buttonSaveTemplate.TabIndex = 3;
@@ -151,60 +207,12 @@
             // buttonLoadTemplate
             // 
             this.buttonLoadTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonLoadTemplate.Location = new System.Drawing.Point(98, 284);
+            this.buttonLoadTemplate.Location = new System.Drawing.Point(98, 375);
             this.buttonLoadTemplate.Name = "buttonLoadTemplate";
             this.buttonLoadTemplate.Size = new System.Drawing.Size(80, 23);
             this.buttonLoadTemplate.TabIndex = 4;
             this.buttonLoadTemplate.Text = "Загрузить...";
             this.buttonLoadTemplate.UseVisualStyleBackColor = true;
-            // 
-            // colDestColumnName
-            // 
-            this.colDestColumnName.DataPropertyName = "FieldName";
-            this.colDestColumnName.HeaderText = "Поле";
-            this.colDestColumnName.Name = "colDestColumnName";
-            this.colDestColumnName.ReadOnly = true;
-            this.colDestColumnName.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.colDestColumnName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // colSourceColumnName
-            // 
-            this.colSourceColumnName.DataPropertyName = "SourceColumnName";
-            this.colSourceColumnName.HeaderText = "Поле из файла";
-            this.colSourceColumnName.Name = "colSourceColumnName";
-            // 
-            // colUseForCompare1
-            // 
-            this.colUseForCompare1.DataPropertyName = "UseForCompare1";
-            this.colUseForCompare1.HeaderText = "Использовать для первичной идентификации";
-            this.colUseForCompare1.Name = "colUseForCompare1";
-            // 
-            // colUseForCompare2
-            // 
-            this.colUseForCompare2.DataPropertyName = "UseForCompare2";
-            this.colUseForCompare2.HeaderText = "Использовать для вторичной идентификации";
-            this.colUseForCompare2.Name = "colUseForCompare2";
-            // 
-            // colUseForImport
-            // 
-            this.colUseForImport.DataPropertyName = "UseForAssign";
-            this.colUseForImport.HeaderText = "Использовать для импорта";
-            this.colUseForImport.Name = "colUseForImport";
-            // 
-            // colUseForLog
-            // 
-            this.colUseForLog.DataPropertyName = "UseForLog";
-            this.colUseForLog.HeaderText = "Отображать в протоколе";
-            this.colUseForLog.Name = "colUseForLog";
-            // 
-            // colMatchingList
-            // 
-            this.colMatchingList.DataPropertyName = "MatchLinesCount";
-            this.colMatchingList.HeaderText = "Справочник соответствий";
-            this.colMatchingList.Name = "colMatchingList";
-            this.colMatchingList.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.colMatchingList.Text = "Список...";
-            this.colMatchingList.Width = 90;
             // 
             // MapSettingsForm
             // 
@@ -212,7 +220,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(796, 319);
+            this.ClientSize = new System.Drawing.Size(891, 410);
             this.Controls.Add(this.buttonLoadTemplate);
             this.Controls.Add(this.buttonSaveTemplate);
             this.Controls.Add(this.tabSettings);
@@ -221,6 +229,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MapSettingsForm";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Настройки импорта";
             this.tabSettings.ResumeLayout(false);
@@ -239,12 +248,13 @@
         private System.Windows.Forms.Button buttonSaveTemplate;
         private System.Windows.Forms.Button buttonLoadTemplate;
         private System.Windows.Forms.DataGridView gridMapping;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colDestColumnName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colSourceColumnName;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colUseForCompare1;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colUseForCompare2;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colUseForImport;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colUseForLog;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colFieldName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colImportFieldName;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn colIsConvertImportToUpperCase;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn colIsUseForCompare1;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn colIsUseForCompare2;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn colIsUseForInject;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn colIsUseForLog;
         private System.Windows.Forms.DataGridViewButtonColumn colMatchingList;
     }
 }

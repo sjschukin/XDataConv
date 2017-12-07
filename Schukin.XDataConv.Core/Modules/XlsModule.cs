@@ -12,7 +12,7 @@ namespace Schukin.XDataConv.Core.Modules
     public class XlsModule : IModule
     {
         private static readonly Logger Logger = LogManager.GetLogger("importLogger");
-        
+
         public XlsModule()
         {
             Name = "Импорт файла Excel";
@@ -45,52 +45,42 @@ namespace Schukin.XDataConv.Core.Modules
                 while (reader.Read())
                 {
                     lineNumber++;
+                    string currentFieldName = null;
                     var dataItem = new DataItem();
 
                     try
                     {
                         foreach (var propertyInfo in properties)
                         {
-                            var value = reader[Core.Instance.Mapping[propertyInfo.Name].SourceOrdinal];
+                            currentFieldName = Core.Instance.Mapping[propertyInfo.Name].FieldName;
+                            var value = reader[Core.Instance.Mapping[propertyInfo.Name].ImportFieldOrdinal];
 
                             if (value == null)
                                 continue;
 
                             var strValue = value.ToString();
 
+                            if (Core.Instance.Mapping[propertyInfo.Name].IsConvertImportToUpperCase)
+                                strValue = strValue.ToUpper();
+
                             propertyInfo.SetValue(dataItem,
                                 Convert.ChangeType(strValue,
-                                    Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType));
+                                    Nullable.GetUnderlyingType(propertyInfo.PropertyType) ??
+                                    propertyInfo.PropertyType));
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        Console.WriteLine(e);
-                        throw;
+                        dataItem.IsError = true;
+                        dataItem.ErrorMessage =
+                            $"Ошибка при импорте поля {currentFieldName} в строке {lineNumber}";
                     }
 
                     importedData.Add(dataItem);
-
-                    // line for log
-                    //var sb = new StringBuilder();
-                    //sb.Append("Строка ");
-                    //sb.Append(lineNumber);
-                    //sb.Append(": ");
-
-                    //foreach (var mapItem in mappingLog)
-                    //{
-                    //    sb.Append(values[map.SourceOrdinal]);
-                    //    sb.Append(" ");
-                    //}
-
-                    //var lineForLog = sb.ToString();
-
-                    lineNumber++;
                 }
             }
 
             return importedData.ToArray();
-            //Logger.Info(" === Импорт файла завершен.");
         }
 
         private string[] GetValues(IExcelDataReader reader)

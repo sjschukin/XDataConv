@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Windows.Forms;
-using NLog;
 using Schukin.XDataConv.Core.Modules;
 using Schukin.XDataConv.Data;
 
@@ -20,8 +17,6 @@ namespace Schukin.XDataConv.Core
         private readonly SaveFileDialog _saveStoreDialog;
         private readonly OpenFileDialog _openStoreDialog;
         private readonly OpenFileDialog _openFileImportDialog;
-
-        private readonly XlsModule _xlsModule;
 
         //private readonly Logger _logger;
 
@@ -50,7 +45,6 @@ namespace Schukin.XDataConv.Core
             };
 
             Store = new StoreEngine();
-            _xlsModule = new XlsModule();
 
             //_logger = LogManager.GetCurrentClassLogger();
             Mapping = GetDefaultMap();
@@ -59,6 +53,9 @@ namespace Schukin.XDataConv.Core
         public static Core Instance => _instance ?? (_instance = new Core());
         public StoreEngine Store { get; }
         public MapCollection Mapping { get; }
+        public string CurrentFileName { get; private set; }
+        public string CurrentImportFileName { get; private set; }
+
 
         public bool OpenStore()
         {
@@ -68,6 +65,7 @@ namespace Schukin.XDataConv.Core
             try
             {
                 Store.Open(_openStoreDialog.FileName);
+                CurrentFileName = _openStoreDialog.FileName;
             }
             catch (Exception e)
             {
@@ -108,6 +106,7 @@ namespace Schukin.XDataConv.Core
             try
             {
                 Store.Save(_saveStoreDialog.FileName);
+                CurrentFileName = _saveStoreDialog.FileName;
                 return true;
             }
             catch (Exception e)
@@ -155,12 +154,7 @@ namespace Schukin.XDataConv.Core
                     return;
 
                 Store.ImportedData = module.GetDataItems(filename);
-                
-                //if (Store.Data == null || !Store.Data.Any())
-                //    throw new ApplicationException("Отсутствуют сведения для идентификации. Сначала необходимо загрузить данные.");
-
-                //_identifyResults.Clear();
-                //module.DoImport();
+                CurrentImportFileName = filename;
             }
             catch (Exception e)
             {
@@ -168,132 +162,70 @@ namespace Schukin.XDataConv.Core
             }
         }
 
-        public DataRow FindDataRow(IQueryable<DataRow> rows, MapItem[] identifyMapping, IReadOnlyList<string> values, string lineForLog, MapItem[] mappingLog)
+        public void InjectData()
         {
-            if (identifyMapping == null)
-                return null;
-
-            var logItem = new IdentifyResultItem { Name = lineForLog };
-
-            // linq expression tree engine
-            var param = Expression.Parameter(typeof(DataRow), "row");
-            Expression expression1 = null;
-
-            foreach (var map in identifyMapping)
+            if (Store.ImportedData == null)
             {
-                var readerValue = values[map.SourceOrdinal] ?? "";
-
-                if (map.MatchLinesCount > 0)
-                {
-                    var matching =
-                        map.MatchLines.FirstOrDefault(item => item.SourceWord == readerValue);
-
-                    if (matching != null)
-                        readerValue = matching.AliasWord;
-                }
-
-                var expression2 = Expression.Equal(
-                    Expression.Call(
-                        Expression.Property(param, "Item", Expression.Constant(map.Name)),
-                        typeof(object).GetMethod("ToString")),
-                    Expression.Constant(readerValue)
-                );
-
-                if (expression1 != null)
-                {
-                    expression2 = Expression.And(expression1, expression2);
-                }
-
-                expression1 = expression2;
-            }
-
-            if (expression1 == null)
-                return null;
-
-            var lambda = Expression.Lambda<Func<DataRow, bool>>(expression1, param);
-            var whereExpression = Expression.Call(typeof(Queryable), "Where", new[] { rows.ElementType }, rows.Expression, lambda);
-            var results = rows.Provider.CreateQuery<DataRow>(whereExpression);
-            var count = results.Count();
-
-            switch (count)
-            {
-                case 0:
-                    logItem.ResultType = 0;
-                    logItem.Details.Add("Не идентифицирован");
-                    break;
-                case 1:
-                    logItem.ResultType = 1;
-                    logItem.Details.Add("Идентифицирован");
-                    break;
-                default:
-                    if (count > 1)
-                    {
-                        logItem.ResultType = 2;
-                        logItem.Details.Add($"Найдено несколько соответствий ({count}):");
-
-                        var sb = new StringBuilder();
-                        foreach (var row in results)
-                        {
-                            foreach (var map in mappingLog)
-                            {
-                                sb.Append(row[map.Name]);
-                                sb.Append(" ");
-                            }
-                        }
-                    }
-                    break;
-            }
-
-            logItem.Details.Add(lambda.ToString());
-            _identifyResults.Add(logItem);
-
-            return results.FirstOrDefault();
-        }
-
-        public void InjectData(IReadOnlyList<DataItem> importDataItems)
-        {
-            if (importDataItems == null || !importDataItems.Any())
+                ShowMessage("Отсутствуют данные из которых необходимо произвести перенос.");
                 return;
+            }
 
-            var data = Store.Data.AsQueryable();
-
-            foreach (var importDataItem in importDataItems)
+            if (Store.Data == null)
             {
-                // linq expression tree engine
-                var param = Expression.Parameter(typeof(DataItem), "item");
-                //var param=Expression.Property(parap_, mapItem.Name)
-                Expression expression1 = null;
+                ShowMessage("Отсутствуют данные в которые необходимо произвести перенос.");
+                return;
+            }
 
-                foreach (var mapItem in Mapping.GetUseForIdentify1())
+            try
+            {
+                var importedDataItems = Store.ImportedData.ToArray();
+
+                if (!importedDataItems.Any())
+                    return;
+
+                var data = Store.Data.AsQueryable();
+
+                foreach (var importDataItem in importedDataItems)
                 {
-                    var importPropValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(importDataItem);
+                    // linq expression tree engine
+                    var param = Expression.Parameter(typeof(DataItem), "item");
+                    Expression expression1 = null;
 
-                    if (mapItem.MatchLinesCount > 0 && importPropValue is string importPropStrValue)
+                    foreach (var mapItem in Mapping.GetUseForIdentify1())
                     {
-                        var matchLine =
-                            mapItem.MatchLines.FirstOrDefault(item => item.SourceWord == importPropStrValue);
+                        var importPropValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(importDataItem);
 
-                        if (matchLine != null)
-                            importPropValue = matchLine.AliasWord;
+                        if (mapItem.ImportMatchLinesCount > 0 && importPropValue is string importPropStrValue)
+                        {
+                            var matchLine =
+                                mapItem.ImportMatchLines.FirstOrDefault(item => item.SourceWord == importPropStrValue);
+
+                            if (matchLine != null)
+                                importPropValue = matchLine.AliasWord;
+                        }
+
+                        var expression2 = Expression.Equal(Expression.Property(param, mapItem.Name), Expression.Constant(importPropValue));
+
+                        if (expression1 != null)
+                            expression2 = Expression.And(expression1, expression2);
+
+                        expression1 = expression2;
                     }
 
-                    var expression2 = Expression.Equal(Expression.Property(param, mapItem.Name), Expression.Constant(importPropValue));
+                    if (expression1 == null)
+                        continue;
 
-                    if (expression1 != null)
-                        expression2 = Expression.And(expression1, expression2);
+                    var lambda = Expression.Lambda<Func<DataItem, bool>>(expression1, param);
+                    var whereExpression = Expression.Call(typeof(Queryable), "Where", new[] { data.ElementType }, data.Expression, lambda);
+                    var sourceDataItems = data.Provider.CreateQuery<DataItem>(whereExpression);
 
-                    expression1 = expression2;
+                    var sourceDataItem = sourceDataItems.FirstOrDefault();
+                    AssignValues(importDataItem, sourceDataItem);
                 }
-
-                if (expression1 == null)
-                    continue;
-
-                var lambda = Expression.Lambda<Func<DataItem, bool>>(expression1, param);
-                var whereExpression = Expression.Call(typeof(Queryable), "Where", new[] { data.ElementType }, data.Expression, lambda);
-                var sourceDataItems = data.Provider.CreateQuery<DataItem>(whereExpression);
-
-                var sourceDataItem = sourceDataItems.FirstOrDefault();
-                AssignValues(importDataItem, sourceDataItem);
+            }
+            catch (Exception e)
+            {
+                ShowError(e);
             }
         }
 
@@ -316,20 +248,20 @@ namespace Schukin.XDataConv.Core
 
             foreach (var mapItem in activeMap)
             {
-                mapItem.SourceOrdinal = -1;
+                mapItem.ImportFieldOrdinal = -1;
 
                 for (int i = 0; i < headerNames.Count; i++)
                 {
-                    if (mapItem.SourceColumnName != headerNames[i])
+                    if (mapItem.ImportFieldName != headerNames[i])
                         continue;
 
-                    mapItem.SourceOrdinal = i;
+                    mapItem.ImportFieldOrdinal = i;
                     break;
                 }
 
-                if (mapItem.SourceOrdinal == -1)
+                if (mapItem.ImportFieldOrdinal == -1)
                 {
-                    ShowMessage($"В файле не найдена необходимая колонка {mapItem.SourceColumnName}.");
+                    ShowMessage($"В файле не найдена необходимая колонка {mapItem.ImportFieldName}.");
                     result = false;
                 }
             }
@@ -367,21 +299,23 @@ namespace Schukin.XDataConv.Core
         private MapCollection GetDefaultMap()
         {
             var storeMap = Store.GetMap();
-            var map = new MapCollection(storeMap.Select(item => new MapItem { Name = item.PropertyName, FieldName = item.FieldName, MemberInfo = item.MemberInfo, MatchLines = new List<MatchLine>() }).ToArray());
+            var map = new MapCollection(storeMap.Select(item => new MapItem { Name = item.PropertyName, FieldName = item.FieldName, MemberInfo = item.MemberInfo, ImportMatchLines = new List<MatchLine>() }).ToArray());
 
-            var checkedUseForCompare1 = new[] { "ILCHET", "GKU", "ORG" };
-            var checkedUseForCompare2 = new[] { "FAMIL", "IMJA", "OTCH", "POSEL", "NASP", "YLIC", "NDOM", "NKORP", "NKW", "NKOMN", "GKU", "ORG" };
-            var checkedUseForImport = new[] { "OPL", "OTPL", "KOLZR", "VIDTAR", "TARIF", "FAKT", "SUMTAR", "SUMDOLG", "DATDOLG" };
-            var checkedUseForLog = new[] { "FAMIL", "IMJA", "OTCH", "DROG" };
+            var checkedIsConvertImportToUpperCase = new[] { "FAMIL", "IMJA", "OTCH" };
+            var checkedIsUseForCompare1 = new[] { "ILCHET", "GKU", "ORG" };
+            var checkedIsUseForCompare2 = new[] { "FAMIL", "IMJA", "OTCH", "POSEL", "NASP", "YLIC", "NDOM", "NKORP", "NKW", "NKOMN", "GKU", "ORG" };
+            var checkedIsUseForInject = new[] { "OPL", "OTPL", "KOLZR", "VIDTAR", "TARIF", "FAKT", "SUMTAR", "SUMDOLG", "DATDOLG" };
+            var checkedIsUseForLog = new[] { "FAMIL", "IMJA", "OTCH", "DROG" };
 
             foreach (var mapItem in map)
             {
-                mapItem.SourceColumnName = mapItem.FieldName;
+                mapItem.ImportFieldName = mapItem.FieldName;
 
-                mapItem.UseForCompare1 = checkedUseForCompare1.Contains(mapItem.FieldName);
-                mapItem.UseForCompare2 = checkedUseForCompare2.Contains(mapItem.FieldName);
-                mapItem.UseForAssign = checkedUseForImport.Contains(mapItem.FieldName);
-                mapItem.UseForLog = checkedUseForLog.Contains(mapItem.FieldName);
+                mapItem.IsConvertImportToUpperCase = checkedIsConvertImportToUpperCase.Contains(mapItem.FieldName);
+                mapItem.IsUseForCompare1 = checkedIsUseForCompare1.Contains(mapItem.FieldName);
+                mapItem.IsUseForCompare2 = checkedIsUseForCompare2.Contains(mapItem.FieldName);
+                mapItem.IsUseForInject = checkedIsUseForInject.Contains(mapItem.FieldName);
+                mapItem.IsUseForLog = checkedIsUseForLog.Contains(mapItem.FieldName);
             }
 
             return map;

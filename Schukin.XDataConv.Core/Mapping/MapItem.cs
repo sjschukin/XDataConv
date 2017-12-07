@@ -7,14 +7,15 @@ namespace Schukin.XDataConv.Core
     {
         public string Name { get; set; }
         public string FieldName { get; set; }
-        public string SourceColumnName { get; set; }
-        public bool UseForCompare1 { get; set; }
-        public bool UseForCompare2 { get; set; }
-        public bool UseForAssign { get; set; }
-        public bool UseForLog { get; set; }
-        public int SourceOrdinal { get; set; }
-        public List<MatchLine> MatchLines { get; set; }
-        public int MatchLinesCount => MatchLines?.Count ?? 0;
+        public string ImportFieldName { get; set; }
+        public bool IsConvertImportToUpperCase { get; set; }
+        public bool IsUseForCompare1 { get; set; }
+        public bool IsUseForCompare2 { get; set; }
+        public bool IsUseForInject { get; set; }
+        public bool IsUseForLog { get; set; }
+        public int ImportFieldOrdinal { get; set; }
+        public List<MatchLine> ImportMatchLines { get; set; }
+        public int ImportMatchLinesCount => ImportMatchLines?.Count ?? 0;
         public MemberInfo MemberInfo { get; set; }
     }
 }

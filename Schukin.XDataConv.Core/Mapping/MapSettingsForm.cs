@@ -49,7 +49,7 @@ namespace Schukin.XDataConv.Core
         private bool ValidateForm()
         {
             var invalidMappingCompare = Core.Instance.Mapping.Where(item =>
-                item.UseForCompare1 | item.UseForCompare2 && item.SourceColumnName.Trim() == "").ToArray();
+                item.IsUseForCompare1 | item.IsUseForCompare2 && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingCompare.Any())
             {
@@ -58,33 +58,33 @@ namespace Schukin.XDataConv.Core
                 return false;
             }
 
-            var invalidMappingImport =
-                Core.Instance.Mapping.Where(item => item.UseForAssign && item.UseForCompare1 | item.UseForCompare2).ToArray();
+            var invalidMappingInject =
+                Core.Instance.Mapping.Where(item => item.IsUseForInject && item.IsUseForCompare1 | item.IsUseForCompare2).ToArray();
 
-            if (invalidMappingImport.Any())
+            if (invalidMappingInject.Any())
             {
                 Core.Instance.ShowMessage(
-                    $"Следующие столбцы не могут быть использованы для импорта, так как они используются для идентификации: {String.Join(",", invalidMappingImport.Select(item => item.Name))}.");
+                    $"Следующие столбцы не могут быть использованы для копирования в источник, так как они используются для идентификации: {String.Join(",", invalidMappingInject.Select(item => item.Name))}.");
                 return false;
             }
 
-            var invalidMappingImport2 =
-                Core.Instance.Mapping.Where(item => item.UseForAssign && item.SourceColumnName.Trim() == "").ToArray();
+            var invalidMappingInject2 =
+                Core.Instance.Mapping.Where(item => item.IsUseForInject && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
-            if (invalidMappingImport2.Any())
+            if (invalidMappingInject2.Any())
             {
                 Core.Instance.ShowMessage(
-                    $"Следующие столбцы не могут быть использованы для импорта, так как для них не указаны наименования столбцов загружаемого файла: {String.Join(",", invalidMappingImport2.Select(item => item.Name))}.");
+                    $"Следующие столбцы не могут быть использованы для копирования в источник, так как для них не указаны наименования столбцов загружаемого файла: {String.Join(",", invalidMappingInject2.Select(item => item.Name))}.");
                 return false;
             }
 
             var invalidMappingLog =
-                Core.Instance.Mapping.Where(item => item.UseForLog && item.SourceColumnName.Trim() == "").ToArray();
+                Core.Instance.Mapping.Where(item => item.IsUseForLog && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingLog.Any())
             {
                 Core.Instance.ShowMessage(
-                    $"Следующие столбцы не могут быть использованы для отображении в протоколе, так как для них не указаны наименования столбцов загружаемого файла: {String.Join(",", invalidMappingImport2.Select(item => item.Name))}.");
+                    $"Следующие столбцы не могут быть использованы для отображении в протоколе, так как для них не указаны наименования столбцов загружаемого файла: {String.Join(",", invalidMappingInject2.Select(item => item.Name))}.");
                 return false;
             }
 
@@ -97,31 +97,32 @@ namespace Schukin.XDataConv.Core
                 return;
 
             var doc = new XDocument();
-            var comment = new XComment("XDataConv configuration file v1.0 -- Schukin S.");
+            var comment = new XComment("XDataConv configuration file v2.0 -- Schukin S.");
             var mappingsElement = new XElement("mappings");
 
             foreach (var item in Core.Instance.Mapping)
             {
                 var mappingElement = new XElement("mapping",
-                    new XAttribute("destination", item.Name),
-                    new XElement("source", item.SourceColumnName),
-                    new XElement("useForCompare1", item.UseForCompare1),
-                    new XElement("useForCompare2", item.UseForCompare2),
-                    new XElement("useForImport", item.UseForAssign),
-                    new XElement("useForLog", item.UseForLog)
+                    new XAttribute("name", item.Name),
+                    new XElement("importFieldName", item.ImportFieldName),
+                    new XElement("isConvertImportToUpperCase", item.IsConvertImportToUpperCase),
+                    new XElement("isUseForCompare1", item.IsUseForCompare1),
+                    new XElement("isUseForCompare2", item.IsUseForCompare2),
+                    new XElement("isUseForInject", item.IsUseForInject),
+                    new XElement("isUseForLog", item.IsUseForLog)
                 );
 
-                if (item.MatchLinesCount > 0)
+                if (item.ImportMatchLinesCount > 0)
                 {
                     var matchingsElement = new XElement("matchings");
                     
-                    foreach (var matchingItem in item.MatchLines)
+                    foreach (var matchingItem in item.ImportMatchLines)
                     {
                         var matchingElement = new XElement("matching");
 
                         matchingElement.Add(
-                            new XElement("destinationWord", matchingItem.AliasWord),
-                            new XElement("sourceWord", matchingItem.SourceWord)
+                            new XElement("sourceWord", matchingItem.SourceWord),
+                            new XElement("aliasWord", matchingItem.AliasWord)
                         );
 
                         matchingsElement.Add(matchingElement);
@@ -152,42 +153,49 @@ namespace Schukin.XDataConv.Core
 
             foreach (var mappingElement in mappingsElement.Elements("mapping"))
             {
-                var destinationAttribute = mappingElement.Attribute("destination");
-                if (destinationAttribute == null)
+                var nameAttribute = mappingElement.Attribute("name");
+                if (nameAttribute == null)
                     continue;
 
-                var mapping = Core.Instance.Mapping.FirstOrDefault(item => item.FieldName == destinationAttribute.Value);
+                var mapping = Core.Instance.Mapping.FirstOrDefault(item => item.Name == nameAttribute.Value);
                 if (mapping == null)
                     continue;
 
-                mapping.SourceColumnName = mappingElement.Element("source")?.Value;
+                mapping.ImportFieldName = mappingElement.Element("importFieldName")?.Value;
 
-                var useForCompare1Element = mappingElement.Element("useForCompare1");
-                if (useForCompare1Element != null)
+                var isConvertImportToUpperCaseElement = mappingElement.Element("isConvertImportToUpperCase");
+                if (isConvertImportToUpperCaseElement != null)
                 {
-                    bool.TryParse(useForCompare1Element.Value, out var mappingUseForCompare1);
-                    mapping.UseForCompare1 = mappingUseForCompare1;
+                    bool.TryParse(isConvertImportToUpperCaseElement.Value, out var mappingIsConvertImportToUpperCase);
+                    mapping.IsConvertImportToUpperCase = mappingIsConvertImportToUpperCase;
                 }
 
-                var useForCompare2Element = mappingElement.Element("useForCompare2");
-                if (useForCompare2Element != null)
+                var isUseForCompare1Element = mappingElement.Element("isUseForCompare1");
+                if (isUseForCompare1Element != null)
                 {
-                    bool.TryParse(useForCompare2Element.Value, out var mappingUseForCompare2);
-                    mapping.UseForCompare2 = mappingUseForCompare2;
+                    bool.TryParse(isUseForCompare1Element.Value, out var mappingIsUseForCompare1);
+                    mapping.IsUseForCompare1 = mappingIsUseForCompare1;
                 }
 
-                var useForImportElement = mappingElement.Element("useForImport");
-                if (useForImportElement != null)
+                var isUseForCompare2Element = mappingElement.Element("isUseForCompare2");
+                if (isUseForCompare2Element != null)
                 {
-                    bool.TryParse(useForImportElement.Value, out var useForImport);
-                    mapping.UseForAssign = useForImport;
+                    bool.TryParse(isUseForCompare2Element.Value, out var mappingIsUseForCompare2);
+                    mapping.IsUseForCompare2 = mappingIsUseForCompare2;
                 }
 
-                var useForLogElement = mappingElement.Element("useForLog");
-                if (useForLogElement != null)
+                var isUseForInjectElement = mappingElement.Element("isUseForInject");
+                if (isUseForInjectElement != null)
                 {
-                    bool.TryParse(useForLogElement.Value, out var useForLog);
-                    mapping.UseForLog = useForLog;
+                    bool.TryParse(isUseForInjectElement.Value, out var isUseForInject);
+                    mapping.IsUseForInject = isUseForInject;
+                }
+
+                var isUseForLogElement = mappingElement.Element("isUseForLog");
+                if (isUseForLogElement != null)
+                {
+                    bool.TryParse(isUseForLogElement.Value, out var isUseForLog);
+                    mapping.IsUseForLog = isUseForLog;
                 }
 
                 var matchingsElement = mappingElement.Element("matchings");
@@ -196,10 +204,10 @@ namespace Schukin.XDataConv.Core
 
                 foreach (var matchingElement in matchingsElement.Elements("matching"))
                 {
-                    mapping.MatchLines.Add(new MatchLine
+                    mapping.ImportMatchLines.Add(new MatchLine
                     {
-                        AliasWord = matchingElement.Element("destinationWord")?.Value,
-                        SourceWord = matchingElement.Element("sourceWord")?.Value
+                        SourceWord = matchingElement.Element("sourceWord")?.Value,
+                        AliasWord = matchingElement.Element("aliasWord")?.Value
                     });
                 }
             }
@@ -207,16 +215,29 @@ namespace Schukin.XDataConv.Core
             gridMapping.Invalidate();
         }
 
+        private void ShowMatchSettingsForm(MapItem mapItem)
+        {
+            var formMatching = new MatchSettingsForm(mapItem);
+            formMatching.ShowDialog();
+        }
+
         private void GridMapping_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex != gridMapping.Columns["colMatchingList"].Index)
+            var matchingColumn = gridMapping.Columns["colMatchingList"];
+
+            if (matchingColumn==null)
+                return;
+
+            if (e.RowIndex < 0 || e.ColumnIndex != matchingColumn.Index)
                 return;
 
             if (!(gridMapping.Rows[e.RowIndex].DataBoundItem is MapItem item))
                 return;
+            
+            if (((System.Reflection.PropertyInfo)item.MemberInfo).PropertyType.Name != "String" )
+                return;
 
-            var formMatching = new MatchSettingsForm(item.MatchLines);
-            formMatching.ShowDialog();
+            ShowMatchSettingsForm(item);
         }
 
         private void ButtonImport_Click(object sender, EventArgs e)
