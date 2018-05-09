@@ -1,26 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Schukin.XDataConv.Data;
 
 namespace Schukin.XDataConv.Core
 {
     public class MapSettings
     {
-        private StoreEngine _store;
-
-        public MapSettings(StoreEngine store)
+        public MapSettings()
         {
-            Mapping = GetDefaultMap();
+            Mapping = new MapCollection(new MapItem[] { });
         }
 
-        public MapCollection Mapping { get; }
+        public MapCollection Mapping { get; private set; }
+        public bool IsFindAllMatches { get; set; }
 
-        private MapCollection GetDefaultMap()
+        public void LoadDefault(StoreEngine store)
         {
-            var storeMap = Store.GetMap();
+            var storeMap = store.GetMap();
             var map = new MapCollection(storeMap.Select(item => new MapItem
             {
                 Name = item.PropertyName,
@@ -48,21 +44,14 @@ namespace Schukin.XDataConv.Core
                 mapItem.IsUseForLog = checkedIsUseForLog.Contains(mapItem.FieldName);
             }
 
-            return map;
+            Mapping = map;
+
+            IsFindAllMatches = true;
         }
 
-        public IEnumerable<MapInfo> GetMap()
-        {
-            var dataItemMap = new DataItemMap();
+        //public MapSettings Clone()
+        //{
 
-            return dataItemMap.MemberMaps
-                .Where(item => item.Data.Ignore != true)
-                .Select(item => new MapInfo
-                {
-                    PropertyName = item.Data.Member.Name,
-                    FieldName = item.Data.Names.FirstOrDefault(),
-                    MemberInfo = item.Data.Member
-                });
-        }
+        //}
     }
 }

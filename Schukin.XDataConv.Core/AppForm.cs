@@ -12,7 +12,6 @@ namespace Schukin.XDataConv.Core
         private readonly SaveFileDialog _saveStoreDialog;
         private readonly OpenFileDialog _openStoreDialog;
         private readonly OpenFileDialog _openFileImportDialog;
-        private readonly MapSettingsForm _mappingForm;
         private string _currentFileName;
         private string _currentImportFileName;
 
@@ -38,8 +37,6 @@ namespace Schukin.XDataConv.Core
                 CheckFileExists = true,
                 Filter = "Файлы Microsoft Excel (*.xls, *.xlsx)|*.xls;*.xlsx"
             };
-
-            _mappingForm = new MapSettingsForm();
 
             openMenuItem.Click += OpenMenuItem_Click;
             openFileTool.Click += OpenMenuItem_Click;
@@ -110,7 +107,7 @@ namespace Schukin.XDataConv.Core
             importGrid.AutoGenerateColumns = false;
             importGrid.Columns.Clear();
 
-            foreach (var mapItem in Core.Instance.Mapping.GetActiveItems())
+            foreach (var mapItem in Core.Instance.MapSettings.Mapping.GetActiveItems())
             {
                 importGrid.Columns.Add(
                     new DataGridViewTextBoxColumn { HeaderText = mapItem.FieldName, DataPropertyName = mapItem.Name }
@@ -191,7 +188,7 @@ namespace Schukin.XDataConv.Core
             if (_openFileImportDialog.ShowDialog() != DialogResult.OK)
                 return;
 
-            if (ShowMappingForm() != DialogResult.OK)
+            if (ShowMapSettingsForm() != DialogResult.OK)
                 return;
 
             try
@@ -270,10 +267,10 @@ namespace Schukin.XDataConv.Core
             }
         }
 
-        public DialogResult ShowMappingForm()
+        public DialogResult ShowMapSettingsForm()
         {
-            _mappingForm.DataSource = Core.Instance.Mapping.ToArray();
-            return _mappingForm.ShowDialog();
+            var mapSettingsForm = new MapSettingsForm(Core.Instance.MapSettings);
+            return mapSettingsForm.ShowDialog();
         }
 
         private void OpenMenuItem_Click(object sender, EventArgs e)
@@ -298,7 +295,7 @@ namespace Schukin.XDataConv.Core
 
         private void SettingsMenuItem_Click(object sender, EventArgs e)
         {
-            ShowMappingForm();
+            ShowMapSettingsForm();
         }
 
         private void ImportLogMenuItem_Click(object sender, EventArgs e)

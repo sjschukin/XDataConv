@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ExcelDataReader;
-using NLog;
+//using NLog;
 using Schukin.XDataConv.Data;
 
 namespace Schukin.XDataConv.Core.Modules
 {
     public class XlsModule : IModule
     {
-        private static readonly Logger Logger = LogManager.GetLogger("importLogger");
+        //private static readonly Logger Logger = LogManager.GetLogger("importLogger");
 
         public XlsModule()
         {
@@ -37,7 +37,7 @@ namespace Schukin.XDataConv.Core.Modules
 
                 // read the body
                 int lineNumber = 1;
-                var properties = Core.Instance.Mapping.GetActiveItems()
+                var properties = Core.Instance.MapSettings.Mapping.GetActiveItems()
                     .Select(mapItem => typeof(DataItem).GetProperty(mapItem.Name))
                     .ToArray();
 
@@ -51,8 +51,8 @@ namespace Schukin.XDataConv.Core.Modules
                     {
                         foreach (var propertyInfo in properties)
                         {
-                            currentFieldName = Core.Instance.Mapping[propertyInfo.Name].FieldName;
-                            var value = reader[Core.Instance.Mapping[propertyInfo.Name].ImportFieldOrdinal];
+                            currentFieldName = Core.Instance.MapSettings.Mapping[propertyInfo.Name].FieldName;
+                            var value = reader[Core.Instance.MapSettings.Mapping[propertyInfo.Name].ImportFieldOrdinal];
 
                             if (value == null)
                                 continue;
@@ -62,7 +62,7 @@ namespace Schukin.XDataConv.Core.Modules
                             if (strValue == String.Empty)
                                 continue;
 
-                            if (Core.Instance.Mapping[propertyInfo.Name].IsConvertImportToUpperCase)
+                            if (Core.Instance.MapSettings.Mapping[propertyInfo.Name].IsConvertImportToUpperCase)
                                 strValue = strValue.ToUpper();
 
                             propertyInfo.SetValue(dataItem,

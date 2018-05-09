@@ -8,14 +8,18 @@ namespace Schukin.XDataConv.Core
 {
     public partial class MapSettingsForm : Form
     {
+        private readonly MapSettings _mapSettings;
         private readonly SaveFileDialog _saveFileDialog;
         private readonly OpenFileDialog _openFileDialog;
 
-        public MapSettingsForm()
+        public MapSettingsForm(MapSettings mapSettings)
         {
             InitializeComponent();
-            
+
+            _mapSettings = mapSettings;
+
             gridMapping.AutoGenerateColumns = false;
+            gridMapping.DataSource = mapSettings.Mapping.ToArray();
 
             buttonOk.Click += ButtonImport_Click;
             buttonSaveTemplate.Click += ButtonSaveTemplate_Click;
@@ -28,7 +32,7 @@ namespace Schukin.XDataConv.Core
                 CheckPathExists = true,
                 AddExtension = true,
                 FileName = "template",
-                Filter = "Файлы конфигурации (*.xml)|*.xml",
+                Filter = "Файлы шаблонов XDataConv (*.xml)|*.xml",
                 DefaultExt = "xml"
             };
 
@@ -36,19 +40,13 @@ namespace Schukin.XDataConv.Core
             {
                 InitialDirectory = Path.Combine(Application.StartupPath, "templates"),
                 CheckFileExists = true,
-                Filter = "Файлы конфигурации (*.xml)|*.xml"
+                Filter = "Файлы шаблонов XDataConv (*.xml)|*.xml"
             };
-        }
-
-        public MapItem[] DataSource
-        {
-            get => gridMapping.DataSource as MapItem[];
-            set => gridMapping.DataSource = value;
         }
 
         private bool ValidateForm()
         {
-            var invalidMappingCompare = Core.Instance.Mapping.Where(item =>
+            var invalidMappingCompare = _mapSettings.Mapping.Where(item =>
                 item.IsUseForCompare1 | item.IsUseForCompare2 && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingCompare.Any())
@@ -59,7 +57,7 @@ namespace Schukin.XDataConv.Core
             }
 
             var invalidMappingInject =
-                Core.Instance.Mapping.Where(item => item.IsUseForInject && item.IsUseForCompare1 | item.IsUseForCompare2).ToArray();
+                _mapSettings.Mapping.Where(item => item.IsUseForInject && item.IsUseForCompare1 | item.IsUseForCompare2).ToArray();
 
             if (invalidMappingInject.Any())
             {
@@ -69,7 +67,7 @@ namespace Schukin.XDataConv.Core
             }
 
             var invalidMappingInject2 =
-                Core.Instance.Mapping.Where(item => item.IsUseForInject && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
+                _mapSettings.Mapping.Where(item => item.IsUseForInject && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingInject2.Any())
             {
@@ -79,7 +77,7 @@ namespace Schukin.XDataConv.Core
             }
 
             var invalidMappingLog =
-                Core.Instance.Mapping.Where(item => item.IsUseForLog && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
+                _mapSettings.Mapping.Where(item => item.IsUseForLog && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingLog.Any())
             {
@@ -97,10 +95,18 @@ namespace Schukin.XDataConv.Core
                 return;
 
             var doc = new XDocument();
-            var comment = new XComment("XDataConv configuration file v2.0 -- Schukin S.");
+            var comment = new XComment("XDataConv configuration file v2.1 -- Schukin S.");
+
             var mappingsElement = new XElement("mappings");
 
-            foreach (var item in Core.Instance.Mapping)
+            var settingElement = new XElement("setting",
+                new XAttribute("name", "isFindAllMatches"),
+                _mapSettings.IsFindAllMatches
+            );
+
+            mappingsElement.Add(settingElement);
+
+            foreach (var item in _mapSettings.Mapping)
             {
                 var mappingElement = new XElement("mapping",
                     new XAttribute("name", item.Name),
@@ -115,7 +121,7 @@ namespace Schukin.XDataConv.Core
                 if (item.ImportMatchLinesCount > 0)
                 {
                     var matchingsElement = new XElement("matchings");
-                    
+
                     foreach (var matchingItem in item.ImportMatchLines)
                     {
                         var matchingElement = new XElement("matching");
@@ -143,13 +149,23 @@ namespace Schukin.XDataConv.Core
             if (_openFileDialog.ShowDialog() != DialogResult.OK)
                 return;
 
-            var doc = XDocument.Load(_openFileDialog.FileName);
-            var mappingsElement = doc.Element("mappings");
+            var xml = XDocument.Load(_openFileDialog.FileName);
+
+            var mappingsElement = xml.Element("mappings");
 
             if (mappingsElement == null)
                 return;
 
-            Core.Instance.Mapping.Reset();
+            foreach (var settingElement in mappingsElement.Elements("setting"))
+            {
+                if (settingElement.Attribute("name")?.Value == "isFindAllMatches")
+                {
+                    bool.TryParse(settingElement.Value, out var isFindAllMatches);
+                    _mapSettings.IsFindAllMatches = isFindAllMatches;
+                }
+            }
+
+                _mapSettings.Mapping.Reset();
 
             foreach (var mappingElement in mappingsElement.Elements("mapping"))
             {
@@ -157,7 +173,7 @@ namespace Schukin.XDataConv.Core
                 if (nameAttribute == null)
                     continue;
 
-                var mapping = Core.Instance.Mapping.FirstOrDefault(item => item.Name == nameAttribute.Value);
+                var mapping = _mapSettings.Mapping.FirstOrDefault(item => item.Name == nameAttribute.Value);
                 if (mapping == null)
                     continue;
 
@@ -225,7 +241,7 @@ namespace Schukin.XDataConv.Core
         {
             var matchingColumn = gridMapping.Columns["colMatchingList"];
 
-            if (matchingColumn==null)
+            if (matchingColumn == null)
                 return;
 
             if (e.RowIndex < 0 || e.ColumnIndex != matchingColumn.Index)
@@ -233,8 +249,8 @@ namespace Schukin.XDataConv.Core
 
             if (!(gridMapping.Rows[e.RowIndex].DataBoundItem is MapItem item))
                 return;
-            
-            if (((System.Reflection.PropertyInfo)item.MemberInfo).PropertyType.Name != "String" )
+
+            if (((System.Reflection.PropertyInfo)item.MemberInfo).PropertyType.Name != "String")
                 return;
 
             ShowMatchSettingsForm(item);

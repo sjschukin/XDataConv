@@ -20,14 +20,14 @@ namespace Schukin.XDataConv.Core
         {
             _identifyResults = new List<IdentifyResultItem>();
             Store = new StoreEngine();
-
+            MapSettings = new MapSettings();
+            MapSettings.LoadDefault(Store);
             //_logger = LogManager.GetCurrentClassLogger();
-            Mapping = GetDefaultMap();
         }
 
         public static Core Instance => _instance ?? (_instance = new Core());
         public StoreEngine Store { get; }
-        public MapCollection Mapping { get; }
+        public MapSettings MapSettings { get; }
 
         public void ShowImportLog()
         {
@@ -56,12 +56,12 @@ namespace Schukin.XDataConv.Core
 
         public void InjectDataByIdentify1()
         {
-            InjectData(Mapping.GetUseForIdentify1);
+            InjectData(MapSettings.Mapping.GetUseForIdentify1);
         }
 
         public void InjectDataByIdentify2()
         {
-            InjectData(Mapping.GetUseForIdentify2);
+            InjectData(MapSettings.Mapping.GetUseForIdentify2);
         }
 
         private void InjectData(Func<IEnumerable<MapItem>> getMappingCollection)
@@ -141,7 +141,7 @@ namespace Schukin.XDataConv.Core
 
         private void AssignValues(DataItem source, DataItem destination)
         {
-            foreach (var mapItem in Mapping.GetUseForAssign())
+            foreach (var mapItem in MapSettings.Mapping.GetUseForAssign())
             {
                 var sourceValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(source);
                 typeof(DataItem).GetProperty(mapItem.Name)?.SetValue(destination, sourceValue);
@@ -150,7 +150,7 @@ namespace Schukin.XDataConv.Core
 
         public bool LoadMappingOrdinal(IReadOnlyList<string> headerNames)
         {
-            var activeMap = Mapping.GetActiveItems();
+            var activeMap = MapSettings.Mapping.GetActiveItems();
             bool result = true;
 
             foreach (var mapItem in activeMap)
@@ -201,39 +201,6 @@ namespace Schukin.XDataConv.Core
         public DialogResult ShowQuestion(string message)
         {
             return MessageBox.Show(message, "XDataConv", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        }
-
-        private MapCollection GetDefaultMap()
-        {
-            var storeMap = Store.GetMap();
-            var map = new MapCollection(storeMap.Select(item => new MapItem
-            {
-                Name = item.PropertyName,
-                FieldName = item.FieldName,
-                MemberInfo = item.MemberInfo,
-                ImportMatchLines = new List<MatchLine>()
-            }).ToArray());
-
-            var excludedImportFieldName = new[] { "LDID", "ADRID", "MONTH", "YEAR" };
-            var checkedIsConvertImportToUpperCase = new[] { "FAMIL", "IMJA", "OTCH" };
-            var checkedIsUseForCompare1 = new[] { "ILCHET", "GKU", "ORG" };
-            var checkedIsUseForCompare2 = new[] { "FAMIL", "IMJA", "OTCH", "POSEL", "NASP", "YLIC", "NDOM", "NKORP", "NKW", "NKOMN", "GKU", "ORG" };
-            var checkedIsUseForInject = new[] { "OPL", "OTPL", "KOLZR", "VIDTAR", "TARIF", "FAKT", "SUMTAR", "SUMDOLG", "OPLDOLG", "DATDOLG" };
-            var checkedIsUseForLog = new[] { "FAMIL", "IMJA", "OTCH", "DROG" };
-
-            foreach (var mapItem in map)
-            {
-                mapItem.ImportFieldName =
-                    excludedImportFieldName.Contains(mapItem.FieldName) ? null : mapItem.FieldName;
-
-                mapItem.IsConvertImportToUpperCase = checkedIsConvertImportToUpperCase.Contains(mapItem.FieldName);
-                mapItem.IsUseForCompare1 = checkedIsUseForCompare1.Contains(mapItem.FieldName);
-                mapItem.IsUseForCompare2 = checkedIsUseForCompare2.Contains(mapItem.FieldName);
-                mapItem.IsUseForInject = checkedIsUseForInject.Contains(mapItem.FieldName);
-                mapItem.IsUseForLog = checkedIsUseForLog.Contains(mapItem.FieldName);
-            }
-
-            return map;
         }
     }
 }
