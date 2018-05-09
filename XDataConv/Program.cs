@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 using Schukin.XDataConv.Core;
 
 namespace Schukin.XDataConv
@@ -8,8 +9,8 @@ namespace Schukin.XDataConv
         [STAThread]
         static void Main(string[] args)
         {
-            var form = new AppForm();
-            form.ShowDialog();
+            Application.EnableVisualStyles();
+            Application.Run(new AppForm());
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Schukin.XDataConv.Data
     public class DataItem
     {
         public string LdId { get; set; }
+        public string AdrId { get; set; }
         public string Famil { get; set; }
         public string Imja { get; set; }
         public string Otch { get; set; }
@@ -32,7 +33,8 @@ namespace Schukin.XDataConv.Data
         public DateTime? DatDolg { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }
-        public bool IsError { get; set; }
-        public string ErrorMessage { get; set; }
+        public DataItemState State { get; set; }
+        public string StateMessage { get; set; }
+        public int LineNumber { get; set; }
     }
 }

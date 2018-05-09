@@ -9,9 +9,37 @@ namespace Schukin.XDataConv.Core
 {
     public partial class AppForm : Form
     {
+        private readonly SaveFileDialog _saveStoreDialog;
+        private readonly OpenFileDialog _openStoreDialog;
+        private readonly OpenFileDialog _openFileImportDialog;
+        private readonly MapSettingsForm _mappingForm;
+        private string _currentFileName;
+        private string _currentImportFileName;
+
         public AppForm()
         {
             InitializeComponent();
+
+            _saveStoreDialog = new SaveFileDialog
+            {
+                CheckPathExists = true,
+                AddExtension = true,
+                Filter = "Текстовые файлы с разделителем (*.csv)|*.csv",
+                DefaultExt = "csv"
+            };
+            _openStoreDialog = new OpenFileDialog
+            {
+                CheckFileExists = true,
+                Filter = "Текстовые файлы с разделителем (*.csv)|*.csv"
+            };
+
+            _openFileImportDialog = new OpenFileDialog
+            {
+                CheckFileExists = true,
+                Filter = "Файлы Microsoft Excel (*.xls, *.xlsx)|*.xls;*.xlsx"
+            };
+
+            _mappingForm = new MapSettingsForm();
 
             openMenuItem.Click += OpenMenuItem_Click;
             openFileTool.Click += OpenMenuItem_Click;
@@ -27,17 +55,18 @@ namespace Schukin.XDataConv.Core
             settingsMenuItem.Click += SettingsMenuItem_Click;
             settingsImportTool.Click += SettingsMenuItem_Click;
 
-            gotoNextErrorMenuItem.Click += GotoNextErrorMenuItem_Click;
-            gotoNextErrorImportTool.Click += GotoNextErrorMenuItem_Click;
-            injectMenuItem.Click += InjectImportTool_Click;
-            injectImportTool.Click += InjectImportTool_Click;
+            injectMenuItem1.Click += InjectImportTool1_Click;
+            injectImportTool1.Click += InjectImportTool1_Click;
+            injectMenuItem2.Click += InjectImportTool2_Click;
+            injectImportTool2.Click += InjectImportTool2_Click;
 
             importLogMenuItem.Click += ImportLogMenuItem_Click;
+            sourceGotoLineMenuItem.Click += SourceGotoLineMenuItem_Click;
+            importGotoLineMenuItem.Click += ImportGotoLineMenuItem_Click;
             exitMenuItem.Click += ExitMenuItem_Click;
             aboutMenuItem.Click += AboutMenuItem_Click;
 
             importGrid.RowPostPaint += ImportGrid_RowPostPaint;
-            importGrid.CellClick += ImportGrid_CellClick;
 
             BindDataGrid();
         }
@@ -45,7 +74,6 @@ namespace Schukin.XDataConv.Core
         private void BindDataGrid()
         {
             mainGrid.AutoGenerateColumns = false;
-            mainGrid.DataSource = mainSource;
             mainGrid.Columns.AddRange(
                 new DataGridViewTextBoxColumn { HeaderText = "FAMIL", DataPropertyName = "Famil", Width = 120, ReadOnly = true },
                 new DataGridViewTextBoxColumn { HeaderText = "IMJA", DataPropertyName = "Imja", Width = 120, ReadOnly = true },
@@ -81,14 +109,6 @@ namespace Schukin.XDataConv.Core
         {
             importGrid.AutoGenerateColumns = false;
             importGrid.Columns.Clear();
-            importGrid.DataSource = importSource;
-            importGrid.Columns.Add(new DataGridViewButtonColumn
-            {
-                HeaderText = "Ошибки",
-                Text = "...",
-                Width = 50,
-                UseColumnTextForButtonValue = true
-            });
 
             foreach (var mapItem in Core.Instance.Mapping.GetActiveItems())
             {
@@ -96,80 +116,179 @@ namespace Schukin.XDataConv.Core
                     new DataGridViewTextBoxColumn { HeaderText = mapItem.FieldName, DataPropertyName = mapItem.Name }
                 );
             }
+
+            importGrid.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                HeaderText = "Ошибка",
+                DataPropertyName = "StateMessage",
+                Width = 600,
+                ReadOnly = true
+            });
+        }
+
+        private void OpenFile()
+        {
+            if (_openStoreDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            try
+            {
+                Core.Instance.Store.Open(_openStoreDialog.FileName);
+
+                mainGrid.DataSource = Core.Instance.Store.Data;
+                _currentFileName = _openStoreDialog.FileName;
+                fileNameStatusLabel.Text = Path.GetFileName(_currentFileName);
+            }
+            catch (Exception e)
+            {
+                Core.Instance.ShowError(e);
+            }
+        }
+
+        private void SaveFile()
+        {
+            if (Core.Instance.Store.Data == null)
+                return;
+
+            try
+            {
+                if (Core.Instance.Store.CurrentFileName != null)
+                {
+                    Core.Instance.Store.Save();
+
+                    Core.Instance.ShowMessage("Сохранение завершено.");
+                }
+                else
+                    SaveFileAs();
+            }
+            catch (Exception e)
+            {
+                Core.Instance.ShowError(e);
+            }
+        }
+
+        private void SaveFileAs()
+        {
+            if (_saveStoreDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            try
+            {
+                Core.Instance.Store.Save(_saveStoreDialog.FileName);
+
+                _currentFileName = _saveStoreDialog.FileName;
+                fileNameStatusLabel.Text = Path.GetFileName(_currentFileName);
+                Core.Instance.ShowMessage("Сохранение завершено.");
+            }
+            catch (Exception e)
+            {
+                Core.Instance.ShowError(e);
+            }
         }
 
         private void OpenFileImport()
         {
-            importSource.DataSource = null;
-            Core.Instance.OpenFileImport();
-
-            var data = Core.Instance.Store.ImportedData;
-
-            if (data == null)
+            if (_openFileImportDialog.ShowDialog() != DialogResult.OK)
                 return;
 
-            importSource.DataSource = data;
-            importFileNameStatusLabel.Text = Core.Instance.CurrentImportFileName;
-            importFileNameStatusLabel.ToolTipText = Core.Instance.CurrentImportFileName;
-            BindImportDataGrid();
-            var dataItems = data as DataItem[] ?? data.ToArray();
-            importStatusLabel.Text = dataItems.Any(item => item.IsError) ? $"Есть ошибки: {dataItems.Count(item => item.IsError)}" : "Нет ошибок";
+            if (ShowMappingForm() != DialogResult.OK)
+                return;
 
-            Core.Instance.ShowMessage("Импорт завершен.");
+            try
+            {
+                importGrid.DataSource = null;
+                Core.Instance.OpenFileImport(_openFileImportDialog.FileName);
+
+                var data = Core.Instance.Store.ImportedData;
+
+                if (data == null)
+                    return;
+
+                importGrid.DataSource = data;
+                _currentImportFileName = _openFileImportDialog.FileName;
+                importFileNameStatusLabel.Text = _currentImportFileName;
+                importFileNameStatusLabel.ToolTipText = _currentImportFileName;
+
+                BindImportDataGrid();
+
+                importErrorLabel.Text = data.Count(item => item.State == DataItemState.ImportError).ToString();
+                injectNotFoundLabel.Text = "0";
+                injectAmbigousLabel.Text = "0";
+
+                Core.Instance.ShowMessage("Импорт завершен.");
+            }
+            catch (Exception e)
+            {
+                Core.Instance.ShowError(e);
+            }
         }
 
-        private int FindNextErrorImportRowIndex()
+        private void InjectData(int id)
         {
-            var rowsCount = importGrid.Rows.Count;
-
-            if (rowsCount == 0)
-                return -1;
-
-            var startIndex = importGrid.CurrentRow?.Index ?? 0;
-            var currentIndex = startIndex;
-
-            do
+            try
             {
-                var dataItem = (DataItem)importGrid.Rows[currentIndex].DataBoundItem;
+                if (id == 1)
+                    Core.Instance.InjectDataByIdentify1();
+                else
+                    Core.Instance.InjectDataByIdentify2();
 
-                if (dataItem.IsError)
-                    return currentIndex;
+                var data = Core.Instance.Store.ImportedData;
+                injectNotFoundLabel.Text = data.Count(item => item.State == DataItemState.InjectNotFound).ToString();
+                injectAmbigousLabel.Text = data.Count(item => item.State == DataItemState.InjectAmbigous).ToString();
+                mainGrid.Invalidate();
+                importGrid.Invalidate();
+            }
+            catch (Exception e)
+            {
+                Core.Instance.ShowError(e);
+            }
+        }
 
-                if (currentIndex == rowsCount - 1)
-                    currentIndex = 0;
+        private void GotoLineNumber(DataGridView grid)
+        {
+            var form = new GotoLineNumberForm();
 
-                currentIndex++;
-            } while (currentIndex != startIndex);
+            if (form.ShowDialog() != DialogResult.OK)
+                return;
 
-            return -1;
+            if (form.LineNumber <= 0)
+            {
+                Core.Instance.ShowMessage("Неверный номер строки.");
+                return;
+            }
+
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                var item = (DataItem)row.DataBoundItem;
+
+                if (item.LineNumber != form.LineNumber)
+                    continue;
+
+                grid.FirstDisplayedScrollingRowIndex = row.Index;
+                grid.CurrentCell = row.Cells[0];
+                break;
+            }
+        }
+
+        public DialogResult ShowMappingForm()
+        {
+            _mappingForm.DataSource = Core.Instance.Mapping.ToArray();
+            return _mappingForm.ShowDialog();
         }
 
         private void OpenMenuItem_Click(object sender, EventArgs e)
         {
-            Core.Instance.OpenStore();
-
-            var data = Core.Instance.Store.Data;
-
-            if (data == null)
-                return;
-
-            mainSource.DataSource = data;
-            fileNameStatusLabel.Text = Path.GetFileName(Core.Instance.CurrentFileName);
+            OpenFile();
         }
 
         private void SaveMenuItem_Click(object sender, EventArgs e)
         {
-            if (Core.Instance.SaveStore())
-                Core.Instance.ShowMessage("Сохранение завершено.");
+            SaveFile();
         }
 
         private void SaveAsMenuItem_Click(object sender, EventArgs e)
         {
-            if (Core.Instance.SaveStoreAs())
-            {
-                fileNameStatusLabel.Text = Path.GetFileName(Core.Instance.CurrentFileName);
-                Core.Instance.ShowMessage("Сохранение завершено.");
-            }
+            SaveFileAs();
         }
 
         private void OpenFileImportMenuItem_Click(object sender, EventArgs e)
@@ -179,7 +298,7 @@ namespace Schukin.XDataConv.Core
 
         private void SettingsMenuItem_Click(object sender, EventArgs e)
         {
-            Core.Instance.ShowMappingForm();
+            ShowMappingForm();
         }
 
         private void ImportLogMenuItem_Click(object sender, EventArgs e)
@@ -187,30 +306,36 @@ namespace Schukin.XDataConv.Core
             Core.Instance.ShowImportLog();
         }
 
+        private void SourceGotoLineMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Core.Instance.Store.Data == null)
+                return;
+
+            GotoLineNumber(mainGrid);
+        }
+
+        private void ImportGotoLineMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Core.Instance.Store.ImportedData == null)
+                return;
+
+            GotoLineNumber(importGrid);
+        }
+
         private void ExitMenuItem_Click(object sender, EventArgs e)
         {
             Core.Instance.ExitApplication();
         }
 
-        private void GotoNextErrorMenuItem_Click(object sender, EventArgs e)
+        private void InjectImportTool1_Click(object sender, EventArgs e)
         {
-            var foundIndex = FindNextErrorImportRowIndex();
-
-            if (foundIndex == -1)
-            {
-                Core.Instance.ShowMessage("Ошибки отсутствуют.");
-                return;
-            }
-
-            importGrid.CurrentCell = importGrid.Rows[foundIndex].Cells[0];
-            importGrid.FirstDisplayedScrollingRowIndex = foundIndex;
+            InjectData(1);
         }
 
-        private void InjectImportTool_Click(object sender, EventArgs e)
+        private void InjectImportTool2_Click(object sender, EventArgs e)
         {
-            Core.Instance.InjectData();
+            InjectData(2);
         }
-
 
         private void AboutMenuItem_Click(object sender, EventArgs e)
         {
@@ -219,24 +344,24 @@ namespace Schukin.XDataConv.Core
 
         private void ImportGrid_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
-            DataItem item = (DataItem)importGrid.Rows[e.RowIndex].DataBoundItem;
+            var item = (DataItem)importGrid.Rows[e.RowIndex].DataBoundItem;
+            var style = importGrid.Rows[e.RowIndex].DefaultCellStyle;
 
-            if (item.IsError)
+            switch (item.State)
             {
-                var style = importGrid.Rows[e.RowIndex].DefaultCellStyle;
-                style.BackColor = Color.Red;
+                case DataItemState.None:
+                    style.BackColor = importGrid.DefaultCellStyle.BackColor;
+                    break;
+                case DataItemState.ImportError:
+                    style.BackColor = Color.Red;
+                    break;
+                case DataItemState.InjectNotFound:
+                    style.BackColor = Color.Yellow;
+                    break;
+                case DataItemState.InjectAmbigous:
+                    style.BackColor = Color.Orange;
+                    break;
             }
-        }
-
-        private void ImportGrid_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0 || e.ColumnIndex != 0)
-                return;
-
-            if (!(importGrid.Rows[e.RowIndex].DataBoundItem is DataItem item))
-                return;
-
-            Core.Instance.ShowMessage(item.IsError ? item.ErrorMessage : "Ошибок не найдено.");
         }
     }
 }

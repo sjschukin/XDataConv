@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Schukin.XDataConv.Data;
 
@@ -14,9 +15,6 @@ namespace Schukin.XDataConv.Core
 
         private readonly MapItem _mapItem;
 
-        private PossibleOptionsForm _importedOptionsForm;
-        private PossibleOptionsForm _sourceOptionsForm;
-
         public MatchSettingsForm(MapItem mapItem)
         {
             InitializeComponent();
@@ -27,15 +25,23 @@ namespace Schukin.XDataConv.Core
             _mapItem = mapItem;
             Text = $"Настройка соответствий для {_mapItem.FieldName}";
 
+            clearAllTool.Click += ClearAllTool_Click;
+            copyNewLineImportTool.Click += CopyNewLineImportTool_Click;
+            copyCellImportTool.Click += CopyCellImportTool_Click;
+            copyNewLineSourceTool.Click += CopyNewLineSourceTool_Click;
+            copyCellSourceTool.Click += CopyCellSourceTool_Click;
+
             BindDataGrid();
+            ShowPossibleWordsAsync();
         }
+
 
         private void BindDataGrid()
         {
             matchGrid.AutoGenerateColumns = false;
 
             matchGrid.Columns.AddRange(
-                new DataGridViewTextBoxColumn { HeaderText = "Значение из файла", DataPropertyName = "SourceWord", Width = 250 },
+                new DataGridViewTextBoxColumn { HeaderText = "Значение из файла поставщика", DataPropertyName = "SourceWord", Width = 250 },
                 new DataGridViewTextBoxColumn { HeaderText = "Считать как", DataPropertyName = "AliasWord", Width = 250 }
                 );
 
@@ -70,20 +76,105 @@ namespace Schukin.XDataConv.Core
             // item => item.Property
             var lambda = Expression.Lambda(property, param);
             // Items.Select(item => item.Property)
-            var selectCall = Expression.Call(typeof(Queryable), "Select", new[] {data.ElementType, lambda.Body.Type},
+            var selectCall = Expression.Call(typeof(Queryable), "Select", new[] { data.ElementType, lambda.Body.Type },
                 data.Expression, lambda);
             // Items.Select(item => item.Property).Distinct()
-            var distinctCall = Expression.Call(typeof(Queryable), "Distinct", new[] {property.Type}, selectCall);
+            var distinctCall = Expression.Call(typeof(Queryable), "Distinct", new[] { property.Type }, selectCall);
+            // Items.Select(item => item.Property).Distinct().OrderBy(item => item)
+            var param2 = Expression.Parameter(typeof(string), "item");
+            var orderByCall = Expression.Call(typeof(Queryable), "OrderBy", new[] { property.Type, property.Type },
+                distinctCall, Expression.Lambda<Func<string, string>>(param2, param2));
 
-            var query = data.Provider.CreateQuery(distinctCall);
+            var query = data.Provider.CreateQuery(orderByCall);
 
             return query.Cast<string>().ToArray();
         }
 
-        private void buttonClearAll_Click(object sender, EventArgs e)
+        private async void ShowPossibleWordsAsync()
         {
-            bindingSource.Clear();
+            if (Core.Instance.Store.Data != null)
+            {
+                var list = Task.Run(() => GetDistinctValues(Core.Instance.Store.Data.AsQueryable()).Select(x => new { Value = x }).ToList());
+                gridSource.DataSource = await list;
+            }
+
+            if (Core.Instance.Store.ImportedData != null)
+            {
+                var list = Task.Run(() => GetDistinctValues(Core.Instance.Store.ImportedData.AsQueryable()).Select(x => new { Value = x }).ToList());
+                gridImport.DataSource = await list;
+            }
         }
+
+        private void CopyNewLine(string[] values)
+        {
+            foreach (var value in values)
+            {
+                var item = bindingSource.AddNew() as MatchLine;
+                item.SourceWord = value;
+            }
+        }
+
+        private void CopyToCells(string value)
+        {
+            var cells = matchGrid.SelectedCells;
+
+            if (cells.Count == 0)
+                return;
+
+            for (int i = 0; i < cells.Count; i++)
+            {
+                cells[i].Value = value;
+            }
+        }
+
+        private void ClearAllTool_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Хотите очистить список?", "XDataConv", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            {
+                bindingSource.Clear();
+            }
+        }
+
+        private void CopyNewLineImportTool_Click(object sender, EventArgs e)
+        {
+            var cells = gridImport.SelectedCells;
+
+            if (cells.Count == 0)
+                return;
+
+            CopyNewLine(cells.Cast<DataGridViewCell>().Select(item => item.Value.ToString()).ToArray());
+        }
+
+        private void CopyCellImportTool_Click(object sender, EventArgs e)
+        {
+            var row = gridImport.CurrentRow;
+
+            if (row == null)
+                return;
+
+            CopyToCells(row.Cells[0].Value.ToString());
+        }
+
+        private void CopyNewLineSourceTool_Click(object sender, EventArgs e)
+        {
+            var cells = gridSource.SelectedCells;
+
+            if (cells.Count == 0)
+                return;
+
+            CopyNewLine(cells.Cast<DataGridViewCell>().Select(item => item.Value.ToString()).ToArray());
+        }
+
+        private void CopyCellSourceTool_Click(object sender, EventArgs e)
+        {
+            var row = gridSource.CurrentRow;
+
+            if (row == null)
+                return;
+
+            CopyToCells(row.Cells[0].Value.ToString());
+        }
+
 
         private void buttonOk_Click(object sender, EventArgs e)
         {
@@ -96,87 +187,5 @@ namespace Schukin.XDataConv.Core
             DialogResult = DialogResult.OK;
             Close();
         }
-
-        private void importedOptionsButton_Click(object sender, EventArgs e)
-        {
-            if (Core.Instance.Store.ImportedData == null || !Core.Instance.Store.ImportedData.Any())
-                return;
-
-            if (_importedOptionsForm == null || _importedOptionsForm.IsDisposed)
-            {
-                _importedOptionsForm = new PossibleOptionsForm
-                {
-                    Text = "Варианты значений из файла",
-                    OptionsText = String.Join("\r\n", GetDistinctValues(Core.Instance.Store.ImportedData.AsQueryable()))
-                };
-            }
-
-            _importedOptionsForm.Show();
-        }
-
-        private void sourceOptionsButton_Click(object sender, EventArgs e)
-        {
-            if (Core.Instance.Store.Data == null || !Core.Instance.Store.Data.Any())
-                return;
-
-            if (_sourceOptionsForm == null || _sourceOptionsForm.IsDisposed)
-            {
-                _sourceOptionsForm = new PossibleOptionsForm
-                {
-                    Text = "Варианты значений из источника",
-                    OptionsText = String.Join("\r\n", GetDistinctValues(Core.Instance.Store.Data.AsQueryable()))
-                };
-            }
-
-            _sourceOptionsForm.Show();
-        }
-
-        //private void GridMatching_CellClick(object sender, DataGridViewCellEventArgs e)
-        //{
-        //    if (e.RowIndex < 0 || e.ColumnIndex != 1 && e.ColumnIndex != 3)
-        //        return;
-
-        //    if (!(matchGrid.Rows[e.RowIndex].DataBoundItem is MatchLine item))
-        //        return;
-
-        //    if (e.ColumnIndex == 1)
-        //    {
-        //        item.SourceWord = "111";
-        //        DataGridViewEd
-        //    }
-
-        //    if (e.ColumnIndex == 3)
-        //    {
-        //        item.AliasWord = "222";
-        //    }
-        //}
-
-        //private void MatchGrid_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
-        //{
-        //    if (e.Control is DataGridViewComboBoxEditingControl combo)
-        //    {
-        //        // Remove an existing event-handler, if present, to avoid 
-        //        // adding multiple handlers when the editing control is reused.
-        //        combo.DropDownStyle = ComboBoxStyle.DropDown;
-        //        combo.AutoCompleteSource = AutoCompleteSource.ListItems;
-        //        combo.AutoCompleteMode = AutoCompleteMode.Suggest;
-
-
-        //    }
-        //}
-
-        //private void MatchGrid_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        //{
-        //    if (e.ColumnIndex == 0)
-        //    {
-        //        var col = matchGrid.Columns[e.ColumnIndex] as DataGridViewComboBoxColumn;
-        //        object eFV = e.FormattedValue;
-        //        if (!_testsource.Contains(eFV))
-        //        {
-        //            _testsource.Add(eFV.ToString());
-        //            matchGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = eFV;
-        //        }
-        //    }
-        //}
     }
 }

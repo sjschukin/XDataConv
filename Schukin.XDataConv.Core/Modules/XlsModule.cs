@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using ExcelDataReader;
 using NLog;
 using Schukin.XDataConv.Data;
@@ -46,7 +45,7 @@ namespace Schukin.XDataConv.Core.Modules
                 {
                     lineNumber++;
                     string currentFieldName = null;
-                    var dataItem = new DataItem();
+                    var dataItem = new DataItem {LineNumber = lineNumber};
 
                     try
                     {
@@ -58,7 +57,10 @@ namespace Schukin.XDataConv.Core.Modules
                             if (value == null)
                                 continue;
 
-                            var strValue = value.ToString();
+                            var strValue = value.ToString().Trim();
+
+                            if (strValue == String.Empty)
+                                continue;
 
                             if (Core.Instance.Mapping[propertyInfo.Name].IsConvertImportToUpperCase)
                                 strValue = strValue.ToUpper();
@@ -71,8 +73,8 @@ namespace Schukin.XDataConv.Core.Modules
                     }
                     catch (Exception)
                     {
-                        dataItem.IsError = true;
-                        dataItem.ErrorMessage =
+                        dataItem.State = DataItemState.ImportError;
+                        dataItem.StateMessage =
                             $"Ошибка при импорте поля {currentFieldName} в строке {lineNumber}";
                     }
 

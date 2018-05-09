@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Schukin.XDataConv.Core</RootNamespace>
     <AssemblyName>Schukin.XDataConv.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -79,6 +80,12 @@
     <Compile Include="AppForm.Designer.cs">
       <DependentUpon>AppForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GotoLineNumberForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GotoLineNumberForm.Designer.cs">
+      <DependentUpon>GotoLineNumberForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Identify\IdentifyDetailsItem.cs" />
     <Compile Include="Identify\IdentifyResultItem.cs" />
     <Compile Include="IModule.cs" />
@@ -88,14 +95,8 @@
     <Compile Include="LogForm.Designer.cs">
       <DependentUpon>LogForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Mapping\PossibleOptionsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Mapping\PossibleOptionsForm.Designer.cs">
-      <DependentUpon>PossibleOptionsForm.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Mapping\MapSettings.cs" />
     <Compile Include="Modules\XlsModule.cs" />
-    <Compile Include="Modules\CsvModule.cs" />
     <Compile Include="Mapping\MapCollection.cs" />
     <Compile Include="Mapping\MatchLine.cs" />
     <Compile Include="Mapping\MapItem.cs" />
@@ -126,6 +127,9 @@
     <EmbeddedResource Include="AppForm.resx">
       <DependentUpon>AppForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="GotoLineNumberForm.resx">
+      <DependentUpon>GotoLineNumberForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LogForm.resx">
       <DependentUpon>LogForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -134,9 +138,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Mapping\MapSettingsForm.resx">
       <DependentUpon>MapSettingsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Mapping\PossibleOptionsForm.resx">
-      <DependentUpon>PossibleOptionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

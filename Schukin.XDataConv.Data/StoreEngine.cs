@@ -10,8 +10,8 @@ namespace Schukin.XDataConv.Data
 {
     public class StoreEngine
     {
-        public IEnumerable<DataItem> Data { get; set; }
-        public IEnumerable<DataItem> ImportedData { get; set; }
+        public SortableBindingList<DataItem> Data { get; set; }
+        public SortableBindingList<DataItem> ImportedData { get; set; }
         public string CurrentFileName { get; set; }
 
         public void Open(string filename)
@@ -26,7 +26,12 @@ namespace Schukin.XDataConv.Data
                 csv.Configuration.CultureInfo = CultureInfo.GetCultureInfo("ru-RU");
                 csv.Configuration.RegisterClassMap<DataItemMap>();
 
-                Data = csv.GetRecords<DataItem>().ToArray();
+                //csv.Configuration.ReadingExceptionOccurred = exception =>
+                //{
+                //    Console.WriteLine($"Reading exception: {exception.Message}");
+                //};
+
+                Data = new SortableBindingList<DataItem>(csv.GetRecords<DataItem>().ToList());
             }
 
             CurrentFileName = filename;
