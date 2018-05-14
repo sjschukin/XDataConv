@@ -27,7 +27,7 @@ namespace Schukin.XDataConv.Core
 
         public static Core Instance => _instance ?? (_instance = new Core());
         public StoreEngine Store { get; }
-        public MapSettings MapSettings { get; }
+        public MapSettings MapSettings { get; set; }
 
         public void ShowImportLog()
         {
@@ -132,9 +132,16 @@ namespace Schukin.XDataConv.Core
                 }
                 else
                 {
-                    importDataItem.State = DataItemState.InjectAmbigous;
-                    importDataItem.StateMessage =
-                        $"Обнаружено более одного соответствия в строках {String.Join(";", sourceDataItems.Select(item => item.LineNumber))}";
+                    if (MapSettings.IsFindAllMatches)
+                    {
+                        AssignValues(importDataItem, sourceDataItems);
+                    }
+                    else
+                    {
+                        importDataItem.State = DataItemState.InjectAmbigous;
+                        importDataItem.StateMessage =
+                            $"Обнаружено более одного соответствия в строках {String.Join(";", sourceDataItems.Select(item => item.LineNumber))}";
+                    }
                 }
             }
         }
@@ -145,6 +152,18 @@ namespace Schukin.XDataConv.Core
             {
                 var sourceValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(source);
                 typeof(DataItem).GetProperty(mapItem.Name)?.SetValue(destination, sourceValue);
+            }
+        }
+
+        private void AssignValues(DataItem source, IEnumerable<DataItem> destination)
+        {
+            foreach (var destinationItem in destination)
+            {
+                foreach (var mapItem in MapSettings.Mapping.GetUseForAssign())
+                {
+                    var sourceValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(source);
+                    typeof(DataItem).GetProperty(mapItem.Name)?.SetValue(destinationItem, sourceValue);
+                }
             }
         }
 

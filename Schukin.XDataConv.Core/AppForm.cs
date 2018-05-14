@@ -267,10 +267,17 @@ namespace Schukin.XDataConv.Core
             }
         }
 
-        public DialogResult ShowMapSettingsForm()
+        private DialogResult ShowMapSettingsForm()
         {
-            var mapSettingsForm = new MapSettingsForm(Core.Instance.MapSettings);
-            return mapSettingsForm.ShowDialog();
+            var settings = (MapSettings) Core.Instance.MapSettings.Clone();
+            var mapSettingsForm = new MapSettingsForm(settings);
+
+            var result = mapSettingsForm.ShowDialog();
+
+            if (result == DialogResult.OK)
+                Core.Instance.MapSettings = mapSettingsForm.CurrentMapSettings;
+
+            return result;
         }
 
         private void OpenMenuItem_Click(object sender, EventArgs e)

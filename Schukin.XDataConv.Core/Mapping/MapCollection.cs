@@ -54,7 +54,7 @@ namespace Schukin.XDataConv.Core
             return GetActiveItems().Where(item => item.IsUseForLog);
         }
 
-        public void Reset()
+        public void SetDefaultValuesForAllItems()
         {
             foreach (var item in _items)
             {

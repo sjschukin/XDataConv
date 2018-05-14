@@ -2,13 +2,11 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace Schukin.XDataConv.Core
 {
     public partial class MapSettingsForm : Form
     {
-        private readonly MapSettings _mapSettings;
         private readonly SaveFileDialog _saveFileDialog;
         private readonly OpenFileDialog _openFileDialog;
 
@@ -16,15 +14,7 @@ namespace Schukin.XDataConv.Core
         {
             InitializeComponent();
 
-            _mapSettings = mapSettings;
-
-            gridMapping.AutoGenerateColumns = false;
-            gridMapping.DataSource = mapSettings.Mapping.ToArray();
-
-            buttonOk.Click += ButtonImport_Click;
-            buttonSaveTemplate.Click += ButtonSaveTemplate_Click;
-            buttonLoadTemplate.Click += ButtonLoadTemplate_Click;
-            gridMapping.CellClick += GridMapping_CellClick;
+            CurrentMapSettings = mapSettings;
 
             _saveFileDialog = new SaveFileDialog
             {
@@ -42,11 +32,24 @@ namespace Schukin.XDataConv.Core
                 CheckFileExists = true,
                 Filter = "Файлы шаблонов XDataConv (*.xml)|*.xml"
             };
+
+            buttonOk.Click += ButtonOk_Click;
+            buttonSaveTemplate.Click += ButtonSaveTemplate_Click;
+            buttonLoadTemplate.Click += ButtonLoadTemplate_Click;
+            gridMapping.CellClick += GridMapping_CellClick;
+
+            // binding
+            gridMapping.AutoGenerateColumns = false;
+            gridMapping.DataSource = mapSettings.Mapping.ToArray();
+
+            checkFindAllMatches.DataBindings.Add("Checked", mapSettings, "IsFindAllMatches");
         }
+
+        public MapSettings CurrentMapSettings { get; }
 
         private bool ValidateForm()
         {
-            var invalidMappingCompare = _mapSettings.Mapping.Where(item =>
+            var invalidMappingCompare = CurrentMapSettings.Mapping.Where(item =>
                 item.IsUseForCompare1 | item.IsUseForCompare2 && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingCompare.Any())
@@ -57,7 +60,7 @@ namespace Schukin.XDataConv.Core
             }
 
             var invalidMappingInject =
-                _mapSettings.Mapping.Where(item => item.IsUseForInject && item.IsUseForCompare1 | item.IsUseForCompare2).ToArray();
+                CurrentMapSettings.Mapping.Where(item => item.IsUseForInject && item.IsUseForCompare1 | item.IsUseForCompare2).ToArray();
 
             if (invalidMappingInject.Any())
             {
@@ -67,7 +70,7 @@ namespace Schukin.XDataConv.Core
             }
 
             var invalidMappingInject2 =
-                _mapSettings.Mapping.Where(item => item.IsUseForInject && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
+                CurrentMapSettings.Mapping.Where(item => item.IsUseForInject && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingInject2.Any())
             {
@@ -77,7 +80,7 @@ namespace Schukin.XDataConv.Core
             }
 
             var invalidMappingLog =
-                _mapSettings.Mapping.Where(item => item.IsUseForLog && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
+                CurrentMapSettings.Mapping.Where(item => item.IsUseForLog && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingLog.Any())
             {
@@ -94,54 +97,14 @@ namespace Schukin.XDataConv.Core
             if (_saveFileDialog.ShowDialog() != DialogResult.OK)
                 return;
 
-            var doc = new XDocument();
-            var comment = new XComment("XDataConv configuration file v2.1 -- Schukin S.");
-
-            var mappingsElement = new XElement("mappings");
-
-            var settingElement = new XElement("setting",
-                new XAttribute("name", "isFindAllMatches"),
-                _mapSettings.IsFindAllMatches
-            );
-
-            mappingsElement.Add(settingElement);
-
-            foreach (var item in _mapSettings.Mapping)
+            try
             {
-                var mappingElement = new XElement("mapping",
-                    new XAttribute("name", item.Name),
-                    new XElement("importFieldName", item.ImportFieldName),
-                    new XElement("isConvertImportToUpperCase", item.IsConvertImportToUpperCase),
-                    new XElement("isUseForCompare1", item.IsUseForCompare1),
-                    new XElement("isUseForCompare2", item.IsUseForCompare2),
-                    new XElement("isUseForInject", item.IsUseForInject),
-                    new XElement("isUseForLog", item.IsUseForLog)
-                );
-
-                if (item.ImportMatchLinesCount > 0)
-                {
-                    var matchingsElement = new XElement("matchings");
-
-                    foreach (var matchingItem in item.ImportMatchLines)
-                    {
-                        var matchingElement = new XElement("matching");
-
-                        matchingElement.Add(
-                            new XElement("sourceWord", matchingItem.SourceWord),
-                            new XElement("aliasWord", matchingItem.AliasWord)
-                        );
-
-                        matchingsElement.Add(matchingElement);
-                    }
-
-                    mappingElement.Add(matchingsElement);
-                }
-
-                mappingsElement.Add(mappingElement);
+                CurrentMapSettings.Save(_saveFileDialog.FileName);
             }
-
-            doc.Add(comment, mappingsElement);
-            doc.Save(_saveFileDialog.FileName);
+            catch (Exception ex)
+            {
+                Core.Instance.ShowError(ex);
+            }
         }
 
         private void LoadTemplate()
@@ -149,85 +112,15 @@ namespace Schukin.XDataConv.Core
             if (_openFileDialog.ShowDialog() != DialogResult.OK)
                 return;
 
-            var xml = XDocument.Load(_openFileDialog.FileName);
-
-            var mappingsElement = xml.Element("mappings");
-
-            if (mappingsElement == null)
-                return;
-
-            foreach (var settingElement in mappingsElement.Elements("setting"))
+            try
             {
-                if (settingElement.Attribute("name")?.Value == "isFindAllMatches")
-                {
-                    bool.TryParse(settingElement.Value, out var isFindAllMatches);
-                    _mapSettings.IsFindAllMatches = isFindAllMatches;
-                }
+                CurrentMapSettings.Load(_openFileDialog.FileName);
             }
-
-                _mapSettings.Mapping.Reset();
-
-            foreach (var mappingElement in mappingsElement.Elements("mapping"))
+            catch (Exception ex)
             {
-                var nameAttribute = mappingElement.Attribute("name");
-                if (nameAttribute == null)
-                    continue;
-
-                var mapping = _mapSettings.Mapping.FirstOrDefault(item => item.Name == nameAttribute.Value);
-                if (mapping == null)
-                    continue;
-
-                mapping.ImportFieldName = mappingElement.Element("importFieldName")?.Value;
-
-                var isConvertImportToUpperCaseElement = mappingElement.Element("isConvertImportToUpperCase");
-                if (isConvertImportToUpperCaseElement != null)
-                {
-                    bool.TryParse(isConvertImportToUpperCaseElement.Value, out var mappingIsConvertImportToUpperCase);
-                    mapping.IsConvertImportToUpperCase = mappingIsConvertImportToUpperCase;
-                }
-
-                var isUseForCompare1Element = mappingElement.Element("isUseForCompare1");
-                if (isUseForCompare1Element != null)
-                {
-                    bool.TryParse(isUseForCompare1Element.Value, out var mappingIsUseForCompare1);
-                    mapping.IsUseForCompare1 = mappingIsUseForCompare1;
-                }
-
-                var isUseForCompare2Element = mappingElement.Element("isUseForCompare2");
-                if (isUseForCompare2Element != null)
-                {
-                    bool.TryParse(isUseForCompare2Element.Value, out var mappingIsUseForCompare2);
-                    mapping.IsUseForCompare2 = mappingIsUseForCompare2;
-                }
-
-                var isUseForInjectElement = mappingElement.Element("isUseForInject");
-                if (isUseForInjectElement != null)
-                {
-                    bool.TryParse(isUseForInjectElement.Value, out var isUseForInject);
-                    mapping.IsUseForInject = isUseForInject;
-                }
-
-                var isUseForLogElement = mappingElement.Element("isUseForLog");
-                if (isUseForLogElement != null)
-                {
-                    bool.TryParse(isUseForLogElement.Value, out var isUseForLog);
-                    mapping.IsUseForLog = isUseForLog;
-                }
-
-                var matchingsElement = mappingElement.Element("matchings");
-                if (matchingsElement == null)
-                    continue;
-
-                foreach (var matchingElement in matchingsElement.Elements("matching"))
-                {
-                    mapping.ImportMatchLines.Add(new MatchLine
-                    {
-                        SourceWord = matchingElement.Element("sourceWord")?.Value,
-                        AliasWord = matchingElement.Element("aliasWord")?.Value
-                    });
-                }
+                Core.Instance.ShowError(ex);
             }
-
+            
             gridMapping.Invalidate();
         }
 
@@ -256,7 +149,7 @@ namespace Schukin.XDataConv.Core
             ShowMatchSettingsForm(item);
         }
 
-        private void ButtonImport_Click(object sender, EventArgs e)
+        private void ButtonOk_Click(object sender, EventArgs e)
         {
             if (!ValidateForm())
                 return;
