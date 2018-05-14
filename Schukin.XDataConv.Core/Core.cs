@@ -135,13 +135,15 @@ namespace Schukin.XDataConv.Core
                     if (MapSettings.IsFindAllMatches)
                     {
                         AssignValues(importDataItem, sourceDataItems);
+                        importDataItem.State = DataItemState.None;
                     }
                     else
                     {
                         importDataItem.State = DataItemState.InjectAmbigous;
-                        importDataItem.StateMessage =
-                            $"Обнаружено более одного соответствия в строках {String.Join(";", sourceDataItems.Select(item => item.LineNumber))}";
                     }
+
+                    importDataItem.StateMessage =
+                        $"Обнаружено более одного соответствия в строках {String.Join(";", sourceDataItems.Select(item => item.LineNumber))}";
                 }
             }
         }
