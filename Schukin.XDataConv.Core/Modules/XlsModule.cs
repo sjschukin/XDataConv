@@ -32,7 +32,7 @@ namespace Schukin.XDataConv.Core.Modules
                     throw new ApplicationException("Файл пуст.");
 
                 //Logger.Info("Чтение заголовка");
-                if (!Core.Instance.LoadMappingOrdinal(GetValues(reader)))
+                if (!Core.Instance.LoadMappingOrdinal(GetHeaderNames(reader)))
                     throw new ApplicationException("Отсутствуют необходимые колонки. Импорт невозможен.");
 
                 // read the body
@@ -85,13 +85,13 @@ namespace Schukin.XDataConv.Core.Modules
             return importedData.ToArray();
         }
 
-        private string[] GetValues(IExcelDataReader reader)
+        private string[] GetHeaderNames(IExcelDataReader reader)
         {
             var values = new string[reader.FieldCount];
 
             for (int i = 0; i < reader.FieldCount; i++)
             {
-                values[i] = reader.GetValue(i)?.ToString();
+                values[i] = reader.GetValue(i)?.ToString().ToUpper();
             }
 
             return values;

@@ -18,6 +18,7 @@ namespace Schukin.XDataConv.Data
         public string Nkw { get; set; }
         public string Nkomn { get; set; }
         public string IlChet { get; set; }
+        public string IlChetHist { get; set; }
         public string VidGf { get; set; }
         public decimal? Opl { get; set; }
         public decimal? Otpl { get; set; }

@@ -8,7 +8,7 @@ namespace Schukin.XDataConv.Data
     {
         public DataItemMap()
         {
-            // LDID;ADRID;FAMIL;IMJA;OTCH;DROG;POSEL;NASP;YLIC;NDOM;NKORP;NKW;NKOMN;ILCHET;VIDGF;OPL;OTPL;KOLZR;GKU;ORG;VIDTAR;TARIF;FAKT;SUMTAR;SUMDOLG;OPLDOLG;DATDOLG;MONTH;YEAR
+            // LDID;ADRID;FAMIL;IMJA;OTCH;DROG;POSEL;NASP;YLIC;NDOM;NKORP;NKW;NKOMN;ILCHET;ILCHET_HIST;VIDGF;OPL;OTPL;KOLZR;GKU;ORG;VIDTAR;TARIF;FAKT;SUMTAR;SUMDOLG;OPLDOLG;DATDOLG;MONTH;YEAR
             Map(m => m.LdId).Name("LDID");
             Map(m => m.AdrId).Name("ADRID");
             Map(m => m.Famil).Name("FAMIL").TypeConverterOption.NullValues("");
@@ -23,6 +23,7 @@ namespace Schukin.XDataConv.Data
             Map(m => m.Nkw).Name("NKW").TypeConverterOption.NullValues("");
             Map(m => m.Nkomn).Name("NKOMN").TypeConverterOption.NullValues("");
             Map(m => m.IlChet).Name("ILCHET").TypeConverterOption.NullValues("");
+            Map(m => m.IlChetHist).Name("ILCHET_HIST").TypeConverterOption.NullValues("");
             Map(m => m.VidGf).Name("VIDGF").TypeConverterOption.NullValues("");
             Map(m => m.Opl).Name("OPL").TypeConverterOption.CultureInfo(CultureInfo.GetCultureInfo("en-US"));
             Map(m => m.Otpl).Name("OTPL").TypeConverterOption.CultureInfo(CultureInfo.GetCultureInfo("en-US"));

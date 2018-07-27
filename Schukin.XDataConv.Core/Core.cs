@@ -180,7 +180,7 @@ namespace Schukin.XDataConv.Core
 
                 for (int i = 0; i < headerNames.Count; i++)
                 {
-                    if (mapItem.ImportFieldName != headerNames[i])
+                    if (mapItem.ImportFieldName.ToUpper() != headerNames[i])
                         continue;
 
                     mapItem.ImportFieldOrdinal = i;
