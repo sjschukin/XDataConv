@@ -42,7 +42,7 @@ namespace Schukin.XDataConv.Core
         public void LoadDefault(StoreEngine store)
         {
             var storeMap = store.GetMap();
-            var maping = new MapCollection(storeMap.Select(item => new MapItem
+            var mapping = new MapCollection(storeMap.Select(item => new MapItem
             {
                 Name = item.PropertyName,
                 FieldName = item.FieldName,
@@ -57,7 +57,7 @@ namespace Schukin.XDataConv.Core
             var checkedIsUseForInject = new[] { "OPL", "OTPL", "KOLZR", "VIDTAR", "TARIF", "FAKT", "SUMTAR", "SUMDOLG", "OPLDOLG", "DATDOLG" };
             var checkedIsUseForLog = new[] { "FAMIL", "IMJA", "OTCH", "DROG" };
 
-            foreach (var mapItem in maping)
+            foreach (var mapItem in mapping)
             {
                 mapItem.ImportFieldName =
                     excludedImportFieldName.Contains(mapItem.FieldName) ? null : mapItem.FieldName;
@@ -69,7 +69,9 @@ namespace Schukin.XDataConv.Core
                 mapItem.IsUseForLog = checkedIsUseForLog.Contains(mapItem.FieldName);
             }
 
-            Mapping = maping;
+            mapping["IlChetNew"].ImportFieldName = String.Empty;
+
+            Mapping = mapping;
 
             IsFindAllMatches = true;
         }
