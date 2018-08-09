@@ -111,7 +111,7 @@ namespace Schukin.XDataConv.Core
             foreach (var mapItem in Core.Instance.MapSettings.Mapping.GetActiveItems())
             {
                 importGrid.Columns.Add(
-                    new DataGridViewTextBoxColumn { HeaderText = mapItem.FieldName, DataPropertyName = mapItem.Name }
+                    new DataGridViewTextBoxColumn { HeaderText = mapItem.ImportFieldName, DataPropertyName = mapItem.Name }
                 );
             }
 
