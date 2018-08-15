@@ -66,7 +66,6 @@ namespace Schukin.XDataConv.Core
                 mapItem.IsUseForCompare1 = checkedIsUseForCompare1.Contains(mapItem.FieldName);
                 mapItem.IsUseForCompare2 = checkedIsUseForCompare2.Contains(mapItem.FieldName);
                 mapItem.IsUseForInject = checkedIsUseForInject.Contains(mapItem.FieldName);
-                mapItem.IsUseForLog = checkedIsUseForLog.Contains(mapItem.FieldName);
             }
 
             mapping["IlChetNew"].ImportFieldName = String.Empty;
@@ -98,8 +97,7 @@ namespace Schukin.XDataConv.Core
                     new XElement("isConvertImportToUpperCase", item.IsConvertImportToUpperCase),
                     new XElement("isUseForCompare1", item.IsUseForCompare1),
                     new XElement("isUseForCompare2", item.IsUseForCompare2),
-                    new XElement("isUseForInject", item.IsUseForInject),
-                    new XElement("isUseForLog", item.IsUseForLog)
+                    new XElement("isUseForInject", item.IsUseForInject)
                 );
 
                 if (item.ImportMatchLinesCount > 0)
@@ -188,13 +186,6 @@ namespace Schukin.XDataConv.Core
                     mapping.IsUseForInject = isUseForInject;
                 }
 
-                var isUseForLogElement = mappingElement.Element("isUseForLog");
-                if (isUseForLogElement != null)
-                {
-                    bool.TryParse(isUseForLogElement.Value, out var isUseForLog);
-                    mapping.IsUseForLog = isUseForLog;
-                }
-
                 var matchingsElement = mappingElement.Element("matchings");
                 if (matchingsElement == null)
                     continue;
@@ -224,7 +215,6 @@ namespace Schukin.XDataConv.Core
                     IsUseForCompare1 = mapItem.IsUseForCompare1,
                     IsUseForCompare2 = mapItem.IsUseForCompare2,
                     IsUseForInject = mapItem.IsUseForInject,
-                    IsUseForLog = mapItem.IsUseForLog,
                     MemberInfo = mapItem.MemberInfo,
                     ImportMatchLines = mapItem.ImportMatchLines.Select(item =>
                         new MatchLine

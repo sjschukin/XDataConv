@@ -54,6 +54,25 @@ namespace Schukin.XDataConv.Core
             Store.ImportedData = new SortableBindingList<DataItem>(module.GetDataItems(filename).ToList());
         }
 
+        public SortableBindingList<DataItem> GetUnassignedRows()
+        {
+            if (Store.Data == null)
+                return null;
+
+            var data = Store.Data.AsQueryable();
+
+            // linq expression tree filter
+            var param = Expression.Parameter(typeof(DataItem), "item");
+
+            foreach (var mapItem in MapSettings.Mapping.GetUseForAssign())
+            {
+                var expression2 = Expression.IsTrue(Expression.Property(param, mapItem.Name), Expression.)
+            }
+
+
+                return Store.Data;
+        }
+
         public void InjectDataByIdentify1()
         {
             InjectData(MapSettings.Mapping.GetUseForIdentify1);
