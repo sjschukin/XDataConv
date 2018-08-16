@@ -37,11 +37,6 @@
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabMappingSettings = new System.Windows.Forms.TabPage();
             this.gridMapping = new System.Windows.Forms.DataGridView();
-            this.tabAdditionalSettings = new System.Windows.Forms.TabPage();
-            this.label1 = new System.Windows.Forms.Label();
-            this.checkFindAllMatches = new System.Windows.Forms.CheckBox();
-            this.buttonSaveTemplate = new System.Windows.Forms.Button();
-            this.buttonLoadTemplate = new System.Windows.Forms.Button();
             this.colFieldName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colImportFieldName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colIsConvertImportToUpperCase = new System.Windows.Forms.DataGridViewCheckBoxColumn();
@@ -49,6 +44,11 @@
             this.colIsUseForCompare2 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colIsUseForInject = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colMatchingList = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.tabAdditionalSettings = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
+            this.checkFindAllMatches = new System.Windows.Forms.CheckBox();
+            this.buttonSaveTemplate = new System.Windows.Forms.Button();
+            this.buttonLoadTemplate = new System.Windows.Forms.Button();
             this.tabSettings.SuspendLayout();
             this.tabMappingSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridMapping)).BeginInit();
@@ -144,60 +144,6 @@
             this.gridMapping.Size = new System.Drawing.Size(757, 373);
             this.gridMapping.TabIndex = 0;
             // 
-            // tabAdditionalSettings
-            // 
-            this.tabAdditionalSettings.Controls.Add(this.label1);
-            this.tabAdditionalSettings.Controls.Add(this.checkFindAllMatches);
-            this.tabAdditionalSettings.Location = new System.Drawing.Point(4, 22);
-            this.tabAdditionalSettings.Name = "tabAdditionalSettings";
-            this.tabAdditionalSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabAdditionalSettings.Size = new System.Drawing.Size(859, 379);
-            this.tabAdditionalSettings.TabIndex = 1;
-            this.tabAdditionalSettings.Text = "Дополнительно";
-            this.tabAdditionalSettings.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.label1.Location = new System.Drawing.Point(6, 46);
-            this.label1.Name = "label1";
-            this.label1.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
-            this.label1.Size = new System.Drawing.Size(847, 33);
-            this.label1.TabIndex = 1;
-            this.label1.Text = resources.GetString("label1.Text");
-            // 
-            // checkFindAllMatches
-            // 
-            this.checkFindAllMatches.AutoSize = true;
-            this.checkFindAllMatches.Checked = true;
-            this.checkFindAllMatches.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkFindAllMatches.Location = new System.Drawing.Point(6, 26);
-            this.checkFindAllMatches.Name = "checkFindAllMatches";
-            this.checkFindAllMatches.Size = new System.Drawing.Size(225, 17);
-            this.checkFindAllMatches.TabIndex = 0;
-            this.checkFindAllMatches.Text = "Искать соответствия по всем строкам";
-            this.checkFindAllMatches.UseVisualStyleBackColor = true;
-            // 
-            // buttonSaveTemplate
-            // 
-            this.buttonSaveTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonSaveTemplate.Location = new System.Drawing.Point(12, 423);
-            this.buttonSaveTemplate.Name = "buttonSaveTemplate";
-            this.buttonSaveTemplate.Size = new System.Drawing.Size(80, 23);
-            this.buttonSaveTemplate.TabIndex = 3;
-            this.buttonSaveTemplate.Text = "Сохранить...";
-            this.buttonSaveTemplate.UseVisualStyleBackColor = true;
-            // 
-            // buttonLoadTemplate
-            // 
-            this.buttonLoadTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonLoadTemplate.Location = new System.Drawing.Point(98, 423);
-            this.buttonLoadTemplate.Name = "buttonLoadTemplate";
-            this.buttonLoadTemplate.Size = new System.Drawing.Size(80, 23);
-            this.buttonLoadTemplate.TabIndex = 4;
-            this.buttonLoadTemplate.Text = "Загрузить...";
-            this.buttonLoadTemplate.UseVisualStyleBackColor = true;
-            // 
             // colFieldName
             // 
             this.colFieldName.DataPropertyName = "FieldName";
@@ -245,6 +191,62 @@
             this.colMatchingList.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.colMatchingList.Text = "Список...";
             this.colMatchingList.Width = 90;
+            // 
+            // tabAdditionalSettings
+            // 
+            this.tabAdditionalSettings.Controls.Add(this.label1);
+            this.tabAdditionalSettings.Controls.Add(this.checkFindAllMatches);
+            this.tabAdditionalSettings.Location = new System.Drawing.Point(4, 22);
+            this.tabAdditionalSettings.Name = "tabAdditionalSettings";
+            this.tabAdditionalSettings.Padding = new System.Windows.Forms.Padding(3);
+            this.tabAdditionalSettings.Size = new System.Drawing.Size(763, 379);
+            this.tabAdditionalSettings.TabIndex = 1;
+            this.tabAdditionalSettings.Text = "Дополнительно";
+            this.tabAdditionalSettings.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.label1.Location = new System.Drawing.Point(6, 46);
+            this.label1.Name = "label1";
+            this.label1.Padding = new System.Windows.Forms.Padding(16, 0, 0, 0);
+            this.label1.Size = new System.Drawing.Size(751, 33);
+            this.label1.TabIndex = 1;
+            this.label1.Text = resources.GetString("label1.Text");
+            // 
+            // checkFindAllMatches
+            // 
+            this.checkFindAllMatches.AutoSize = true;
+            this.checkFindAllMatches.Checked = true;
+            this.checkFindAllMatches.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkFindAllMatches.Location = new System.Drawing.Point(6, 26);
+            this.checkFindAllMatches.Name = "checkFindAllMatches";
+            this.checkFindAllMatches.Size = new System.Drawing.Size(225, 17);
+            this.checkFindAllMatches.TabIndex = 0;
+            this.checkFindAllMatches.Text = "Искать соответствия по всем строкам";
+            this.checkFindAllMatches.UseVisualStyleBackColor = true;
+            // 
+            // buttonSaveTemplate
+            // 
+            this.buttonSaveTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonSaveTemplate.Location = new System.Drawing.Point(12, 423);
+            this.buttonSaveTemplate.Name = "buttonSaveTemplate";
+            this.buttonSaveTemplate.Size = new System.Drawing.Size(80, 23);
+            this.buttonSaveTemplate.TabIndex = 3;
+            this.buttonSaveTemplate.Text = "Сохранить...";
+            this.buttonSaveTemplate.UseVisualStyleBackColor = true;
+            // 
+            // buttonLoadTemplate
+            // 
+            this.buttonLoadTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonLoadTemplate.Location = new System.Drawing.Point(98, 423);
+            this.buttonLoadTemplate.Name = "buttonLoadTemplate";
+            this.buttonLoadTemplate.Size = new System.Drawing.Size(80, 23);
+            this.buttonLoadTemplate.TabIndex = 4;
+            this.buttonLoadTemplate.Text = "Загрузить...";
+            this.buttonLoadTemplate.UseVisualStyleBackColor = true;
             // 
             // MapSettingsForm
             // 

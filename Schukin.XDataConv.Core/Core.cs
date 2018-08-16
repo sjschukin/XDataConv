@@ -59,18 +59,32 @@ namespace Schukin.XDataConv.Core
             if (Store.Data == null)
                 return null;
 
+            var assignMapping = MapSettings.Mapping.GetUseForAssign();
+
+            if (!assignMapping.Any())
+                throw new ApplicationException("В настройках не выбраны поля, которые должны быть скопированы в источник и по которым определяется фильтрация.");
+
             var data = Store.Data.AsQueryable();
 
             // linq expression tree filter
             var param = Expression.Parameter(typeof(DataItem), "item");
+            Expression expression1 = null;
 
-            foreach (var mapItem in MapSettings.Mapping.GetUseForAssign())
+            foreach (var mapItem in assignMapping)
             {
-                var expression2 = Expression.IsTrue(Expression.Property(param, mapItem.Name), Expression.)
+                var expression2 = Expression.Equal(Expression.Property(param, mapItem.Name), Expression.Constant(null, typeof(object)));
+
+                if (expression1 != null)
+                    expression2 = Expression.OrElse(expression1, expression2);
+
+                expression1 = expression2;
             }
 
+            var lambda = Expression.Lambda<Func<DataItem, bool>>(expression1, param);
+            var whereExpression = Expression.Call(typeof(Queryable), "Where", new[] { data.ElementType }, data.Expression, lambda);
+            var sourceDataItems = data.Provider.CreateQuery<DataItem>(whereExpression);
 
-                return Store.Data;
+            return new SortableBindingList<DataItem>(sourceDataItems.ToList());
         }
 
         public void InjectDataByIdentify1()

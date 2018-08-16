@@ -63,7 +63,9 @@ namespace Schukin.XDataConv.Core
             exitMenuItem.Click += ExitMenuItem_Click;
             aboutMenuItem.Click += AboutMenuItem_Click;
 
+            mainGrid.DataSourceChanged += delegate { labelSource.Text = $"Источник: (Строк: {mainGrid.RowCount})"; };
             importGrid.RowPostPaint += ImportGrid_RowPostPaint;
+            importGrid.DataSourceChanged += delegate { labelImport.Text = $"Импортируемый файл: (Строк: {importGrid.RowCount})"; };
 
             BindDataGrid();
         }
@@ -340,6 +342,32 @@ namespace Schukin.XDataConv.Core
         private void InjectImportTool2_Click(object sender, EventArgs e)
         {
             InjectData(2);
+        }
+
+        private void filterTool_Click(object sender, EventArgs e)
+        {
+            if (Core.Instance.Store.Data == null)
+            {
+                Core.Instance.ShowMessage("Файл источника не загружен.");
+                return;
+            }
+
+            if (filterTool.Checked)
+            {
+                if (Core.Instance.ShowQuestion("Отключить фильтрацию и отобразить все строки?") != DialogResult.Yes)
+                    return;
+
+                mainGrid.DataSource = Core.Instance.Store.Data;
+                filterTool.Checked = !filterTool.Checked;
+            }
+            else
+            {
+                if (Core.Instance.ShowQuestion("Будут отображены только те строки, в которые не были загружены сведения в соответствии с настройкой \"Копировать в источник\". \r\n Продолжить?") != DialogResult.Yes)
+                    return;
+
+                mainGrid.DataSource = Core.Instance.GetUnassignedRows();
+                filterTool.Checked = !filterTool.Checked;
+            }
         }
 
         private void AboutMenuItem_Click(object sender, EventArgs e)

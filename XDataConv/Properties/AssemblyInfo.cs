@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("XDataConv")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("MTSZN Ryazan")]
 [assembly: AssemblyProduct("XDataConv")]
-[assembly: AssemblyCopyright("Copyright ©  2017-2018")]
+[assembly: AssemblyCopyright("Copyright © 2017-2018 MTSZN Ryazan, Schukin S.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,4 +33,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.10.0.0")]
-[assembly: AssemblyFileVersion("0.10.1.0")]
+[assembly: AssemblyFileVersion("0.10.0.0")]
