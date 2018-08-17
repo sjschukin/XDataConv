@@ -60,8 +60,9 @@ namespace Schukin.XDataConv.Core
                 return null;
 
             var assignMapping = MapSettings.Mapping.GetUseForAssign();
-
-            if (!assignMapping.Any())
+            var mapItems = assignMapping as MapItem[] ?? assignMapping.ToArray();
+            
+            if (!mapItems.Any())
                 throw new ApplicationException("В настройках не выбраны поля, которые должны быть скопированы в источник и по которым определяется фильтрация.");
 
             var data = Store.Data.AsQueryable();
@@ -70,7 +71,7 @@ namespace Schukin.XDataConv.Core
             var param = Expression.Parameter(typeof(DataItem), "item");
             Expression expression1 = null;
 
-            foreach (var mapItem in assignMapping)
+            foreach (var mapItem in mapItems)
             {
                 var expression2 = Expression.Equal(Expression.Property(param, mapItem.Name), Expression.Constant(null, typeof(object)));
 
@@ -87,17 +88,17 @@ namespace Schukin.XDataConv.Core
             return new SortableBindingList<DataItem>(sourceDataItems.ToList());
         }
 
-        public void InjectDataByIdentify1()
+        public void InjectDataByIdentify1(IEnumerable<DataItem> destination)
         {
-            InjectData(MapSettings.Mapping.GetUseForIdentify1);
+            InjectData(MapSettings.Mapping.GetUseForIdentify1, Store.ImportedData, destination);
         }
 
-        public void InjectDataByIdentify2()
+        public void InjectDataByIdentify2(IEnumerable<DataItem> destination)
         {
-            InjectData(MapSettings.Mapping.GetUseForIdentify2);
+            InjectData(MapSettings.Mapping.GetUseForIdentify2, Store.ImportedData, destination);
         }
 
-        private void InjectData(Func<IEnumerable<MapItem>> getMappingCollection)
+        private void InjectData(Func<IEnumerable<MapItem>> getMappingCollection, IEnumerable<DataItem> source, IEnumerable<DataItem> destination)
         {
             if (Store.ImportedData == null)
             {
@@ -111,14 +112,14 @@ namespace Schukin.XDataConv.Core
                 return;
             }
 
-            var importedDataItems = Store.ImportedData.ToArray();
+            var sourceItems = source as DataItem[] ?? source.ToArray();
 
-            if (!importedDataItems.Any())
+            if (!sourceItems.Any())
                 return;
 
-            var data = Store.Data.AsQueryable();
+            var destinationItems = destination.AsQueryable();
 
-            foreach (var importDataItem in importedDataItems)
+            foreach (var sourceItem in sourceItems)
             {
                 // linq expression tree engine
                 var param = Expression.Parameter(typeof(DataItem), "item");
@@ -126,7 +127,7 @@ namespace Schukin.XDataConv.Core
 
                 foreach (var mapItem in getMappingCollection())
                 {
-                    var importPropValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(importDataItem);
+                    var importPropValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(sourceItem);
 
                     if (mapItem.ImportMatchLinesCount > 0 && importPropValue is string importPropStrValue)
                     {
@@ -149,33 +150,33 @@ namespace Schukin.XDataConv.Core
                     continue;
 
                 var lambda = Expression.Lambda<Func<DataItem, bool>>(expression1, param);
-                var whereExpression = Expression.Call(typeof(Queryable), "Where", new[] { data.ElementType }, data.Expression, lambda);
-                var sourceDataItems = data.Provider.CreateQuery<DataItem>(whereExpression);
+                var whereExpression = Expression.Call(typeof(Queryable), "Where", new[] { destinationItems.ElementType }, destinationItems.Expression, lambda);
+                var sourceDataItems = destinationItems.Provider.CreateQuery<DataItem>(whereExpression);
 
                 if (sourceDataItems.Count() == 1)
                 {
-                    AssignValues(importDataItem, sourceDataItems.First());
-                    importDataItem.State = DataItemState.None;
-                    importDataItem.StateMessage = null;
+                    AssignValues(sourceItem, sourceDataItems.First());
+                    sourceItem.State = DataItemState.None;
+                    sourceItem.StateMessage = null;
                 }
                 else if (!sourceDataItems.Any())
                 {
-                    importDataItem.State = DataItemState.InjectNotFound;
-                    importDataItem.StateMessage = "Соответствий не найдено";
+                    sourceItem.State = DataItemState.InjectNotFound;
+                    sourceItem.StateMessage = "Соответствий не найдено";
                 }
                 else
                 {
                     if (MapSettings.IsFindAllMatches)
                     {
-                        AssignValues(importDataItem, sourceDataItems);
-                        importDataItem.State = DataItemState.None;
+                        AssignValues(sourceItem, sourceDataItems);
+                        sourceItem.State = DataItemState.None;
                     }
                     else
                     {
-                        importDataItem.State = DataItemState.InjectAmbigous;
+                        sourceItem.State = DataItemState.InjectAmbigous;
                     }
 
-                    importDataItem.StateMessage =
+                    sourceItem.StateMessage =
                         $"Обнаружено более одного соответствия в строках {String.Join(";", sourceDataItems.Select(item => item.LineNumber))}";
                 }
             }

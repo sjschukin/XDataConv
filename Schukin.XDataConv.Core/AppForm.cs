@@ -227,10 +227,12 @@ namespace Schukin.XDataConv.Core
         {
             try
             {
+                var desination = mainGrid.DataSource as SortableBindingList<DataItem>;
+                
                 if (id == 1)
-                    Core.Instance.InjectDataByIdentify1();
+                    Core.Instance.InjectDataByIdentify1(desination);
                 else
-                    Core.Instance.InjectDataByIdentify2();
+                    Core.Instance.InjectDataByIdentify2(desination);
 
                 var data = Core.Instance.Store.ImportedData;
                 injectNotFoundLabel.Text = data.Count(item => item.State == DataItemState.InjectNotFound).ToString();
