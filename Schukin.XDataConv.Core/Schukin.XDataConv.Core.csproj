@@ -88,7 +88,9 @@
     </Compile>
     <Compile Include="Identify\IdentifyDetailsItem.cs" />
     <Compile Include="Identify\IdentifyResultItem.cs" />
-    <Compile Include="IModule.cs" />
+    <Compile Include="Interfaces\IDataItem.cs" />
+    <Compile Include="Interfaces\IDataSource.cs" />
+    <Compile Include="Interfaces\IModule.cs" />
     <Compile Include="LogForm.cs">
       <SubType>Form</SubType>
     </Compile>

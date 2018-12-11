@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Schukin.XDataConv.Data;
 
-namespace Schukin.XDataConv.Core
+namespace Schukin.XDataConv.Core.Interfaces
 {
     public interface IModule
     {

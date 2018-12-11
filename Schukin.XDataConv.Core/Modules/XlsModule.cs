@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ExcelDataReader;
+using Schukin.XDataConv.Core.Interfaces;
 //using NLog;
 using Schukin.XDataConv.Data;
 

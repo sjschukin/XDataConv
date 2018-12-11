@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Windows.Forms;
+using Schukin.XDataConv.Core.Interfaces;
 using Schukin.XDataConv.Core.Modules;
 using Schukin.XDataConv.Data;
 
