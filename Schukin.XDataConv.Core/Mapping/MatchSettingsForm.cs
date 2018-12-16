@@ -10,8 +10,8 @@ namespace Schukin.XDataConv.Core
 {
     public sealed partial class MatchSettingsForm : Form
     {
-        private readonly List<MatchLine> _currentDatasource;
-        private readonly List<MatchLine> _originalDatasource;
+        private readonly List<MatchingItem> _currentDatasource;
+        private readonly List<MatchingItem> _originalDatasource;
 
         private readonly MapItem _mapItem;
 
@@ -19,8 +19,8 @@ namespace Schukin.XDataConv.Core
         {
             InitializeComponent();
 
-            _originalDatasource = mapItem.ImportMatchLines;
-            _currentDatasource = new List<MatchLine>(_originalDatasource);
+            _originalDatasource = mapItem.MatchingItems;
+            _currentDatasource = new List<MatchingItem>(_originalDatasource);
 
             _mapItem = mapItem;
             Text = $"Настройка соответствий для {_mapItem.FieldName}";
@@ -50,14 +50,14 @@ namespace Schukin.XDataConv.Core
 
         private bool ValidateForm()
         {
-            if (_currentDatasource.Any(item => String.IsNullOrWhiteSpace(item.AliasWord) && String.IsNullOrWhiteSpace(item.SourceWord)))
+            if (_currentDatasource.Any(item => String.IsNullOrWhiteSpace(item.Alias) && String.IsNullOrWhiteSpace(item.Source)))
             {
                 MessageBox.Show("Список не может содержать пустые строки.", "Внимание", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 return false;
             }
 
-            if (_currentDatasource.GroupBy(item => item.SourceWord).Any(item => item.Count() > 1))
+            if (_currentDatasource.GroupBy(item => item.Source).Any(item => item.Count() > 1))
             {
                 MessageBox.Show("Список не может содержать дубликаты в столбце 'Значение из файла'.", "Внимание", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
@@ -109,8 +109,8 @@ namespace Schukin.XDataConv.Core
         {
             foreach (var value in values)
             {
-                var item = bindingSource.AddNew() as MatchLine;
-                item.SourceWord = value;
+                var item = bindingSource.AddNew() as MatchingItem;
+                item.Source = value;
             }
         }
 

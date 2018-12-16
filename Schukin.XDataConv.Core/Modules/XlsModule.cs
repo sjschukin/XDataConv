@@ -9,7 +9,7 @@ using Schukin.XDataConv.Data;
 
 namespace Schukin.XDataConv.Core.Modules
 {
-    public class XlsModule : IModule
+    public class XlsModule : IImportModule
     {
         //private static readonly Logger Logger = LogManager.GetLogger("importLogger");
 

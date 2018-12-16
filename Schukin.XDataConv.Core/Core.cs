@@ -44,7 +44,7 @@ namespace Schukin.XDataConv.Core
             if (extension == null)
                 return;
 
-            IModule module = null;
+            IImportModule module = null;
 
             if (extension == ".xls" | extension == ".xlsx")
                 module = new XlsModule();
@@ -96,13 +96,13 @@ namespace Schukin.XDataConv.Core
                 {
                     var importPropValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(importDataItem);
 
-                    if (mapItem.ImportMatchLinesCount > 0 && importPropValue is string importPropStrValue)
+                    if (mapItem.MatchingItemsCount > 0 && importPropValue is string importPropStrValue)
                     {
                         var matchLine =
-                            mapItem.ImportMatchLines.FirstOrDefault(item => item.SourceWord == importPropStrValue);
+                            mapItem.MatchingItems.FirstOrDefault(item => item.Source == importPropStrValue);
 
                         if (matchLine != null)
-                            importPropValue = matchLine.AliasWord;
+                            importPropValue = matchLine.Alias;
                     }
 
                     var expression2 = Expression.Equal(Expression.Property(param, mapItem.Name), Expression.Constant(importPropValue));

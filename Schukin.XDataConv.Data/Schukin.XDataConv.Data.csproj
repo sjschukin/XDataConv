@@ -68,7 +68,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CsvFieldAttribute.cs" />
     <Compile Include="DataItem.cs" />
     <Compile Include="DataItemMap.cs" />
     <Compile Include="DataItemState.cs" />

@@ -63,7 +63,7 @@ namespace Schukin.XDataConv.Core
                 item.IsUseForCompare2 = false;
                 item.IsUseForInject = false;
                 item.ImportFieldOrdinal = -1;
-                item.ImportMatchLines.Clear();
+                item.MatchingItems.Clear();
             }
         }
     }

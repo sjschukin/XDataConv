@@ -80,6 +80,10 @@
     <Compile Include="AppForm.Designer.cs">
       <DependentUpon>AppForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="CoreEngine.cs" />
+    <Compile Include="DataItem.cs" />
+    <Compile Include="DataItemInfo.cs" />
+    <Compile Include="DataItemStates.cs" />
     <Compile Include="GotoLineNumberForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -89,8 +93,11 @@
     <Compile Include="Identify\IdentifyDetailsItem.cs" />
     <Compile Include="Identify\IdentifyResultItem.cs" />
     <Compile Include="Interfaces\IDataItem.cs" />
+    <Compile Include="Interfaces\IDataItemInfo.cs" />
     <Compile Include="Interfaces\IDataSource.cs" />
-    <Compile Include="Interfaces\IModule.cs" />
+    <Compile Include="Interfaces\IFileDataSource.cs" />
+    <Compile Include="Interfaces\IImportModule.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="LogForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,7 +107,7 @@
     <Compile Include="Mapping\MapSettings.cs" />
     <Compile Include="Modules\XlsModule.cs" />
     <Compile Include="Mapping\MapCollection.cs" />
-    <Compile Include="Mapping\MatchLine.cs" />
+    <Compile Include="Mapping\MatchingItem.cs" />
     <Compile Include="Mapping\MapItem.cs" />
     <Compile Include="Mapping\MatchSettingsForm.cs">
       <SubType>Form</SubType>

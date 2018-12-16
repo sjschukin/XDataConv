@@ -47,7 +47,7 @@ namespace Schukin.XDataConv.Core
                 Name = item.PropertyName,
                 FieldName = item.FieldName,
                 MemberInfo = item.MemberInfo,
-                ImportMatchLines = new List<MatchLine>()
+                MatchingItems = new List<MatchingItem>()
             }).ToArray());
 
             var excludedImportFieldName = new[] { "LDID", "ADRID", "MONTH", "YEAR" };
@@ -102,17 +102,17 @@ namespace Schukin.XDataConv.Core
                     new XElement("isUseForLog", item.IsUseForLog)
                 );
 
-                if (item.ImportMatchLinesCount > 0)
+                if (item.MatchingItemsCount > 0)
                 {
                     var matchingsElement = new XElement("matchings");
 
-                    foreach (var matchingItem in item.ImportMatchLines)
+                    foreach (var matchingItem in item.MatchingItems)
                     {
                         var matchingElement = new XElement("matching");
 
                         matchingElement.Add(
-                            new XElement("sourceWord", matchingItem.SourceWord),
-                            new XElement("aliasWord", matchingItem.AliasWord)
+                            new XElement("sourceWord", matchingItem.Source),
+                            new XElement("aliasWord", matchingItem.Alias)
                         );
 
                         matchingsElement.Add(matchingElement);
@@ -201,10 +201,10 @@ namespace Schukin.XDataConv.Core
 
                 foreach (var matchingElement in matchingsElement.Elements("matching"))
                 {
-                    mapping.ImportMatchLines.Add(new MatchLine
+                    mapping.MatchingItems.Add(new MatchingItem
                     {
-                        SourceWord = matchingElement.Element("sourceWord")?.Value,
-                        AliasWord = matchingElement.Element("aliasWord")?.Value
+                        Source = matchingElement.Element("sourceWord")?.Value,
+                        Alias = matchingElement.Element("aliasWord")?.Value
                     });
                 }
             }
@@ -226,11 +226,11 @@ namespace Schukin.XDataConv.Core
                     IsUseForInject = mapItem.IsUseForInject,
                     IsUseForLog = mapItem.IsUseForLog,
                     MemberInfo = mapItem.MemberInfo,
-                    ImportMatchLines = mapItem.ImportMatchLines.Select(item =>
-                        new MatchLine
+                    MatchingItems = mapItem.MatchingItems.Select(item =>
+                        new MatchingItem
                         {
-                            SourceWord = item.SourceWord,
-                            AliasWord = item.AliasWord
+                            Source = item.Source,
+                            Alias = item.Alias
                         }).ToList()
                 }).ToArray()),
                 IsFindAllMatches = source.IsFindAllMatches

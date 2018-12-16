@@ -104,9 +104,9 @@ namespace Schukin.XDataConv.Data
             {
                 return 1; //first has value, second doesn't
             }
-            if (lhsValue is IComparable)
+            if (lhsValue is IComparable comparable)
             {
-                return ((IComparable)lhsValue).CompareTo(rhsValue);
+                return comparable.CompareTo(rhsValue);
             }
             return lhsValue.Equals(rhsValue) ? 0 : String.Compare(lhsValue.ToString(), rhsValue.ToString(), StringComparison.Ordinal);
             //not comparable, compare ToString
