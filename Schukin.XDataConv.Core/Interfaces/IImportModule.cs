@@ -6,6 +6,7 @@ namespace Schukin.XDataConv.Core.Interfaces
     public interface IImportModule
     {
         IEnumerable<string> SupportedFileExtensions { get; }
-        IEnumerable<Tuple<IDataItem, IDataItemInfo>> LoadDataItems(string filename);
+        IEnumerable<IDataItemError> ImportErrors { get; }
+        IEnumerable<IDataItem> LoadDataItems(string filename);
     }
 }

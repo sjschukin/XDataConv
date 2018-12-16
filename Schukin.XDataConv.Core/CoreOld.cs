@@ -21,21 +21,14 @@ namespace Schukin.XDataConv.Core
         {
             _identifyResults = new List<IdentifyResultItem>();
             Store = new StoreEngine();
-            MapSettings = new MapSettings();
+            MapSettings = new Settings();
             MapSettings.LoadDefault(Store);
             //_logger = LogManager.GetCurrentClassLogger();
         }
 
         public static Core Instance => _instance ?? (_instance = new Core());
         public StoreEngine Store { get; }
-        public MapSettings MapSettings { get; set; }
-
-        public void ShowImportLog()
-        {
-            var form = new LogForm();
-            form.Show();
-            form.ShowLog(_identifyResults);
-        }
+        public Settings MapSettings { get; set; }
 
         public void OpenFileImport(string filename)
         {

@@ -270,7 +270,7 @@ namespace Schukin.XDataConv.Core
 
         private DialogResult ShowMapSettingsForm()
         {
-            var settings = (MapSettings) Core.Instance.MapSettings.Clone();
+            var settings = (Settings) Core.Instance.MapSettings.Clone();
             var mapSettingsForm = new MapSettingsForm(settings);
 
             var result = mapSettingsForm.ShowDialog();

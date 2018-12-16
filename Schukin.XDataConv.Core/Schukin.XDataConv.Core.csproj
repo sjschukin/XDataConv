@@ -49,6 +49,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CsvHelper, Version=4.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.4.0.3\lib\net45\CsvHelper.dll</HintPath>
+    </Reference>
     <Reference Include="ExcelDataReader, Version=3.2.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
       <HintPath>..\packages\ExcelDataReader.3.2.0\lib\net45\ExcelDataReader.dll</HintPath>
     </Reference>
@@ -73,17 +76,20 @@
     <Compile Include="AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Core.cs" />
+    <Compile Include="Base\ImportModuleBase.cs" />
+    <Compile Include="CoreOld.cs" />
     <Compile Include="AppForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="AppForm.Designer.cs">
       <DependentUpon>AppForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="CoreEngine.cs" />
+    <Compile Include="Csv\MemberMapInfo.cs" />
+    <Compile Include="MatchingManager.cs" />
+    <Compile Include="Csv\CsvFileManager.cs" />
+    <Compile Include="Csv\SourceMap.cs" />
     <Compile Include="DataItem.cs" />
-    <Compile Include="DataItemInfo.cs" />
-    <Compile Include="DataItemStates.cs" />
+    <Compile Include="DataItemError.cs" />
     <Compile Include="GotoLineNumberForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -92,19 +98,14 @@
     </Compile>
     <Compile Include="Identify\IdentifyDetailsItem.cs" />
     <Compile Include="Identify\IdentifyResultItem.cs" />
+    <Compile Include="Interfaces\IMatchingManager.cs" />
     <Compile Include="Interfaces\IDataItem.cs" />
-    <Compile Include="Interfaces\IDataItemInfo.cs" />
+    <Compile Include="Interfaces\IDataItemError.cs" />
     <Compile Include="Interfaces\IDataSource.cs" />
     <Compile Include="Interfaces\IFileDataSource.cs" />
     <Compile Include="Interfaces\IImportModule.cs" />
     <Compile Include="Interfaces\ILogger.cs" />
-    <Compile Include="LogForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="LogForm.Designer.cs">
-      <DependentUpon>LogForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Mapping\MapSettings.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Modules\XlsModule.cs" />
     <Compile Include="Mapping\MapCollection.cs" />
     <Compile Include="Mapping\MatchingItem.cs" />
@@ -127,7 +128,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="RichTextBoxExtensions.cs" />
+    <Compile Include="SortableBindingList.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="AboutForm.resx">
@@ -138,9 +139,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GotoLineNumberForm.resx">
       <DependentUpon>GotoLineNumberForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="LogForm.resx">
-      <DependentUpon>LogForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Mapping\MatchSettingsForm.resx">
       <DependentUpon>MatchSettingsForm.cs</DependentUpon>
@@ -160,9 +158,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

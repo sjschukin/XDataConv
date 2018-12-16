@@ -49,7 +49,7 @@
     <Compile Include="AppForm.Designer.cs">
       <DependentUpon>AppForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Class1.cs" />
+    <Compile Include="AppCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -80,6 +80,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\if_tool_62671.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Schukin.XDataConv.Core\Schukin.XDataConv.Core.csproj">
+      <Project>{f89d19b2-7f9f-4269-bb56-b2e2169b8b0b}</Project>
+      <Name>Schukin.XDataConv.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

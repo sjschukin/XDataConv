@@ -1,19 +1,28 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Schukin.XDataConv.Core;
+using Schukin.XDataConv.Core.Interfaces;
 
 namespace Schukin.XDataConv.UI
 {
     public partial class AppForm : Form
     {
+        private readonly ILogger _logger;
         private readonly SaveFileDialog _saveStoreDialog;
         private readonly OpenFileDialog _openStoreDialog;
         private readonly OpenFileDialog _openFileImportDialog;
         private string _currentFileName;
         private string _currentImportFileName;
 
-        public AppForm()
+        public AppForm(ILogger logger,
+            IMatchingManager matchingManager,
+            IImportModule[] importModules = null
+            )
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
             InitializeComponent();
 
             _saveStoreDialog = new SaveFileDialog
@@ -105,7 +114,7 @@ namespace Schukin.XDataConv.UI
             importGrid.AutoGenerateColumns = false;
             importGrid.Columns.Clear();
 
-            foreach (var mapItem in Core.Instance.MapSettings.Mapping.GetActiveItems())
+            foreach (var mapItem in XDataConv.Core.Instance.MapSettings.Mapping.GetActiveItems())
             {
                 importGrid.Columns.Add(
                     new DataGridViewTextBoxColumn { HeaderText = mapItem.ImportFieldName, DataPropertyName = mapItem.Name }
@@ -128,37 +137,37 @@ namespace Schukin.XDataConv.UI
 
             try
             {
-                Core.Instance.Store.Open(_openStoreDialog.FileName);
+                XDataConv.Core.Instance.Store.Open(_openStoreDialog.FileName);
 
-                mainGrid.DataSource = Core.Instance.Store.Data;
+                mainGrid.DataSource = XDataConv.Core.Instance.Store.Data;
                 _currentFileName = _openStoreDialog.FileName;
                 fileNameStatusLabel.Text = Path.GetFileName(_currentFileName);
             }
             catch (Exception e)
             {
-                Core.Instance.ShowError(e);
+                XDataConv.Core.Instance.ShowError(e);
             }
         }
 
         private void SaveFile()
         {
-            if (Core.Instance.Store.Data == null)
+            if (XDataConv.Core.Instance.Store.Data == null)
                 return;
 
             try
             {
-                if (Core.Instance.Store.CurrentFileName != null)
+                if (XDataConv.Core.Instance.Store.CurrentFileName != null)
                 {
-                    Core.Instance.Store.Save();
+                    XDataConv.Core.Instance.Store.Save();
 
-                    Core.Instance.ShowMessage("Сохранение завершено.");
+                    XDataConv.Core.Instance.ShowMessage("Сохранение завершено.");
                 }
                 else
                     SaveFileAs();
             }
             catch (Exception e)
             {
-                Core.Instance.ShowError(e);
+                XDataConv.Core.Instance.ShowError(e);
             }
         }
 
@@ -169,15 +178,15 @@ namespace Schukin.XDataConv.UI
 
             try
             {
-                Core.Instance.Store.Save(_saveStoreDialog.FileName);
+                XDataConv.Core.Instance.Store.Save(_saveStoreDialog.FileName);
 
                 _currentFileName = _saveStoreDialog.FileName;
                 fileNameStatusLabel.Text = Path.GetFileName(_currentFileName);
-                Core.Instance.ShowMessage("Сохранение завершено.");
+                XDataConv.Core.Instance.ShowMessage("Сохранение завершено.");
             }
             catch (Exception e)
             {
-                Core.Instance.ShowError(e);
+                XDataConv.Core.Instance.ShowError(e);
             }
         }
 
@@ -192,9 +201,9 @@ namespace Schukin.XDataConv.UI
             try
             {
                 importGrid.DataSource = null;
-                Core.Instance.OpenFileImport(_openFileImportDialog.FileName);
+                XDataConv.Core.Instance.OpenFileImport(_openFileImportDialog.FileName);
 
-                var data = Core.Instance.Store.ImportedData;
+                var data = XDataConv.Core.Instance.Store.ImportedData;
 
                 if (data == null)
                     return;
@@ -210,11 +219,11 @@ namespace Schukin.XDataConv.UI
                 injectNotFoundLabel.Text = "0";
                 injectAmbigousLabel.Text = "0";
 
-                Core.Instance.ShowMessage("Импорт завершен.");
+                XDataConv.Core.Instance.ShowMessage("Импорт завершен.");
             }
             catch (Exception e)
             {
-                Core.Instance.ShowError(e);
+                XDataConv.Core.Instance.ShowError(e);
             }
         }
 
@@ -223,11 +232,11 @@ namespace Schukin.XDataConv.UI
             try
             {
                 if (id == 1)
-                    Core.Instance.InjectDataByIdentify1();
+                    XDataConv.Core.Instance.InjectDataByIdentify1();
                 else
-                    Core.Instance.InjectDataByIdentify2();
+                    XDataConv.Core.Instance.InjectDataByIdentify2();
 
-                var data = Core.Instance.Store.ImportedData;
+                var data = XDataConv.Core.Instance.Store.ImportedData;
                 injectNotFoundLabel.Text = data.Count(item => item.State == DataItemState.InjectNotFound).ToString();
                 injectAmbigousLabel.Text = data.Count(item => item.State == DataItemState.InjectAmbigous).ToString();
                 mainGrid.Invalidate();
@@ -235,7 +244,7 @@ namespace Schukin.XDataConv.UI
             }
             catch (Exception e)
             {
-                Core.Instance.ShowError(e);
+                XDataConv.Core.Instance.ShowError(e);
             }
         }
 
@@ -248,7 +257,7 @@ namespace Schukin.XDataConv.UI
 
             if (form.LineNumber <= 0)
             {
-                Core.Instance.ShowMessage("Неверный номер строки.");
+                XDataConv.Core.Instance.ShowMessage("Неверный номер строки.");
                 return;
             }
 
@@ -267,13 +276,13 @@ namespace Schukin.XDataConv.UI
 
         private DialogResult ShowMapSettingsForm()
         {
-            var settings = (MapSettings) Core.Instance.MapSettings.Clone();
+            var settings = (MapSettings)XDataConv.Core.Instance.MapSettings.Clone();
             var mapSettingsForm = new MapSettingsForm(settings);
 
             var result = mapSettingsForm.ShowDialog();
 
             if (result == DialogResult.OK)
-                Core.Instance.MapSettings = mapSettingsForm.CurrentMapSettings;
+                XDataConv.Core.Instance.MapSettings = mapSettingsForm.CurrentMapSettings;
 
             return result;
         }
@@ -305,12 +314,12 @@ namespace Schukin.XDataConv.UI
 
         private void ImportLogMenuItem_Click(object sender, EventArgs e)
         {
-            Core.Instance.ShowImportLog();
+            XDataConv.Core.Instance.ShowImportLog();
         }
 
         private void SourceGotoLineMenuItem_Click(object sender, EventArgs e)
         {
-            if (Core.Instance.Store.Data == null)
+            if (XDataConv.Core.Instance.Store.Data == null)
                 return;
 
             GotoLineNumber(mainGrid);
@@ -318,7 +327,7 @@ namespace Schukin.XDataConv.UI
 
         private void ImportGotoLineMenuItem_Click(object sender, EventArgs e)
         {
-            if (Core.Instance.Store.ImportedData == null)
+            if (XDataConv.Core.Instance.Store.ImportedData == null)
                 return;
 
             GotoLineNumber(importGrid);
@@ -326,7 +335,7 @@ namespace Schukin.XDataConv.UI
 
         private void ExitMenuItem_Click(object sender, EventArgs e)
         {
-            Core.Instance.ExitApplication();
+            XDataConv.Core.Instance.ExitApplication();
         }
 
         private void InjectImportTool1_Click(object sender, EventArgs e)
@@ -341,7 +350,7 @@ namespace Schukin.XDataConv.UI
 
         private void AboutMenuItem_Click(object sender, EventArgs e)
         {
-            Core.Instance.ShowAboutDialog();
+            XDataConv.Core.Instance.ShowAboutDialog();
         }
 
         private void ImportGrid_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)

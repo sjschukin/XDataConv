@@ -10,7 +10,7 @@ namespace Schukin.XDataConv.Core
         private readonly SaveFileDialog _saveFileDialog;
         private readonly OpenFileDialog _openFileDialog;
 
-        public MapSettingsForm(MapSettings mapSettings)
+        public MapSettingsForm(Settings mapSettings)
         {
             InitializeComponent();
 
@@ -45,7 +45,7 @@ namespace Schukin.XDataConv.Core
             checkFindAllMatches.DataBindings.Add("Checked", mapSettings, "IsFindAllMatches");
         }
 
-        public MapSettings CurrentMapSettings { get; }
+        public Settings CurrentMapSettings { get; }
 
         private bool ValidateForm()
         {
@@ -99,7 +99,7 @@ namespace Schukin.XDataConv.Core
 
             try
             {
-                CurrentMapSettings.Save(_saveFileDialog.FileName);
+                CurrentMapSettings.SaveTemplate(_saveFileDialog.FileName);
             }
             catch (Exception ex)
             {
@@ -114,7 +114,7 @@ namespace Schukin.XDataConv.Core
 
             try
             {
-                CurrentMapSettings.Load(_openFileDialog.FileName);
+                CurrentMapSettings.LoadTemplate(_openFileDialog.FileName);
             }
             catch (Exception ex)
             {

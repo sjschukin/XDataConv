@@ -5,6 +5,7 @@ namespace Schukin.XDataConv.Core
 {
     public class DataItem : IDataItem
     {
+        public int RowId { get; set; }
         public string LdId { get; set; }
         public string AdrId { get; set; }
         public string Famil { get; set; }

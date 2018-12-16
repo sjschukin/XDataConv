@@ -1,28 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Schukin.XDataConv.Core;
+using Schukin.XDataConv.Core.Base;
 using Schukin.XDataConv.Core.Interfaces;
 
 namespace Schukin.XDataConv.Csv
 {
-    public class CsvImport
+    public class CsvImport : ImportModuleBase
     {
         private readonly string[] _supportedFileExtensions = { "csv" };
-        private readonly ILogger _logger;
-        private readonly MapCollection _mapping;
 
-        public CsvImport(ILogger logger, MapCollection mapping)
+        public CsvImport(ILogger logger, MapCollection mapping) : base (logger, mapping)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
         }
 
-        public IEnumerable<string> SupportedFileExtensions => _supportedFileExtensions;
+        public override IEnumerable<string> SupportedFileExtensions => _supportedFileExtensions;
 
-        public IEnumerable<Tuple<IDataItem, IDataItemInfo>> LoadDataItems(string filename)
+        public override IEnumerable<IDataItem> LoadDataItems(string filename)
         {
             throw new NotImplementedException();
         }

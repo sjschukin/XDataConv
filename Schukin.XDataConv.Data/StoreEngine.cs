@@ -66,7 +66,7 @@ namespace Schukin.XDataConv.Data
             var dataItemMap = new DataItemMap();
 
             return dataItemMap.MemberMaps
-                .Where(item => item.Data.Names.Count > 0) // get map items with the names only
+                .Where(item => item.Data.Names.Count > 0) // get map items with names only
                 .Select(item => new MapInfo
                 {
                     PropertyName = item.Data.Member.Name,

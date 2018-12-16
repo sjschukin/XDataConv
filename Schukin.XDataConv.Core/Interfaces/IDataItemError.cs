@@ -1,7 +1,8 @@
 ﻿namespace Schukin.XDataConv.Core.Interfaces
 {
-    public interface IDataItem
+    public interface IDataItemError
     {
         int RowId { get; set; }
+        string Message { get; set; }
     }
 }

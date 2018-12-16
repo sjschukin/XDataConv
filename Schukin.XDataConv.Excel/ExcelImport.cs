@@ -5,29 +5,27 @@ using System.IO;
 using System.Linq;
 using ExcelDataReader;
 using Schukin.XDataConv.Core;
+using Schukin.XDataConv.Core.Base;
 using Schukin.XDataConv.Core.Interfaces;
 
 namespace Schukin.XDataConv.Excel
 {
-    public class ExcelImport : IImportModule
+    public class ExcelImport : ImportModuleBase
     {
         private readonly string[] _supportedFileExtensions = {"xls", "xlsx"};
-        private readonly ILogger _logger;
-        private readonly MapCollection _mapping;
-
-        public ExcelImport(ILogger logger, MapCollection mapping)
+        
+        public ExcelImport(ILogger logger, MapCollection mapping) : base (logger,mapping)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
         }
 
-        public IEnumerable<string> SupportedFileExtensions => _supportedFileExtensions;
+        public override IEnumerable<string> SupportedFileExtensions => _supportedFileExtensions;
 
-        public IEnumerable<Tuple<IDataItem, IDataItemInfo>> LoadDataItems(string filename)
+        public override IEnumerable<IDataItem> LoadDataItems(string filename)
         {
-            var importedData = new List<Tuple<IDataItem, IDataItemInfo>>();
+            var importedData = new List<IDataItem>();
 
-            _logger.Info($"Opening file {filename} for import.");
+            Logger.Info($"Opening file {filename} for import.");
+            Errors.Clear();
             
             using (var stream = File.Open(filename, FileMode.Open, FileAccess.Read))
             using (var reader = ExcelReaderFactory.CreateReader(stream))
@@ -36,13 +34,13 @@ namespace Schukin.XDataConv.Excel
                 if (!reader.Read())
                     throw new ApplicationException("Файл пуст.");
 
-                _logger.Info("Reading a header.");
+                Logger.Info("Reading a header.");
 
                 var headerNames = GetHeaderNames(reader);
 
-                _logger.Info("Checking if all need columns exist and getting columns ordinal.");
+                Logger.Info("Checking if all need columns exist and getting columns ordinal.");
 
-                var activeMapItems = _mapping.GetActiveItems().ToArray();
+                var activeMapItems = Mapping.GetActiveItems().ToArray();
                 var ordinal = new Dictionary<string, int>();
                 var notFoundHeaderNames = new List<string>();
                 
@@ -52,18 +50,18 @@ namespace Schukin.XDataConv.Excel
 
                     for (int i = 0; i < headerNames.Length; i++)
                     {
-                        _logger.Debug($"Checking fo equal {mapItem.ImportFieldName} and {headerNames[i]}.");
+                        Logger.Debug($"Checking fo equal {mapItem.ImportFieldName} and {headerNames[i]}.");
                         if (!String.Equals(mapItem.ImportFieldName, headerNames[i], StringComparison.CurrentCultureIgnoreCase))
                             continue;
 
-                        _logger.Debug($"Found {mapItem.Name} with ordinal {i}.");
+                        Logger.Debug($"Found {mapItem.Name} with ordinal {i}.");
                         ordinal[mapItem.Name] = i;
                         break;
                     }
 
                     if (ordinal[mapItem.Name] == -1)
                     {
-                        _logger.Info("The column {mapItem.ImportFieldName} not found.");
+                        Logger.Info("The column {mapItem.ImportFieldName} not found.");
                         notFoundHeaderNames.Add(mapItem.ImportFieldName);
                     }
                 }
@@ -71,7 +69,7 @@ namespace Schukin.XDataConv.Excel
                 if (notFoundHeaderNames.Any())
                     throw new ApplicationException($"Отсутствуют необходимые колонки {String.Join(", ", notFoundHeaderNames)}. Импорт невозможен.");
 
-                _logger.Info("Checking columns complete. Start importing.");
+                Logger.Info("Checking columns complete. Start importing.");
 
                 // read the body
                 int lineNumber = 1;
@@ -83,14 +81,13 @@ namespace Schukin.XDataConv.Excel
                 {
                     lineNumber++;
                     string currentFieldName = null;
-                    var dataItem = new DataItem();
-                    var dataItemInfo = new DataItemInfo { SourceLineNumber = lineNumber };
+                    var dataItem = new DataItem {RowId = lineNumber};
 
                     try
                     {
                         foreach (var propertyInfo in properties)
                         {
-                            currentFieldName = _mapping[propertyInfo.Name].FieldName;
+                            currentFieldName = Mapping[propertyInfo.Name].FieldName;
                             var value = reader[ordinal[propertyInfo.Name]];
 
                             if (value == null)
@@ -101,7 +98,7 @@ namespace Schukin.XDataConv.Excel
                             if (strValue == String.Empty)
                                 continue;
 
-                            if (_mapping[propertyInfo.Name].IsConvertImportToUpperCase)
+                            if (Mapping[propertyInfo.Name].IsConvertImportToUpperCase)
                                 strValue = strValue.ToUpper();
 
                             propertyInfo.SetValue(dataItem,
@@ -112,12 +109,14 @@ namespace Schukin.XDataConv.Excel
                     }
                     catch (Exception)
                     {
-                        dataItemInfo.State = DataItemStates.Error;
-                        dataItemInfo.StateMessage =
-                            $"Ошибка при импорте поля {currentFieldName} в строке {lineNumber}";
+                        Errors.Add(new DataItemError
+                        {
+                            RowId = lineNumber,
+                            Message = $"Ошибка при импорте поля {currentFieldName} в строке {lineNumber}."
+                        });
                     }
 
-                    importedData.Add(new Tuple<IDataItem, IDataItemInfo>(dataItem, dataItemInfo));
+                    importedData.Add(dataItem);
                 }
             }
 

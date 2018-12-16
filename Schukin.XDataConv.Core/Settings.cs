@@ -8,13 +8,13 @@ using Schukin.XDataConv.Data;
 
 namespace Schukin.XDataConv.Core
 {
-    public class MapSettings : ICloneable, INotifyPropertyChanged
+    public class Settings : ICloneable, INotifyPropertyChanged
     {
         private bool _isFindAllMatches;
         private MapCollection _mapping;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public MapSettings()
+        public Settings()
         {
             Mapping = new MapCollection(new MapItem[] { });
         }
@@ -55,7 +55,6 @@ namespace Schukin.XDataConv.Core
             var checkedIsUseForCompare1 = new[] { "ILCHET", "GKU", "ORG" };
             var checkedIsUseForCompare2 = new[] { "FAMIL", "IMJA", "OTCH", "POSEL", "NASP", "YLIC", "NDOM", "NKORP", "NKW", "NKOMN", "GKU", "ORG" };
             var checkedIsUseForInject = new[] { "OPL", "OTPL", "KOLZR", "VIDTAR", "TARIF", "FAKT", "SUMTAR", "SUMDOLG", "OPLDOLG", "DATDOLG" };
-            var checkedIsUseForLog = new[] { "FAMIL", "IMJA", "OTCH", "DROG" };
 
             foreach (var mapItem in mapping)
             {
@@ -66,7 +65,6 @@ namespace Schukin.XDataConv.Core
                 mapItem.IsUseForCompare1 = checkedIsUseForCompare1.Contains(mapItem.FieldName);
                 mapItem.IsUseForCompare2 = checkedIsUseForCompare2.Contains(mapItem.FieldName);
                 mapItem.IsUseForInject = checkedIsUseForInject.Contains(mapItem.FieldName);
-                mapItem.IsUseForLog = checkedIsUseForLog.Contains(mapItem.FieldName);
             }
 
             mapping["IlChetNew"].ImportFieldName = String.Empty;
@@ -76,10 +74,10 @@ namespace Schukin.XDataConv.Core
             IsFindAllMatches = true;
         }
 
-        public void Save(string filename)
+        public void SaveTemplate(string filename)
         {
             var doc = new XDocument();
-            var comment = new XComment("XDataConv configuration file v2.1 -- Schukin S.");
+            var comment = new XComment("XDataConv configuration file v2.2 -- Schukin S.");
 
             var mappingsElement = new XElement("mappings");
 
@@ -98,8 +96,7 @@ namespace Schukin.XDataConv.Core
                     new XElement("isConvertImportToUpperCase", item.IsConvertImportToUpperCase),
                     new XElement("isUseForCompare1", item.IsUseForCompare1),
                     new XElement("isUseForCompare2", item.IsUseForCompare2),
-                    new XElement("isUseForInject", item.IsUseForInject),
-                    new XElement("isUseForLog", item.IsUseForLog)
+                    new XElement("isUseForInject", item.IsUseForInject)
                 );
 
                 if (item.MatchingItemsCount > 0)
@@ -128,7 +125,7 @@ namespace Schukin.XDataConv.Core
             doc.Save(filename);
         }
 
-        public void Load(string filename)
+        public void LoadTemplate(string filename)
         {
             var xml = XDocument.Load(filename);
 
@@ -188,13 +185,6 @@ namespace Schukin.XDataConv.Core
                     mapping.IsUseForInject = isUseForInject;
                 }
 
-                var isUseForLogElement = mappingElement.Element("isUseForLog");
-                if (isUseForLogElement != null)
-                {
-                    bool.TryParse(isUseForLogElement.Value, out var isUseForLog);
-                    mapping.IsUseForLog = isUseForLog;
-                }
-
                 var matchingsElement = mappingElement.Element("matchings");
                 if (matchingsElement == null)
                     continue;
@@ -213,7 +203,7 @@ namespace Schukin.XDataConv.Core
         public object Clone()
         {
             var source = this;
-            var settings = new MapSettings
+            var settings = new Settings
             {
                 Mapping = new MapCollection(source.Mapping.Select(mapItem => new MapItem
                 {
@@ -224,7 +214,6 @@ namespace Schukin.XDataConv.Core
                     IsUseForCompare1 = mapItem.IsUseForCompare1,
                     IsUseForCompare2 = mapItem.IsUseForCompare2,
                     IsUseForInject = mapItem.IsUseForInject,
-                    IsUseForLog = mapItem.IsUseForLog,
                     MemberInfo = mapItem.MemberInfo,
                     MatchingItems = mapItem.MatchingItems.Select(item =>
                         new MatchingItem
