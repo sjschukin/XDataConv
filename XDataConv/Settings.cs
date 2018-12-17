@@ -42,19 +42,7 @@ namespace Schukin.XDataConv
 
         public void LoadDefault()
         {
-            var sourceMap = new SourceMap();
-            var a = sourceMap.GetMapInfo();
-
-             //dataItemMap.MemberMaps
-             //   .Where(item => item.Data.Names.Count > 0) // get map items with names only
-             //   .Select(item => new MapInfo
-             //   {
-             //       PropertyName = item.Data.Member.Name,
-             //       FieldName = item.Data.Names.FirstOrDefault(),
-             //       MemberInfo = item.Data.Member
-             //   });
-
-            var mapping = new MapCollection(sourceMap.GetMapInfo().Select(item => new MapItem
+            var mapping = new MapCollection(SourceMapInfo.GetMapInfo().Select(item => new MapItem
             {
                 Name = item.PropertyName,
                 FieldName = item.FieldName,
@@ -155,7 +143,7 @@ namespace Schukin.XDataConv
                 }
             }
 
-            Mapping.SetDefaultValuesForAllItems();
+            SetDefaultValuesForAllMappingItems();
 
             foreach (var mappingElement in mappingsElement.Elements("mapping"))
             {
@@ -243,6 +231,18 @@ namespace Schukin.XDataConv
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void SetDefaultValuesForAllMappingItems()
+        {
+            foreach (var item in Mapping)
+            {
+                item.ImportFieldName = null;
+                item.IsUseForCompare1 = false;
+                item.IsUseForCompare2 = false;
+                item.IsUseForInject = false;
+                item.MatchingItems.Clear();
+            }
         }
     }
 }

@@ -85,6 +85,7 @@
       <DependentUpon>AppForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Csv\MemberMapInfo.cs" />
+    <Compile Include="Csv\SourceMapInfo.cs" />
     <Compile Include="MatchingManager.cs" />
     <Compile Include="Csv\CsvFileManager.cs" />
     <Compile Include="Csv\SourceMap.cs" />

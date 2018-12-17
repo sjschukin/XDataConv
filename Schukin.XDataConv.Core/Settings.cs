@@ -54,7 +54,7 @@ namespace Schukin.XDataConv.Core
             var checkedIsConvertImportToUpperCase = new[] { "FAMIL", "IMJA", "OTCH" };
             var checkedIsUseForCompare1 = new[] { "ILCHET", "GKU", "ORG" };
             var checkedIsUseForCompare2 = new[] { "FAMIL", "IMJA", "OTCH", "POSEL", "NASP", "YLIC", "NDOM", "NKORP", "NKW", "NKOMN", "GKU", "ORG" };
-            var checkedIsUseForInject = new[] { "OPL", "OTPL", "KOLZR", "VIDTAR", "TARIF", "FAKT", "SUMTAR", "SUMDOLG", "OPLDOLG", "DATDOLG" };
+            var checkedIsUseForInject = new[] { "VIDTAR", "FAKT", "SUMTAR" };
 
             foreach (var mapItem in mapping)
             {

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
 
@@ -42,18 +40,6 @@ namespace Schukin.XDataConv.Core.Csv
             Map(m => m.Month).Name("MONTH");
             Map(m => m.Year).Name("YEAR");
             Map(m => m.RowId).ConvertUsing(row => ((CsvReader) row).Parser.Context.Row);
-        }
-
-        public IEnumerable<MemberMapInfo> GetMapInfo()
-        {
-            return MemberMaps
-                .Where(item => item.Data.Names.Any()) // get map items with names only
-                .Select(item => new MemberMapInfo
-                {
-                    PropertyName = item.Data.Member.Name,
-                    FieldName = item.Data.Names.FirstOrDefault(),
-                    MemberInfo = item.Data.Member
-                }).ToArray();
         }
     }
 }
