@@ -12,15 +12,15 @@ namespace Schukin.XDataConv
     public class Settings : ICloneable, INotifyPropertyChanged
     {
         private bool _isFindAllMatches;
-        private MapCollection _mapping;
+        private SettingsMapCollection _mapping;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Settings()
         {
-            Mapping = new MapCollection(new MapItem[] { });
+            Mapping = new SettingsMapCollection(new SettingsMapItem[] { });
         }
 
-        public MapCollection Mapping
+        public SettingsMapCollection Mapping
         {
             get => _mapping;
             private set
@@ -42,7 +42,7 @@ namespace Schukin.XDataConv
 
         public void LoadDefault()
         {
-            var mapping = new MapCollection(SourceMapInfo.GetMapInfo().Select(item => new MapItem
+            var mapping = new SettingsMapCollection(SourceMapInfo.GetInfo().Select(item => new SettingsMapItem
             {
                 Name = item.PropertyName,
                 FieldName = item.FieldName,
@@ -205,7 +205,7 @@ namespace Schukin.XDataConv
             var source = this;
             var settings = new Settings
             {
-                Mapping = new MapCollection(source.Mapping.Select(mapItem => new MapItem
+                Mapping = new SettingsMapCollection(source.Mapping.Select(mapItem => new SettingsMapItem
                 {
                     Name = mapItem.Name,
                     FieldName = mapItem.FieldName,

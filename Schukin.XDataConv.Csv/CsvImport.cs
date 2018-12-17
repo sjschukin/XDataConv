@@ -10,7 +10,7 @@ namespace Schukin.XDataConv.Csv
     {
         private readonly string[] _supportedFileExtensions = { "csv" };
 
-        public CsvImport(ILogger logger, MapCollection mapping) : base (logger, mapping)
+        public CsvImport(ILogger logger, SettingsMapCollection mapping) : base (logger, mapping)
         {
         }
 

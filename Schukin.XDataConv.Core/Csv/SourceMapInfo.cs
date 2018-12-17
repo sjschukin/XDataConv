@@ -5,7 +5,7 @@ namespace Schukin.XDataConv.Core.Csv
 {
     public static class SourceMapInfo
     {
-        public static IEnumerable<MemberMapInfo> GetMapInfo()
+        public static IEnumerable<MemberMapInfo> GetInfo()
         {
             var sourceMap = new SourceMap();
 

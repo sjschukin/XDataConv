@@ -1,4 +1,4 @@
-﻿namespace Schukin.XDataConv.Core
+﻿namespace Schukin.XDataConv.UI
 {
     partial class MapSettingsForm
     {

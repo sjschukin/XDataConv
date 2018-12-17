@@ -54,7 +54,7 @@ namespace Schukin.XDataConv.Core
                 return null;
 
             var assignMapping = MapSettings.Mapping.GetUseForAssign();
-            var mapItems = assignMapping as MapItem[] ?? assignMapping.ToArray();
+            var mapItems = assignMapping as SettingsMapItem[] ?? assignMapping.ToArray();
             
             if (!mapItems.Any())
                 throw new ApplicationException("В настройках не выбраны поля, которые должны быть скопированы в источник и по которым определяется фильтрация.");
@@ -92,7 +92,7 @@ namespace Schukin.XDataConv.Core
             InjectData(MapSettings.Mapping.GetUseForIdentify2, Store.ImportedData, destination);
         }
 
-        private void InjectData(Func<IEnumerable<MapItem>> getMappingCollection, IEnumerable<DataItem> source, IEnumerable<DataItem> destination)
+        private void InjectData(Func<IEnumerable<SettingsMapItem>> getMappingCollection, IEnumerable<DataItem> source, IEnumerable<DataItem> destination)
         {
             if (Store.ImportedData == null)
             {

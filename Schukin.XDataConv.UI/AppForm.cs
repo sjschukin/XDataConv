@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Schukin.XDataConv.Core;
 using Schukin.XDataConv.Core.Interfaces;
@@ -19,10 +20,9 @@ namespace Schukin.XDataConv.UI
         public AppForm(ILogger logger,
             IMatchingManager matchingManager,
             IImportModule[] importModules = null
-            )
+        )
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
             InitializeComponent();
 
             _saveStoreDialog = new SaveFileDialog
@@ -69,7 +69,9 @@ namespace Schukin.XDataConv.UI
             exitMenuItem.Click += ExitMenuItem_Click;
             aboutMenuItem.Click += AboutMenuItem_Click;
 
+            mainGrid.DataSourceChanged += delegate { labelSource.Text = $"Источник: (Строк: {mainGrid.RowCount})"; };
             importGrid.RowPostPaint += ImportGrid_RowPostPaint;
+            importGrid.DataSourceChanged += delegate { labelImport.Text = $"Импортируемый файл: (Строк: {importGrid.RowCount})"; };
 
             BindDataGrid();
         }
@@ -114,7 +116,7 @@ namespace Schukin.XDataConv.UI
             importGrid.AutoGenerateColumns = false;
             importGrid.Columns.Clear();
 
-            foreach (var mapItem in XDataConv.Core.Instance.MapSettings.Mapping.GetActiveItems())
+            foreach (var mapItem in Core.Core.Instance.MapSettings.Mapping.GetActiveItems())
             {
                 importGrid.Columns.Add(
                     new DataGridViewTextBoxColumn { HeaderText = mapItem.ImportFieldName, DataPropertyName = mapItem.Name }
@@ -137,37 +139,37 @@ namespace Schukin.XDataConv.UI
 
             try
             {
-                XDataConv.Core.Instance.Store.Open(_openStoreDialog.FileName);
+                Core.Core.Instance.Store.Open(_openStoreDialog.FileName);
 
-                mainGrid.DataSource = XDataConv.Core.Instance.Store.Data;
+                mainGrid.DataSource = Core.Core.Instance.Store.Data;
                 _currentFileName = _openStoreDialog.FileName;
                 fileNameStatusLabel.Text = Path.GetFileName(_currentFileName);
             }
             catch (Exception e)
             {
-                XDataConv.Core.Instance.ShowError(e);
+                Core.Core.Instance.ShowError(e);
             }
         }
 
         private void SaveFile()
         {
-            if (XDataConv.Core.Instance.Store.Data == null)
+            if (Core.Core.Instance.Store.Data == null)
                 return;
 
             try
             {
-                if (XDataConv.Core.Instance.Store.CurrentFileName != null)
+                if (Core.Core.Instance.Store.CurrentFileName != null)
                 {
-                    XDataConv.Core.Instance.Store.Save();
+                    Core.Core.Instance.Store.Save();
 
-                    XDataConv.Core.Instance.ShowMessage("Сохранение завершено.");
+                    Core.Core.Instance.ShowMessage("Сохранение завершено.");
                 }
                 else
                     SaveFileAs();
             }
             catch (Exception e)
             {
-                XDataConv.Core.Instance.ShowError(e);
+                Core.Core.Instance.ShowError(e);
             }
         }
 
@@ -178,15 +180,15 @@ namespace Schukin.XDataConv.UI
 
             try
             {
-                XDataConv.Core.Instance.Store.Save(_saveStoreDialog.FileName);
+                Core.Core.Instance.Store.Save(_saveStoreDialog.FileName);
 
                 _currentFileName = _saveStoreDialog.FileName;
                 fileNameStatusLabel.Text = Path.GetFileName(_currentFileName);
-                XDataConv.Core.Instance.ShowMessage("Сохранение завершено.");
+                Core.Core.Instance.ShowMessage("Сохранение завершено.");
             }
             catch (Exception e)
             {
-                XDataConv.Core.Instance.ShowError(e);
+                Core.Core.Instance.ShowError(e);
             }
         }
 
@@ -201,9 +203,9 @@ namespace Schukin.XDataConv.UI
             try
             {
                 importGrid.DataSource = null;
-                XDataConv.Core.Instance.OpenFileImport(_openFileImportDialog.FileName);
+                Core.Core.Instance.OpenFileImport(_openFileImportDialog.FileName);
 
-                var data = XDataConv.Core.Instance.Store.ImportedData;
+                var data = Core.Core.Instance.Store.ImportedData;
 
                 if (data == null)
                     return;
@@ -219,11 +221,11 @@ namespace Schukin.XDataConv.UI
                 injectNotFoundLabel.Text = "0";
                 injectAmbigousLabel.Text = "0";
 
-                XDataConv.Core.Instance.ShowMessage("Импорт завершен.");
+                Core.Core.Instance.ShowMessage("Импорт завершен.");
             }
             catch (Exception e)
             {
-                XDataConv.Core.Instance.ShowError(e);
+                Core.Core.Instance.ShowError(e);
             }
         }
 
@@ -231,12 +233,14 @@ namespace Schukin.XDataConv.UI
         {
             try
             {
+                var desination = mainGrid.DataSource as SortableBindingList<DataItem>;
+                
                 if (id == 1)
-                    XDataConv.Core.Instance.InjectDataByIdentify1();
+                    Core.Core.Instance.InjectDataByIdentify1(desination);
                 else
-                    XDataConv.Core.Instance.InjectDataByIdentify2();
+                    Core.Core.Instance.InjectDataByIdentify2(desination);
 
-                var data = XDataConv.Core.Instance.Store.ImportedData;
+                var data = Core.Core.Instance.Store.ImportedData;
                 injectNotFoundLabel.Text = data.Count(item => item.State == DataItemState.InjectNotFound).ToString();
                 injectAmbigousLabel.Text = data.Count(item => item.State == DataItemState.InjectAmbigous).ToString();
                 mainGrid.Invalidate();
@@ -244,7 +248,7 @@ namespace Schukin.XDataConv.UI
             }
             catch (Exception e)
             {
-                XDataConv.Core.Instance.ShowError(e);
+                Core.Core.Instance.ShowError(e);
             }
         }
 
@@ -257,7 +261,7 @@ namespace Schukin.XDataConv.UI
 
             if (form.LineNumber <= 0)
             {
-                XDataConv.Core.Instance.ShowMessage("Неверный номер строки.");
+                Core.Core.Instance.ShowMessage("Неверный номер строки.");
                 return;
             }
 
@@ -276,13 +280,13 @@ namespace Schukin.XDataConv.UI
 
         private DialogResult ShowMapSettingsForm()
         {
-            var settings = (MapSettings)XDataConv.Core.Instance.MapSettings.Clone();
+            var settings = (Settings) Core.Core.Instance.MapSettings.Clone();
             var mapSettingsForm = new MapSettingsForm(settings);
 
             var result = mapSettingsForm.ShowDialog();
 
             if (result == DialogResult.OK)
-                XDataConv.Core.Instance.MapSettings = mapSettingsForm.CurrentMapSettings;
+                Core.Core.Instance.MapSettings = mapSettingsForm.CurrentMapSettings;
 
             return result;
         }
@@ -314,12 +318,12 @@ namespace Schukin.XDataConv.UI
 
         private void ImportLogMenuItem_Click(object sender, EventArgs e)
         {
-            XDataConv.Core.Instance.ShowImportLog();
+            Core.Core.Instance.ShowImportLog();
         }
 
         private void SourceGotoLineMenuItem_Click(object sender, EventArgs e)
         {
-            if (XDataConv.Core.Instance.Store.Data == null)
+            if (Core.Core.Instance.Store.Data == null)
                 return;
 
             GotoLineNumber(mainGrid);
@@ -327,7 +331,7 @@ namespace Schukin.XDataConv.UI
 
         private void ImportGotoLineMenuItem_Click(object sender, EventArgs e)
         {
-            if (XDataConv.Core.Instance.Store.ImportedData == null)
+            if (Core.Core.Instance.Store.ImportedData == null)
                 return;
 
             GotoLineNumber(importGrid);
@@ -335,7 +339,7 @@ namespace Schukin.XDataConv.UI
 
         private void ExitMenuItem_Click(object sender, EventArgs e)
         {
-            XDataConv.Core.Instance.ExitApplication();
+            Core.Core.Instance.ExitApplication();
         }
 
         private void InjectImportTool1_Click(object sender, EventArgs e)
@@ -348,9 +352,35 @@ namespace Schukin.XDataConv.UI
             InjectData(2);
         }
 
+        private void filterTool_Click(object sender, EventArgs e)
+        {
+            if (Core.Core.Instance.Store.Data == null)
+            {
+                Core.Core.Instance.ShowMessage("Файл источника не загружен.");
+                return;
+            }
+
+            if (filterTool.Checked)
+            {
+                if (Core.Core.Instance.ShowQuestion("Отключить фильтрацию и отобразить все строки?") != DialogResult.Yes)
+                    return;
+
+                mainGrid.DataSource = Core.Core.Instance.Store.Data;
+                filterTool.Checked = !filterTool.Checked;
+            }
+            else
+            {
+                if (Core.Core.Instance.ShowQuestion("Будут отображены только те строки, в которые не были загружены сведения в соответствии с настройкой \"Копировать в источник\". \r\n Продолжить?") != DialogResult.Yes)
+                    return;
+
+                mainGrid.DataSource = Core.Core.Instance.GetUnassignedRows();
+                filterTool.Checked = !filterTool.Checked;
+            }
+        }
+
         private void AboutMenuItem_Click(object sender, EventArgs e)
         {
-            XDataConv.Core.Instance.ShowAboutDialog();
+            Core.Core.Instance.ShowAboutDialog();
         }
 
         private void ImportGrid_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)

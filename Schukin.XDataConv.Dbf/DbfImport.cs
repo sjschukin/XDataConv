@@ -10,7 +10,7 @@ namespace Schukin.XDataConv.Dbf
     {
         private readonly string[] _supportedFileExtensions = { "dbf" };
 
-        public DbfImport(ILogger logger, MapCollection mapping):base(logger, mapping)
+        public DbfImport(ILogger logger, SettingsMapCollection mapping):base(logger, mapping)
         {
         }
 

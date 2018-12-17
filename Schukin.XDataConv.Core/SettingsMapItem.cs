@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Schukin.XDataConv.Core
 {
-    public class MapItem
+    public class SettingsMapItem
     {
         public string Name { get; set; }
         public string FieldName { get; set; }

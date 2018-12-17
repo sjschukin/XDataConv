@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Schukin.XDataConv.Core
+namespace Schukin.XDataConv.UI
 {
     public partial class GotoLineNumberForm : Form
     {

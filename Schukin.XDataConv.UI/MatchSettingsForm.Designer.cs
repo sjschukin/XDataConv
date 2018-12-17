@@ -1,4 +1,4 @@
-﻿namespace Schukin.XDataConv.Core
+﻿namespace Schukin.XDataConv.UI
 {
     sealed partial class MatchSettingsForm
     {
@@ -468,6 +468,7 @@
         }
 
         #endregion
+
         private System.Windows.Forms.DataGridView matchGrid;
         private System.Windows.Forms.BindingSource bindingSource;
         private System.Windows.Forms.Button buttonCancel;

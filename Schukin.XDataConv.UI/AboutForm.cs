@@ -11,6 +11,7 @@ namespace Schukin.XDataConv.UI
             var assemblyName = Assembly.GetEntryAssembly().GetName();
             labelApplicationName.Text= assemblyName.Name;
             labelVersion.Text = assemblyName.Version.ToString();
+            labelLinkSources.Click += delegate { System.Diagnostics.Process.Start("https://github.com/sjschukin/XDataConv"); };
         }
     }
 }

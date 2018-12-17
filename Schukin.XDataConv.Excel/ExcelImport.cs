@@ -14,7 +14,7 @@ namespace Schukin.XDataConv.Excel
     {
         private readonly string[] _supportedFileExtensions = {"xls", "xlsx"};
         
-        public ExcelImport(ILogger logger, MapCollection mapping) : base (logger,mapping)
+        public ExcelImport(ILogger logger, SettingsMapCollection mapping) : base (logger,mapping)
         {
         }
 

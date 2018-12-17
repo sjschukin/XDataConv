@@ -4,18 +4,18 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Schukin.XDataConv.Data;
+using Schukin.XDataConv.Core;
 
-namespace Schukin.XDataConv.Core
+namespace Schukin.XDataConv.UI
 {
     public sealed partial class MatchSettingsForm : Form
     {
         private readonly List<MatchingItem> _currentDatasource;
         private readonly List<MatchingItem> _originalDatasource;
 
-        private readonly MapItem _mapItem;
+        private readonly SettingsMapItem _mapItem;
 
-        public MatchSettingsForm(MapItem mapItem)
+        public MatchSettingsForm(SettingsMapItem mapItem)
         {
             InitializeComponent();
 
@@ -92,15 +92,15 @@ namespace Schukin.XDataConv.Core
 
         private async void ShowPossibleWordsAsync()
         {
-            if (Core.Instance.Store.Data != null)
+            if (Core.Core.Instance.Store.Data != null)
             {
-                var list = Task.Run(() => GetDistinctValues(Core.Instance.Store.Data.AsQueryable()).Select(x => new { Value = x }).ToList());
+                var list = Task.Run(() => GetDistinctValues(Core.Core.Instance.Store.Data.AsQueryable()).Select(x => new { Value = x }).ToList());
                 gridSource.DataSource = await list;
             }
 
-            if (Core.Instance.Store.ImportedData != null)
+            if (Core.Core.Instance.Store.ImportedData != null)
             {
-                var list = Task.Run(() => GetDistinctValues(Core.Instance.Store.ImportedData.AsQueryable()).Select(x => new { Value = x }).ToList());
+                var list = Task.Run(() => GetDistinctValues(Core.Core.Instance.Store.ImportedData.AsQueryable()).Select(x => new { Value = x }).ToList());
                 gridImport.DataSource = await list;
             }
         }

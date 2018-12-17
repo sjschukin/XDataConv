@@ -2,8 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Schukin.XDataConv.Core;
 
-namespace Schukin.XDataConv.Core
+namespace Schukin.XDataConv.UI
 {
     public partial class MapSettingsForm : Form
     {
@@ -54,7 +55,7 @@ namespace Schukin.XDataConv.Core
 
             if (invalidMappingCompare.Any())
             {
-                Core.Instance.ShowMessage(
+                Core.Core.Instance.ShowMessage(
                     $"Для следующих столбцов не указаны наименования столбцов файла: {String.Join(",", invalidMappingCompare.Select(item => item.Name))}.");
                 return false;
             }
@@ -64,7 +65,7 @@ namespace Schukin.XDataConv.Core
 
             if (invalidMappingInject.Any())
             {
-                Core.Instance.ShowMessage(
+                Core.Core.Instance.ShowMessage(
                     $"Следующие столбцы не могут быть использованы для копирования в источник, так как они используются для идентификации: {String.Join(",", invalidMappingInject.Select(item => item.Name))}.");
                 return false;
             }
@@ -74,7 +75,7 @@ namespace Schukin.XDataConv.Core
 
             if (invalidMappingInject2.Any())
             {
-                Core.Instance.ShowMessage(
+                Core.Core.Instance.ShowMessage(
                     $"Следующие столбцы не могут быть использованы для копирования в источник, так как для них не указаны наименования столбцов загружаемого файла: {String.Join(",", invalidMappingInject2.Select(item => item.Name))}.");
                 return false;
             }
@@ -93,7 +94,7 @@ namespace Schukin.XDataConv.Core
             }
             catch (Exception ex)
             {
-                Core.Instance.ShowError(ex);
+                Core.Core.Instance.ShowError(ex);
             }
         }
 
@@ -108,13 +109,13 @@ namespace Schukin.XDataConv.Core
             }
             catch (Exception ex)
             {
-                Core.Instance.ShowError(ex);
+                Core.Core.Instance.ShowError(ex);
             }
             
             gridMapping.Invalidate();
         }
 
-        private void ShowMatchSettingsForm(MapItem mapItem)
+        private void ShowMatchSettingsForm(SettingsMapItem mapItem)
         {
             var formMatching = new MatchSettingsForm(mapItem);
             formMatching.ShowDialog();
@@ -130,7 +131,7 @@ namespace Schukin.XDataConv.Core
             if (e.RowIndex < 0 || e.ColumnIndex != matchingColumn.Index)
                 return;
 
-            if (!(gridMapping.Rows[e.RowIndex].DataBoundItem is MapItem item))
+            if (!(gridMapping.Rows[e.RowIndex].DataBoundItem is SettingsMapItem item))
                 return;
 
             if (((System.Reflection.PropertyInfo)item.MemberInfo).PropertyType.Name != "String")

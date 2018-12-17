@@ -48,7 +48,7 @@ namespace Schukin.XDataConv.Core
             InjectData(Settings.Mapping.GetUseForIdentify2);
         }
 
-        private void InjectData(Func<IEnumerable<MapItem>> getMappingCollection)
+        private void InjectData(Func<IEnumerable<SettingsMapItem>> getMappingCollection)
         {
             var matchingErrors = new List<IDataItemError>();
 

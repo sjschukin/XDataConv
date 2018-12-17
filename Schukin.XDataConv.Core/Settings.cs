@@ -11,15 +11,15 @@ namespace Schukin.XDataConv.Core
     public class Settings : ICloneable, INotifyPropertyChanged
     {
         private bool _isFindAllMatches;
-        private MapCollection _mapping;
+        private SettingsMapCollection _mapping;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Settings()
         {
-            Mapping = new MapCollection(new MapItem[] { });
+            Mapping = new SettingsMapCollection(new SettingsMapItem[] { });
         }
 
-        public MapCollection Mapping
+        public SettingsMapCollection Mapping
         {
             get => _mapping;
             private set
@@ -42,7 +42,7 @@ namespace Schukin.XDataConv.Core
         public void LoadDefault(StoreEngine store)
         {
             var storeMap = store.GetMap();
-            var mapping = new MapCollection(storeMap.Select(item => new MapItem
+            var mapping = new SettingsMapCollection(storeMap.Select(item => new SettingsMapItem
             {
                 Name = item.PropertyName,
                 FieldName = item.FieldName,
@@ -143,7 +143,7 @@ namespace Schukin.XDataConv.Core
                 }
             }
 
-            Mapping.SetDefaultValuesForAllItems();
+            ResetValuesForAllItems();
 
             foreach (var mappingElement in mappingsElement.Elements("mapping"))
             {
@@ -205,7 +205,7 @@ namespace Schukin.XDataConv.Core
             var source = this;
             var settings = new Settings
             {
-                Mapping = new MapCollection(source.Mapping.Select(mapItem => new MapItem
+                Mapping = new SettingsMapCollection(source.Mapping.Select(mapItem => new SettingsMapItem
                 {
                     Name = mapItem.Name,
                     FieldName = mapItem.FieldName,
@@ -231,6 +231,19 @@ namespace Schukin.XDataConv.Core
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void ResetValuesForAllItems()
+        {
+            foreach (var item in Mapping)
+            {
+                item.ImportFieldName = null;
+                item.IsConvertImportToUpperCase = false;
+                item.IsUseForCompare1 = false;
+                item.IsUseForCompare2 = false;
+                item.IsUseForInject = false;
+                item.MatchingItems.Clear();
+            }
         }
     }
 }
