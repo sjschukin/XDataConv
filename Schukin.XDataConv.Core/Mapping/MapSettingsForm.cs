@@ -79,16 +79,6 @@ namespace Schukin.XDataConv.Core
                 return false;
             }
 
-            var invalidMappingLog =
-                CurrentMapSettings.Mapping.Where(item => item.IsUseForLog && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
-
-            if (invalidMappingLog.Any())
-            {
-                Core.Instance.ShowMessage(
-                    $"Следующие столбцы не могут быть использованы для отображении в протоколе, так как для них не указаны наименования столбцов загружаемого файла: {String.Join(",", invalidMappingInject2.Select(item => item.Name))}.");
-                return false;
-            }
-
             return true;
         }
 

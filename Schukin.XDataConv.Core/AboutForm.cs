@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using System.Windows.Forms;
 
 namespace Schukin.XDataConv.Core
@@ -19,6 +11,7 @@ namespace Schukin.XDataConv.Core
             var assemblyName = Assembly.GetEntryAssembly().GetName();
             labelApplicationName.Text= assemblyName.Name;
             labelVersion.Text = assemblyName.Version.ToString();
+            labelLinkSources.Click += delegate { System.Diagnostics.Process.Start("https://github.com/sjschukin/XDataConv"); };
         }
     }
 }
