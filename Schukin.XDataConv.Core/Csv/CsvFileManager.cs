@@ -44,6 +44,8 @@ namespace Schukin.XDataConv.Core.Csv
             if (data == null)
                 throw new ApplicationException("Отсутствуют данные для сохранения.");
 
+            _logger.Info($"Writing data to file {filename}.");
+
             using (var writer = new StreamWriter(filename, false, Encoding.GetEncoding(1251)))
             using (var csv = new CsvWriter(writer))
             {

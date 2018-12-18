@@ -6,17 +6,19 @@ using Schukin.XDataConv.Core.Interfaces;
 
 namespace Schukin.XDataConv.Dbf
 {
-    public class DbfImport : ImportModuleBase
+    public class DbfImport<T, TError> : ImportModuleBase<T, TError>
+        where T : IDataItem, new()
+        where TError : IDataItemError, new()
     {
         private readonly string[] _supportedFileExtensions = { "dbf" };
 
-        public DbfImport(ILogger logger, SettingsMapCollection mapping):base(logger, mapping)
+        public DbfImport(ILogger logger) : base(logger)
         {
         }
 
         public override IEnumerable<string> SupportedFileExtensions => _supportedFileExtensions;
 
-        public override IEnumerable<IDataItem> LoadDataItems(string filename)
+        public override IEnumerable<T> LoadDataItems(SettingsMapCollection mapping, string filename)
         {
             throw new NotImplementedException();
         }

@@ -3,19 +3,22 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Schukin.XDataConv.Core;
+using Schukin.XDataConv.Core.Interfaces;
 
 namespace Schukin.XDataConv.UI
 {
     public partial class MapSettingsForm : Form
     {
+        private readonly ILogger _logger;
         private readonly SaveFileDialog _saveFileDialog;
         private readonly OpenFileDialog _openFileDialog;
 
-        public MapSettingsForm(Settings mapSettings)
+        public MapSettingsForm(ILogger logger, Settings settings)
         {
-            InitializeComponent();
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            CurrentSettings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-            CurrentMapSettings = mapSettings;
+            InitializeComponent();
 
             _saveFileDialog = new SaveFileDialog
             {
@@ -41,42 +44,45 @@ namespace Schukin.XDataConv.UI
 
             // binding
             gridMapping.AutoGenerateColumns = false;
-            gridMapping.DataSource = mapSettings.Mapping.ToArray();
+            gridMapping.DataSource = settings.Mapping.ToArray();
 
-            checkFindAllMatches.DataBindings.Add("Checked", mapSettings, "IsFindAllMatches");
+            checkFindAllMatches.DataBindings.Add("Checked", settings, "IsFindAllMatches");
         }
 
-        public Settings CurrentMapSettings { get; }
+        public Settings CurrentSettings { get; }
 
         private bool ValidateForm()
         {
-            var invalidMappingCompare = CurrentMapSettings.Mapping.Where(item =>
+            var invalidMappingCompare = CurrentSettings.Mapping.Where(item =>
                 item.IsUseForCompare1 | item.IsUseForCompare2 && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingCompare.Any())
             {
-                Core.Core.Instance.ShowMessage(
-                    $"Для следующих столбцов не указаны наименования столбцов файла: {String.Join(",", invalidMappingCompare.Select(item => item.Name))}.");
+                MessageBox.Show(
+                    $"Для следующих столбцов не указаны наименования столбцов файла:\r\n{String.Join(",", invalidMappingCompare.Select(item => item.Name))}.",
+                    "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return false;
             }
 
             var invalidMappingInject =
-                CurrentMapSettings.Mapping.Where(item => item.IsUseForInject && item.IsUseForCompare1 | item.IsUseForCompare2).ToArray();
+                CurrentSettings.Mapping.Where(item => item.IsUseForInject && item.IsUseForCompare1 | item.IsUseForCompare2).ToArray();
 
             if (invalidMappingInject.Any())
             {
-                Core.Core.Instance.ShowMessage(
-                    $"Следующие столбцы не могут быть использованы для копирования в источник, так как они используются для идентификации: {String.Join(",", invalidMappingInject.Select(item => item.Name))}.");
+                MessageBox.Show(
+                    $"Следующие столбцы не могут быть использованы для копирования в источник, так как они используются для идентификации:\r\n{String.Join(",", invalidMappingInject.Select(item => item.Name))}.",
+                    "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return false;
             }
 
             var invalidMappingInject2 =
-                CurrentMapSettings.Mapping.Where(item => item.IsUseForInject && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
+                CurrentSettings.Mapping.Where(item => item.IsUseForInject && String.IsNullOrWhiteSpace(item.ImportFieldName)).ToArray();
 
             if (invalidMappingInject2.Any())
             {
-                Core.Core.Instance.ShowMessage(
-                    $"Следующие столбцы не могут быть использованы для копирования в источник, так как для них не указаны наименования столбцов загружаемого файла: {String.Join(",", invalidMappingInject2.Select(item => item.Name))}.");
+                MessageBox.Show(
+                    $"Следующие столбцы не могут быть использованы для копирования в источник, так как для них не указаны наименования столбцов загружаемого файла:\r\n{String.Join(",", invalidMappingInject2.Select(item => item.Name))}.",
+                    "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return false;
             }
 
@@ -90,11 +96,14 @@ namespace Schukin.XDataConv.UI
 
             try
             {
-                CurrentMapSettings.SaveTemplate(_saveFileDialog.FileName);
+                _logger.Info("Perform to save matching template.");
+                CurrentSettings.SaveTemplate(_saveFileDialog.FileName);
             }
             catch (Exception ex)
             {
-                Core.Core.Instance.ShowError(ex);
+                _logger.Error($"Error saving template {_saveFileDialog.FileName}", ex);
+                MessageBox.Show($"Ошибка сохранения шаблона {_saveFileDialog.FileName}.\r\n{ex.Message}",
+                    "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -105,11 +114,14 @@ namespace Schukin.XDataConv.UI
 
             try
             {
-                CurrentMapSettings.LoadTemplate(_openFileDialog.FileName);
+                _logger.Info("Perform to load matching template.");
+                CurrentSettings.LoadTemplate(_openFileDialog.FileName);
             }
             catch (Exception ex)
             {
-                Core.Core.Instance.ShowError(ex);
+                _logger.Error($"Error loading template {_openFileDialog.FileName}", ex);
+                MessageBox.Show($"Ошибка загрузки шаблона {_openFileDialog.FileName}.\r\n{ex.Message}",
+                    "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             
             gridMapping.Invalidate();

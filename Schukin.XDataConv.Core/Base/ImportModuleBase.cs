@@ -4,24 +4,24 @@ using Schukin.XDataConv.Core.Interfaces;
 
 namespace Schukin.XDataConv.Core.Base
 {
-    public abstract class ImportModuleBase : IImportModule
+    public abstract class ImportModuleBase<T, TError> : IImportModule<T, TError>
+        where T : IDataItem
+        where TError : IDataItemError
     {
-        protected readonly SettingsMapCollection Mapping;
         protected readonly ILogger Logger;
-        protected readonly List<IDataItemError> Errors;
+        protected readonly List<TError> Errors;
 
         public abstract IEnumerable<string> SupportedFileExtensions { get; }
-        public IEnumerable<IDataItemError> ImportErrors => Errors;
+        public IEnumerable<TError> ImportErrors => Errors;
 
-        protected ImportModuleBase(ILogger logger, SettingsMapCollection mapping)
+        protected ImportModuleBase(ILogger logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            Mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
 
-            Errors = new List<IDataItemError>();
+            Errors = new List<TError>();
         }
 
-        public virtual IEnumerable<IDataItem> LoadDataItems(string filename)
+        public virtual IEnumerable<T> LoadDataItems(SettingsMapCollection mapping, string filename)
         {
             throw new NotImplementedException();
         }

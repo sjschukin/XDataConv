@@ -10,19 +10,21 @@ using Schukin.XDataConv.Core.Interfaces;
 
 namespace Schukin.XDataConv.Excel
 {
-    public class ExcelImport : ImportModuleBase
+    public class ExcelImport<T, TError> : ImportModuleBase<T, TError>
+        where T : IDataItem, new()
+        where TError : IDataItemError, new()
     {
         private readonly string[] _supportedFileExtensions = {"xls", "xlsx"};
         
-        public ExcelImport(ILogger logger, SettingsMapCollection mapping) : base (logger,mapping)
+        public ExcelImport(ILogger logger) : base (logger)
         {
         }
 
         public override IEnumerable<string> SupportedFileExtensions => _supportedFileExtensions;
 
-        public override IEnumerable<IDataItem> LoadDataItems(string filename)
+        public override IEnumerable<T> LoadDataItems(SettingsMapCollection mapping, string filename)
         {
-            var importedData = new List<IDataItem>();
+            var importedData = new List<T>();
 
             Logger.Info($"Opening file {filename} for import.");
             Errors.Clear();
@@ -40,7 +42,7 @@ namespace Schukin.XDataConv.Excel
 
                 Logger.Info("Checking if all need columns exist and getting columns ordinal.");
 
-                var activeMapItems = Mapping.GetActiveItems().ToArray();
+                var activeMapItems = mapping.GetActiveItems().ToArray();
                 var ordinal = new Dictionary<string, int>();
                 var notFoundHeaderNames = new List<string>();
                 
@@ -81,13 +83,13 @@ namespace Schukin.XDataConv.Excel
                 {
                     lineNumber++;
                     string currentFieldName = null;
-                    var dataItem = new DataItem {RowId = lineNumber};
+                    var dataItem = new T {RowId = lineNumber};
 
                     try
                     {
                         foreach (var propertyInfo in properties)
                         {
-                            currentFieldName = Mapping[propertyInfo.Name].FieldName;
+                            currentFieldName = mapping[propertyInfo.Name].FieldName;
                             var value = reader[ordinal[propertyInfo.Name]];
 
                             if (value == null)
@@ -98,7 +100,7 @@ namespace Schukin.XDataConv.Excel
                             if (strValue == String.Empty)
                                 continue;
 
-                            if (Mapping[propertyInfo.Name].IsConvertImportToUpperCase)
+                            if (mapping[propertyInfo.Name].IsConvertImportToUpperCase)
                                 strValue = strValue.ToUpper();
 
                             propertyInfo.SetValue(dataItem,
@@ -109,7 +111,7 @@ namespace Schukin.XDataConv.Excel
                     }
                     catch (Exception)
                     {
-                        Errors.Add(new DataItemError
+                        Errors.Add(new TError
                         {
                             RowId = lineNumber,
                             Message = $"Ошибка при импорте поля {currentFieldName} в строке {lineNumber}."

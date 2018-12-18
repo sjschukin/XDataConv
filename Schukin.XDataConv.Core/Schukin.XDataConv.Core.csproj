@@ -56,9 +56,6 @@
       <HintPath>..\packages\ExcelDataReader.3.2.0\lib\net45\ExcelDataReader.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -89,7 +86,6 @@
     <Compile Include="Interfaces\IImportModule.cs" />
     <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="Modules\XlsModule.cs" />
     <Compile Include="SettingsMapCollection.cs" />
     <Compile Include="StringMatchingItem.cs" />
     <Compile Include="SettingsMapItem.cs" />

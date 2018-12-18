@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
-using Schukin.XDataConv.Data;
+using Schukin.XDataConv.Core.Csv;
 
 namespace Schukin.XDataConv.Core
 {
@@ -39,10 +39,9 @@ namespace Schukin.XDataConv.Core
             }
         }
 
-        public void LoadDefault(StoreEngine store)
+        public void LoadDefault()
         {
-            var storeMap = store.GetMap();
-            var mapping = new SettingsMapCollection(storeMap.Select(item => new SettingsMapItem
+            var mapping = new SettingsMapCollection(SourceMapInfo.GetInfo().Select(item => new SettingsMapItem
             {
                 Name = item.PropertyName,
                 FieldName = item.FieldName,
@@ -54,7 +53,7 @@ namespace Schukin.XDataConv.Core
             var checkedIsConvertImportToUpperCase = new[] { "FAMIL", "IMJA", "OTCH" };
             var checkedIsUseForCompare1 = new[] { "ILCHET", "GKU", "ORG" };
             var checkedIsUseForCompare2 = new[] { "FAMIL", "IMJA", "OTCH", "POSEL", "NASP", "YLIC", "NDOM", "NKORP", "NKW", "NKOMN", "GKU", "ORG" };
-            var checkedIsUseForInject = new[] { "VIDTAR", "FAKT", "SUMTAR" };
+            var checkedIsUseForInject = new[] { "OPL", "OTPL", "KOLZR", "VIDTAR", "TARIF", "FAKT", "SUMTAR", "SUMDOLG", "OPLDOLG", "DATDOLG" };
 
             foreach (var mapItem in mapping)
             {
@@ -143,7 +142,7 @@ namespace Schukin.XDataConv.Core
                 }
             }
 
-            ResetValuesForAllItems();
+            SetDefaultValuesForAllMappingItems();
 
             foreach (var mappingElement in mappingsElement.Elements("mapping"))
             {
@@ -233,12 +232,11 @@ namespace Schukin.XDataConv.Core
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void ResetValuesForAllItems()
+        private void SetDefaultValuesForAllMappingItems()
         {
             foreach (var item in Mapping)
             {
                 item.ImportFieldName = null;
-                item.IsConvertImportToUpperCase = false;
                 item.IsUseForCompare1 = false;
                 item.IsUseForCompare2 = false;
                 item.IsUseForInject = false;

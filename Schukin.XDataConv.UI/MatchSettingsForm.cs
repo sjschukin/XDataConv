@@ -92,17 +92,17 @@ namespace Schukin.XDataConv.UI
 
         private async void ShowPossibleWordsAsync()
         {
-            if (Core.Core.Instance.Store.Data != null)
-            {
-                var list = Task.Run(() => GetDistinctValues(Core.Core.Instance.Store.Data.AsQueryable()).Select(x => new { Value = x }).ToList());
-                gridSource.DataSource = await list;
-            }
+            //if (Core.Core.Instance.Store.Data != null)
+            //{
+            //    var list = Task.Run(() => GetDistinctValues(Core.Core.Instance.Store.Data.AsQueryable()).Select(x => new { Value = x }).ToList());
+            //    gridSource.DataSource = await list;
+            //}
 
-            if (Core.Core.Instance.Store.ImportedData != null)
-            {
-                var list = Task.Run(() => GetDistinctValues(Core.Core.Instance.Store.ImportedData.AsQueryable()).Select(x => new { Value = x }).ToList());
-                gridImport.DataSource = await list;
-            }
+            //if (Core.Core.Instance.Store.ImportedData != null)
+            //{
+            //    var list = Task.Run(() => GetDistinctValues(Core.Core.Instance.Store.ImportedData.AsQueryable()).Select(x => new { Value = x }).ToList());
+            //    gridImport.DataSource = await list;
+            //}
         }
 
         private void CopyNewLine(string[] values)

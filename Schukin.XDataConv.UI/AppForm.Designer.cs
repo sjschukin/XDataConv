@@ -31,8 +31,12 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AppForm));
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.settingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.injectMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.injectMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.importLogMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.openFileImportMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -41,46 +45,41 @@
             this.editMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sourceEditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sourceGotoLineMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.importEditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.importGotoLineMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importedEditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importedGotoLineMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainTool = new System.Windows.Forms.ToolStrip();
+            this.openFileTool = new System.Windows.Forms.ToolStripButton();
+            this.saveFileTool = new System.Windows.Forms.ToolStripButton();
             this.labelSource = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.filterTool = new System.Windows.Forms.ToolStripButton();
             this.statusBarMain = new System.Windows.Forms.StatusStrip();
             this.importFileNameStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.importErrorLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.injectNotFoundLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.injectAmbigousLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.injectAmbiguousLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.fileNameStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.mainGrid = new System.Windows.Forms.DataGridView();
+            this.gridSource = new System.Windows.Forms.DataGridView();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.importGrid = new System.Windows.Forms.DataGridView();
+            this.gridImported = new System.Windows.Forms.DataGridView();
             this.importTool = new System.Windows.Forms.ToolStrip();
-            this.labelImport = new System.Windows.Forms.ToolStripLabel();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.openFileTool = new System.Windows.Forms.ToolStripButton();
-            this.saveFileTool = new System.Windows.Forms.ToolStripButton();
-            this.filterTool = new System.Windows.Forms.ToolStripButton();
             this.openFileImportTool = new System.Windows.Forms.ToolStripButton();
+            this.labelImported = new System.Windows.Forms.ToolStripLabel();
             this.settingsImportTool = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.injectImportTool1 = new System.Windows.Forms.ToolStripButton();
             this.injectImportTool2 = new System.Windows.Forms.ToolStripButton();
-            this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.injectMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.injectMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuMain.SuspendLayout();
             this.mainTool.SuspendLayout();
             this.statusBarMain.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.mainGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.importGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridImported)).BeginInit();
             this.importTool.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -101,7 +100,6 @@
             this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openMenuItem,
             this.saveMenuItem,
-            this.saveAsMenuItem,
             this.toolStripSeparator2,
             this.settingsMenuItem,
             this.injectMenuItem1,
@@ -115,16 +113,47 @@
             this.fileMenuItem.Size = new System.Drawing.Size(48, 20);
             this.fileMenuItem.Text = "&Файл";
             // 
-            // saveAsMenuItem
+            // openMenuItem
             // 
-            this.saveAsMenuItem.Name = "saveAsMenuItem";
-            this.saveAsMenuItem.Size = new System.Drawing.Size(239, 22);
-            this.saveAsMenuItem.Text = "Сохранить &как...";
+            this.openMenuItem.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
+            this.openMenuItem.Name = "openMenuItem";
+            this.openMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.openMenuItem.Size = new System.Drawing.Size(239, 22);
+            this.openMenuItem.Text = "&Открыть...";
+            // 
+            // saveMenuItem
+            // 
+            this.saveMenuItem.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
+            this.saveMenuItem.Name = "saveMenuItem";
+            this.saveMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.saveMenuItem.Size = new System.Drawing.Size(239, 22);
+            this.saveMenuItem.Text = "&Сохранить...";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(236, 6);
+            // 
+            // settingsMenuItem
+            // 
+            this.settingsMenuItem.Image = global::Schukin.XDataConv.UI.Properties.Resources.Settings;
+            this.settingsMenuItem.Name = "settingsMenuItem";
+            this.settingsMenuItem.Size = new System.Drawing.Size(239, 22);
+            this.settingsMenuItem.Text = "&Параметры...";
+            // 
+            // injectMenuItem1
+            // 
+            this.injectMenuItem1.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
+            this.injectMenuItem1.Name = "injectMenuItem1";
+            this.injectMenuItem1.Size = new System.Drawing.Size(239, 22);
+            this.injectMenuItem1.Text = "Перено&с данных (ИД1)";
+            // 
+            // injectMenuItem2
+            // 
+            this.injectMenuItem2.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
+            this.injectMenuItem2.Name = "injectMenuItem2";
+            this.injectMenuItem2.Size = new System.Drawing.Size(239, 22);
+            this.injectMenuItem2.Text = "Перено&с данных (ИД2)";
             // 
             // importLogMenuItem
             // 
@@ -160,7 +189,7 @@
             // 
             this.editMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.sourceEditMenuItem,
-            this.importEditMenuItem});
+            this.importedEditMenuItem});
             this.editMenuItem.Name = "editMenuItem";
             this.editMenuItem.Size = new System.Drawing.Size(59, 20);
             this.editMenuItem.Text = "&Правка";
@@ -180,20 +209,20 @@
             this.sourceGotoLineMenuItem.Size = new System.Drawing.Size(225, 22);
             this.sourceGotoLineMenuItem.Text = "&Перейти к строке...";
             // 
-            // importEditMenuItem
+            // importedEditMenuItem
             // 
-            this.importEditMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importGotoLineMenuItem});
-            this.importEditMenuItem.Name = "importEditMenuItem";
-            this.importEditMenuItem.Size = new System.Drawing.Size(201, 22);
-            this.importEditMenuItem.Text = "И&мпортируемый файл";
+            this.importedEditMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importedGotoLineMenuItem});
+            this.importedEditMenuItem.Name = "importedEditMenuItem";
+            this.importedEditMenuItem.Size = new System.Drawing.Size(201, 22);
+            this.importedEditMenuItem.Text = "И&мпортируемый файл";
             // 
-            // importGotoLineMenuItem
+            // importedGotoLineMenuItem
             // 
-            this.importGotoLineMenuItem.Name = "importGotoLineMenuItem";
-            this.importGotoLineMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F4)));
-            this.importGotoLineMenuItem.Size = new System.Drawing.Size(225, 22);
-            this.importGotoLineMenuItem.Text = "&Перейти к строке...";
+            this.importedGotoLineMenuItem.Name = "importedGotoLineMenuItem";
+            this.importedGotoLineMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F4)));
+            this.importedGotoLineMenuItem.Size = new System.Drawing.Size(225, 22);
+            this.importedGotoLineMenuItem.Text = "&Перейти к строке...";
             // 
             // helpMenuItem
             // 
@@ -223,6 +252,24 @@
             this.mainTool.TabIndex = 1;
             this.mainTool.Text = "toolStrip1";
             // 
+            // openFileTool
+            // 
+            this.openFileTool.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.openFileTool.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
+            this.openFileTool.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.openFileTool.Name = "openFileTool";
+            this.openFileTool.Size = new System.Drawing.Size(23, 22);
+            this.openFileTool.Text = "Открыть файл";
+            // 
+            // saveFileTool
+            // 
+            this.saveFileTool.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.saveFileTool.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
+            this.saveFileTool.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.saveFileTool.Name = "saveFileTool";
+            this.saveFileTool.Size = new System.Drawing.Size(23, 22);
+            this.saveFileTool.Text = "Сохранить файл";
+            // 
             // labelSource
             // 
             this.labelSource.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -231,13 +278,27 @@
             this.labelSource.Text = "Источник:";
             this.labelSource.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+            // 
+            // filterTool
+            // 
+            this.filterTool.Image = global::Schukin.XDataConv.UI.Properties.Resources.Filter;
+            this.filterTool.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.filterTool.Name = "filterTool";
+            this.filterTool.Size = new System.Drawing.Size(68, 22);
+            this.filterTool.Text = "Фильтр";
+            this.filterTool.Click += new System.EventHandler(this.filterTool_Click);
+            // 
             // statusBarMain
             // 
             this.statusBarMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importFileNameStatusLabel,
             this.importErrorLabel,
             this.injectNotFoundLabel,
-            this.injectAmbigousLabel,
+            this.injectAmbiguousLabel,
             this.fileNameStatusLabel});
             this.statusBarMain.Location = new System.Drawing.Point(0, 554);
             this.statusBarMain.Name = "statusBarMain";
@@ -270,13 +331,13 @@
             this.injectNotFoundLabel.Text = "0";
             this.injectNotFoundLabel.ToolTipText = "Количество ненайденных  соответствий";
             // 
-            // injectAmbigousLabel
+            // injectAmbiguousLabel
             // 
-            this.injectAmbigousLabel.BackColor = System.Drawing.Color.Orange;
-            this.injectAmbigousLabel.Name = "injectAmbigousLabel";
-            this.injectAmbigousLabel.Size = new System.Drawing.Size(13, 17);
-            this.injectAmbigousLabel.Text = "0";
-            this.injectAmbigousLabel.ToolTipText = "Количество неоднозначных соответствий";
+            this.injectAmbiguousLabel.BackColor = System.Drawing.Color.Orange;
+            this.injectAmbiguousLabel.Name = "injectAmbiguousLabel";
+            this.injectAmbiguousLabel.Size = new System.Drawing.Size(13, 17);
+            this.injectAmbiguousLabel.Text = "0";
+            this.injectAmbiguousLabel.ToolTipText = "Количество неоднозначных соответствий";
             // 
             // fileNameStatusLabel
             // 
@@ -284,17 +345,17 @@
             this.fileNameStatusLabel.Size = new System.Drawing.Size(131, 17);
             this.fileNameStatusLabel.Text = "Источник не загружен";
             // 
-            // mainGrid
+            // gridSource
             // 
-            this.mainGrid.AllowUserToAddRows = false;
-            this.mainGrid.AllowUserToDeleteRows = false;
-            this.mainGrid.AllowUserToResizeRows = false;
-            this.mainGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.mainGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainGrid.Location = new System.Drawing.Point(0, 25);
-            this.mainGrid.Name = "mainGrid";
-            this.mainGrid.Size = new System.Drawing.Size(832, 240);
-            this.mainGrid.TabIndex = 3;
+            this.gridSource.AllowUserToAddRows = false;
+            this.gridSource.AllowUserToDeleteRows = false;
+            this.gridSource.AllowUserToResizeRows = false;
+            this.gridSource.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridSource.Location = new System.Drawing.Point(0, 25);
+            this.gridSource.Name = "gridSource";
+            this.gridSource.Size = new System.Drawing.Size(832, 240);
+            this.gridSource.TabIndex = 3;
             // 
             // splitContainer1
             // 
@@ -305,34 +366,34 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.mainGrid);
+            this.splitContainer1.Panel1.Controls.Add(this.gridSource);
             this.splitContainer1.Panel1.Controls.Add(this.mainTool);
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.importGrid);
+            this.splitContainer1.Panel2.Controls.Add(this.gridImported);
             this.splitContainer1.Panel2.Controls.Add(this.importTool);
             this.splitContainer1.Size = new System.Drawing.Size(832, 530);
             this.splitContainer1.SplitterDistance = 265;
             this.splitContainer1.TabIndex = 4;
             // 
-            // importGrid
+            // gridImported
             // 
-            this.importGrid.AllowUserToAddRows = false;
-            this.importGrid.AllowUserToDeleteRows = false;
-            this.importGrid.AllowUserToResizeRows = false;
-            this.importGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.importGrid.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.importGrid.Location = new System.Drawing.Point(0, 25);
-            this.importGrid.Name = "importGrid";
-            this.importGrid.Size = new System.Drawing.Size(832, 236);
-            this.importGrid.TabIndex = 4;
+            this.gridImported.AllowUserToAddRows = false;
+            this.gridImported.AllowUserToDeleteRows = false;
+            this.gridImported.AllowUserToResizeRows = false;
+            this.gridImported.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridImported.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridImported.Location = new System.Drawing.Point(0, 25);
+            this.gridImported.Name = "gridImported";
+            this.gridImported.Size = new System.Drawing.Size(832, 236);
+            this.gridImported.TabIndex = 4;
             // 
             // importTool
             // 
             this.importTool.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openFileImportTool,
-            this.labelImport,
+            this.labelImported,
             this.settingsImportTool,
             this.toolStripSeparator5,
             this.injectImportTool1,
@@ -342,51 +403,6 @@
             this.importTool.Size = new System.Drawing.Size(832, 25);
             this.importTool.TabIndex = 2;
             this.importTool.Text = "toolImport";
-            // 
-            // labelImport
-            // 
-            this.labelImport.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.labelImport.Name = "labelImport";
-            this.labelImport.Size = new System.Drawing.Size(137, 22);
-            this.labelImport.Text = "Импортируемый файл:";
-            this.labelImport.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
-            // 
-            // openFileTool
-            // 
-            this.openFileTool.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.openFileTool.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
-            this.openFileTool.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.openFileTool.Name = "openFileTool";
-            this.openFileTool.Size = new System.Drawing.Size(23, 22);
-            this.openFileTool.Text = "Открыть файл";
-            // 
-            // saveFileTool
-            // 
-            this.saveFileTool.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.saveFileTool.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
-            this.saveFileTool.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.saveFileTool.Name = "saveFileTool";
-            this.saveFileTool.Size = new System.Drawing.Size(23, 22);
-            this.saveFileTool.Text = "Сохранить файл";
-            // 
-            // filterTool
-            // 
-            this.filterTool.Image = global::Schukin.XDataConv.UI.Properties.Resources.Filter;
-            this.filterTool.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.filterTool.Name = "filterTool";
-            this.filterTool.Size = new System.Drawing.Size(68, 22);
-            this.filterTool.Text = "Фильтр";
-            this.filterTool.Click += new System.EventHandler(this.filterTool_Click);
             // 
             // openFileImportTool
             // 
@@ -398,6 +414,14 @@
             this.openFileImportTool.Text = "Открыть файл";
             this.openFileImportTool.ToolTipText = "Открыть файл";
             // 
+            // labelImported
+            // 
+            this.labelImported.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.labelImported.Name = "labelImported";
+            this.labelImported.Size = new System.Drawing.Size(137, 22);
+            this.labelImported.Text = "Импортируемый файл:";
+            this.labelImported.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // settingsImportTool
             // 
             this.settingsImportTool.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -406,6 +430,11 @@
             this.settingsImportTool.Name = "settingsImportTool";
             this.settingsImportTool.Size = new System.Drawing.Size(23, 22);
             this.settingsImportTool.Text = "Параметры";
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
             // 
             // injectImportTool1
             // 
@@ -425,43 +454,6 @@
             this.injectImportTool2.Text = "Перенос данных (ИД2)";
             this.injectImportTool2.ToolTipText = "Осуществить перенос, используя правила вторичной идентификации";
             // 
-            // openMenuItem
-            // 
-            this.openMenuItem.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
-            this.openMenuItem.Name = "openMenuItem";
-            this.openMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openMenuItem.Size = new System.Drawing.Size(239, 22);
-            this.openMenuItem.Text = "&Открыть...";
-            // 
-            // saveMenuItem
-            // 
-            this.saveMenuItem.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
-            this.saveMenuItem.Name = "saveMenuItem";
-            this.saveMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveMenuItem.Size = new System.Drawing.Size(239, 22);
-            this.saveMenuItem.Text = "&Сохранить";
-            // 
-            // settingsMenuItem
-            // 
-            this.settingsMenuItem.Image = global::Schukin.XDataConv.UI.Properties.Resources.Settings;
-            this.settingsMenuItem.Name = "settingsMenuItem";
-            this.settingsMenuItem.Size = new System.Drawing.Size(239, 22);
-            this.settingsMenuItem.Text = "&Параметры...";
-            // 
-            // injectMenuItem1
-            // 
-            this.injectMenuItem1.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
-            this.injectMenuItem1.Name = "injectMenuItem1";
-            this.injectMenuItem1.Size = new System.Drawing.Size(239, 22);
-            this.injectMenuItem1.Text = "Перено&с данных (ИД1)";
-            // 
-            // injectMenuItem2
-            // 
-            this.injectMenuItem2.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
-            this.injectMenuItem2.Name = "injectMenuItem2";
-            this.injectMenuItem2.Size = new System.Drawing.Size(239, 22);
-            this.injectMenuItem2.Text = "Перено&с данных (ИД2)";
-            // 
             // AppForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -480,14 +472,14 @@
             this.mainTool.PerformLayout();
             this.statusBarMain.ResumeLayout(false);
             this.statusBarMain.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.mainGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridSource)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.importGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridImported)).EndInit();
             this.importTool.ResumeLayout(false);
             this.importTool.PerformLayout();
             this.ResumeLayout(false);
@@ -501,7 +493,6 @@
         private System.Windows.Forms.ToolStripMenuItem fileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveAsMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem openFileImportMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
@@ -511,15 +502,15 @@
         private System.Windows.Forms.ToolStripMenuItem aboutMenuItem;
         private System.Windows.Forms.ToolStrip mainTool;
         private System.Windows.Forms.StatusStrip statusBarMain;
-        private System.Windows.Forms.DataGridView mainGrid;
+        private System.Windows.Forms.DataGridView gridSource;
         private System.Windows.Forms.ToolStripMenuItem settingsMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem importLogMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.DataGridView importGrid;
+        private System.Windows.Forms.DataGridView gridImported;
         private System.Windows.Forms.ToolStrip importTool;
         private System.Windows.Forms.ToolStripLabel labelSource;
-        private System.Windows.Forms.ToolStripLabel labelImport;
+        private System.Windows.Forms.ToolStripLabel labelImported;
         private System.Windows.Forms.ToolStripButton openFileImportTool;
         private System.Windows.Forms.ToolStripButton openFileTool;
         private System.Windows.Forms.ToolStripButton saveFileTool;
@@ -530,11 +521,11 @@
         private System.Windows.Forms.ToolStripStatusLabel fileNameStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem injectMenuItem1;
         private System.Windows.Forms.ToolStripStatusLabel injectNotFoundLabel;
-        private System.Windows.Forms.ToolStripStatusLabel injectAmbigousLabel;
+        private System.Windows.Forms.ToolStripStatusLabel injectAmbiguousLabel;
         private System.Windows.Forms.ToolStripMenuItem sourceEditMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem importEditMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importedEditMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sourceGotoLineMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem importGotoLineMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importedGotoLineMenuItem;
         private System.Windows.Forms.ToolStripButton injectImportTool2;
         private System.Windows.Forms.ToolStripMenuItem injectMenuItem2;
         private System.Windows.Forms.ToolStripButton filterTool;

@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Schukin.XDataConv.Core;
+using Schukin.XDataConv.Core.Csv;
 using Schukin.XDataConv.Core.Interfaces;
 
 namespace Schukin.XDataConv.UI
@@ -11,46 +11,63 @@ namespace Schukin.XDataConv.UI
     public partial class AppForm : Form
     {
         private readonly ILogger _logger;
-        private readonly SaveFileDialog _saveStoreDialog;
-        private readonly OpenFileDialog _openStoreDialog;
-        private readonly OpenFileDialog _openFileImportDialog;
-        private string _currentFileName;
-        private string _currentImportFileName;
+        private readonly IMatchingManager _matchingManager;
+        private readonly IImportModule<DataItem, DataItemError>[] _importModules;
+        private readonly SaveFileDialog _saveSourceFileDialog;
+        private readonly OpenFileDialog _openSourceFileDialog;
+        private readonly OpenFileDialog _openImportedFileDialog;
 
-        public AppForm(ILogger logger,
-            IMatchingManager matchingManager,
-            IImportModule[] importModules = null
-        )
+        private Settings _settings;
+        // private string _currentFileName;
+        // private string _currentImportFileName;
+
+        public AppForm(ILogger logger, IMatchingManager matchingManager, IImportModule<DataItem, DataItemError>[] importModules = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _matchingManager = matchingManager ?? throw new ArgumentNullException(nameof(matchingManager));
+            _importModules = importModules;
+
             InitializeComponent();
 
-            _saveStoreDialog = new SaveFileDialog
+            _settings = new Settings();
+            _settings.LoadDefault();
+
+            _saveSourceFileDialog = new SaveFileDialog
             {
                 CheckPathExists = true,
                 AddExtension = true,
-                Filter = "Текстовые файлы с разделителем (*.csv)|*.csv",
+                Filter = "Файл ЭСРН (*.csv)|*.csv",
                 DefaultExt = "csv"
             };
-            _openStoreDialog = new OpenFileDialog
+            _openSourceFileDialog = new OpenFileDialog
             {
                 CheckFileExists = true,
-                Filter = "Текстовые файлы с разделителем (*.csv)|*.csv"
+                Filter = "Файл ЭСРН (*.csv)|*.csv"
             };
 
-            _openFileImportDialog = new OpenFileDialog
+            _openImportedFileDialog = new OpenFileDialog
             {
                 CheckFileExists = true,
-                Filter = "Файлы Microsoft Excel (*.xls, *.xlsx)|*.xls;*.xlsx"
             };
 
+            PopulateModules();
+            InitializeEventHandlers();
+            BindDataGrid();
+        }
+
+        private void PopulateModules()
+        {
+            _openImportedFileDialog.Filter = String.Join("|",
+                _importModules.Select(item => GetFilterStringForFileDialog(item.SupportedFileExtensions.ToArray())));
+        }
+
+        private void InitializeEventHandlers()
+        {
             openMenuItem.Click += OpenMenuItem_Click;
             openFileTool.Click += OpenMenuItem_Click;
 
             saveMenuItem.Click += SaveMenuItem_Click;
             saveFileTool.Click += SaveMenuItem_Click;
-
-            saveAsMenuItem.Click += SaveAsMenuItem_Click;
 
             openFileImportMenuItem.Click += OpenFileImportMenuItem_Click;
             openFileImportTool.Click += OpenFileImportMenuItem_Click;
@@ -65,21 +82,19 @@ namespace Schukin.XDataConv.UI
 
             importLogMenuItem.Click += ImportLogMenuItem_Click;
             sourceGotoLineMenuItem.Click += SourceGotoLineMenuItem_Click;
-            importGotoLineMenuItem.Click += ImportGotoLineMenuItem_Click;
+            importedGotoLineMenuItem.Click += ImportedGotoLineMenuItem_Click;
             exitMenuItem.Click += ExitMenuItem_Click;
             aboutMenuItem.Click += AboutMenuItem_Click;
 
-            mainGrid.DataSourceChanged += delegate { labelSource.Text = $"Источник: (Строк: {mainGrid.RowCount})"; };
-            importGrid.RowPostPaint += ImportGrid_RowPostPaint;
-            importGrid.DataSourceChanged += delegate { labelImport.Text = $"Импортируемый файл: (Строк: {importGrid.RowCount})"; };
-
-            BindDataGrid();
+            gridSource.DataSourceChanged += delegate { labelSource.Text = $"Источник: (Строк: {gridSource.RowCount})"; };
+            //gridImported.RowPostPaint += ImportGrid_RowPostPaint;
+            gridImported.DataSourceChanged += delegate { labelImported.Text = $"Импортируемый файл: (Строк: {gridImported.RowCount})"; };
         }
 
         private void BindDataGrid()
         {
-            mainGrid.AutoGenerateColumns = false;
-            mainGrid.Columns.AddRange(
+            gridSource.AutoGenerateColumns = false;
+            gridSource.Columns.AddRange(
                 new DataGridViewTextBoxColumn { HeaderText = "FAMIL", DataPropertyName = "Famil", Width = 120, ReadOnly = true },
                 new DataGridViewTextBoxColumn { HeaderText = "IMJA", DataPropertyName = "Imja", Width = 120, ReadOnly = true },
                 new DataGridViewTextBoxColumn { HeaderText = "OTCH", DataPropertyName = "Otch", Width = 120, ReadOnly = true },
@@ -109,146 +124,173 @@ namespace Schukin.XDataConv.UI
                 new DataGridViewTextBoxColumn { HeaderText = "MONTH", DataPropertyName = "Month", Width = 70, ReadOnly = true },
                 new DataGridViewTextBoxColumn { HeaderText = "YEAR", DataPropertyName = "Year", Width = 70, ReadOnly = true }
             );
+
+            gridSource.DataSource = _matchingManager.SourceData;
+            gridImported.DataSource = _matchingManager.ImportedData;
         }
 
         private void BindImportDataGrid()
         {
-            importGrid.AutoGenerateColumns = false;
-            importGrid.Columns.Clear();
+            gridImported.AutoGenerateColumns = false;
+            gridImported.Columns.Clear();
 
-            foreach (var mapItem in Core.Core.Instance.MapSettings.Mapping.GetActiveItems())
+            foreach (var mapItem in _settings.Mapping.GetActiveItems())
             {
-                importGrid.Columns.Add(
+                gridImported.Columns.Add(
                     new DataGridViewTextBoxColumn { HeaderText = mapItem.ImportFieldName, DataPropertyName = mapItem.Name }
                 );
             }
 
-            importGrid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                HeaderText = "Ошибка",
-                DataPropertyName = "StateMessage",
-                Width = 600,
-                ReadOnly = true
-            });
+            //importGrid.Columns.Add(new DataGridViewTextBoxColumn
+            //{
+            //    HeaderText = "Ошибка",
+            //    DataPropertyName = "StateMessage",
+            //    Width = 600,
+            //    ReadOnly = true
+            //});
         }
 
-        private void OpenFile()
+        private void OpenSourceFile()
         {
-            if (_openStoreDialog.ShowDialog() != DialogResult.OK)
+            if (_openSourceFileDialog.ShowDialog() != DialogResult.OK)
                 return;
 
             try
             {
-                Core.Core.Instance.Store.Open(_openStoreDialog.FileName);
+                var fileManager = new CsvFileManager(_logger);
 
-                mainGrid.DataSource = Core.Core.Instance.Store.Data;
-                _currentFileName = _openStoreDialog.FileName;
-                fileNameStatusLabel.Text = Path.GetFileName(_currentFileName);
+                var items = fileManager.LoadDataItems(_openSourceFileDialog.FileName);
+
+                gridSource.SuspendLayout();
+                _matchingManager.SourceData.Clear();
+                _matchingManager.SourceMatchedData.Clear();
+
+                foreach (var item in items)
+                    _matchingManager.SourceData.Add(item);
+                
+                gridSource.ResumeLayout();
+                fileNameStatusLabel.Text = Path.GetFileName(_openSourceFileDialog.FileName);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Core.Core.Instance.ShowError(e);
+                _logger.Error($"Error opening file {_openSourceFileDialog.FileName}", ex);
+                MessageBox.Show($"Ошибка открытия файла {_openSourceFileDialog.FileName}.\r\n{ex.Message}",
+                    "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void SaveFile()
+        private void SaveSourceFile()
         {
-            if (Core.Core.Instance.Store.Data == null)
+            if (!_matchingManager.SourceMatchedData.Any())
+            {
+                MessageBox.Show("Отсутствуют данные для сохранения.", "XDataConv", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            if (!String.IsNullOrEmpty(_openSourceFileDialog.FileName))
+                _saveSourceFileDialog.InitialDirectory = Path.GetDirectoryName(_openSourceFileDialog.FileName);
+
+            if (_saveSourceFileDialog.ShowDialog() != DialogResult.OK)
                 return;
 
             try
             {
-                if (Core.Core.Instance.Store.CurrentFileName != null)
+                var fileManager = new CsvFileManager(_logger);
+
+                fileManager.WriteToFile(_saveSourceFileDialog.FileName, _matchingManager.SourceMatchedData);
+
+                MessageBox.Show($"Данные сохранены в файл {_saveSourceFileDialog.FileName}.", "XDataConv",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error writing file {_saveSourceFileDialog.FileName}", ex);
+                MessageBox.Show($"Ошибка сохранения файла {_saveSourceFileDialog.FileName}.\r\n{ex.Message}",
+                    "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void OpenImportedFile()
+        {
+            if (_openImportedFileDialog.ShowDialog() != DialogResult.OK)
+                return;
+
+            if (ShowSettingsDialog() != DialogResult.OK)
+                return;
+
+            try
+            {
+                // selecting module for import by file extension
+                _logger.Info("Opening file for import. Trying find a situable module by file extension...");
+
+                var fileExtension = Path.GetExtension(_openImportedFileDialog.FileName);
+                var module = _importModules
+                    .First(item => item.SupportedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase));
+
+                if (module == null)
                 {
-                    Core.Core.Instance.Store.Save();
-
-                    Core.Core.Instance.ShowMessage("Сохранение завершено.");
-                }
-                else
-                    SaveFileAs();
-            }
-            catch (Exception e)
-            {
-                Core.Core.Instance.ShowError(e);
-            }
-        }
-
-        private void SaveFileAs()
-        {
-            if (_saveStoreDialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            try
-            {
-                Core.Core.Instance.Store.Save(_saveStoreDialog.FileName);
-
-                _currentFileName = _saveStoreDialog.FileName;
-                fileNameStatusLabel.Text = Path.GetFileName(_currentFileName);
-                Core.Core.Instance.ShowMessage("Сохранение завершено.");
-            }
-            catch (Exception e)
-            {
-                Core.Core.Instance.ShowError(e);
-            }
-        }
-
-        private void OpenFileImport()
-        {
-            if (_openFileImportDialog.ShowDialog() != DialogResult.OK)
-                return;
-
-            if (ShowMapSettingsForm() != DialogResult.OK)
-                return;
-
-            try
-            {
-                importGrid.DataSource = null;
-                Core.Core.Instance.OpenFileImport(_openFileImportDialog.FileName);
-
-                var data = Core.Core.Instance.Store.ImportedData;
-
-                if (data == null)
+                    _logger.Info($"Situable module not found for '{fileExtension}' extension.");
+                    MessageBox.Show("Не найден подходящий модуль для открытия данного типа файла.", "XDataConv",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
+                }
 
-                importGrid.DataSource = data;
-                _currentImportFileName = _openFileImportDialog.FileName;
-                importFileNameStatusLabel.Text = _currentImportFileName;
-                importFileNameStatusLabel.ToolTipText = _currentImportFileName;
+                var items = module.LoadDataItems(_settings.Mapping, _openImportedFileDialog.FileName);
+
+                gridImported.SuspendLayout();
+                _matchingManager.ImportedData.Clear();
+                _matchingManager.ImportedMatchedData.Clear();
+
+                foreach (var item in items)
+                    _matchingManager.ImportedData.Add(item);
 
                 BindImportDataGrid();
+                gridSource.ResumeLayout();
 
-                importErrorLabel.Text = data.Count(item => item.State == DataItemState.ImportError).ToString();
-                injectNotFoundLabel.Text = "0";
-                injectAmbigousLabel.Text = "0";
+                importFileNameStatusLabel.Text = _openImportedFileDialog.FileName;
 
-                Core.Core.Instance.ShowMessage("Импорт завершен.");
+                //importErrorLabel.Text = data.Count(item => item.State == DataItemState.ImportError).ToString();
+                //injectNotFoundLabel.Text = "0";
+                //injectAmbiguousLabel.Text = "0";
+
+                MessageBox.Show($"Импорт файла {_openImportedFileDialog.FileName} завершен.", "XDataConv",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Core.Core.Instance.ShowError(e);
+                _logger.Error($"Error import file {_openImportedFileDialog.FileName}", ex);
+                MessageBox.Show($"Ошибка импорта файла {_openImportedFileDialog.FileName}.\r\n{ex.Message}",
+                    "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void InjectData(int id)
+        private void InjectData(int methodNumber)
         {
             try
             {
-                var desination = mainGrid.DataSource as SortableBindingList<DataItem>;
-                
-                if (id == 1)
-                    Core.Core.Instance.InjectDataByIdentify1(desination);
-                else
-                    Core.Core.Instance.InjectDataByIdentify2(desination);
+                gridSource.SuspendLayout();
+                gridImported.SuspendLayout();
 
-                var data = Core.Core.Instance.Store.ImportedData;
-                injectNotFoundLabel.Text = data.Count(item => item.State == DataItemState.InjectNotFound).ToString();
-                injectAmbigousLabel.Text = data.Count(item => item.State == DataItemState.InjectAmbigous).ToString();
-                mainGrid.Invalidate();
-                importGrid.Invalidate();
+                if (methodNumber == 1)
+                    _matchingManager.InjectDataByIdentify1();
+                else
+                    _matchingManager.InjectDataByIdentify2();
+
+                //var data = Core.Core.Instance.Store.ImportedData;
+                //injectNotFoundLabel.Text = data.Count(item => item.State == DataItemState.InjectNotFound).ToString();
+                //injectAmbiguousLabel.Text = data.Count(item => item.State == DataItemState.InjectAmbigous).ToString();
+                //gridSource.Invalidate();
+                //gridImported.Invalidate();
+
+                gridSource.ResumeLayout(true);
+                gridImported.ResumeLayout(true);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Core.Core.Instance.ShowError(e);
+                _logger.Error($"Error matching file. Method number is {methodNumber}.", ex);
+                MessageBox.Show($"Ошибка операции переноса данных.\r\n{ex.Message}",
+                    "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -259,87 +301,94 @@ namespace Schukin.XDataConv.UI
             if (form.ShowDialog() != DialogResult.OK)
                 return;
 
-            if (form.LineNumber <= 0)
-            {
-                Core.Core.Instance.ShowMessage("Неверный номер строки.");
-                return;
-            }
+            bool isFound = false;
 
             foreach (DataGridViewRow row in grid.Rows)
             {
                 var item = (DataItem)row.DataBoundItem;
 
-                if (item.LineNumber != form.LineNumber)
+                if (item.RowId != form.LineNumber)
                     continue;
+
+                isFound = true;
 
                 grid.FirstDisplayedScrollingRowIndex = row.Index;
                 grid.CurrentCell = row.Cells[0];
                 break;
             }
+
+            if (!isFound)
+                MessageBox.Show($"Строка с номером '{form.LineNumber}' отсутствует в списке.", "XDataConv",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private DialogResult ShowMapSettingsForm()
+        private DialogResult ShowSettingsDialog()
         {
-            var settings = (Settings) Core.Core.Instance.MapSettings.Clone();
-            var mapSettingsForm = new MapSettingsForm(settings);
-
+            var settings = (Settings) _settings.Clone();
+            var mapSettingsForm = new MapSettingsForm(_logger, settings);
             var result = mapSettingsForm.ShowDialog();
 
             if (result == DialogResult.OK)
-                Core.Core.Instance.MapSettings = mapSettingsForm.CurrentMapSettings;
+                _settings = mapSettingsForm.CurrentSettings;
 
             return result;
         }
 
+        private void ShowAboutDialog()
+        {
+            var form = new AboutForm();
+            form.ShowDialog();
+        }
+
+        private string GetFilterStringForFileDialog(string[] fileExtensions)
+        {
+            if (fileExtensions == null || fileExtensions.Length == 0)
+                return null;
+
+            return String.Concat(String.Join(", ", fileExtensions.Select(item => "*." + item)), "|",
+                String.Join(";", fileExtensions.Select(item => "*." + item)));
+        }
+
         private void OpenMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFile();
+            OpenSourceFile();
         }
 
         private void SaveMenuItem_Click(object sender, EventArgs e)
         {
-            SaveFile();
-        }
-
-        private void SaveAsMenuItem_Click(object sender, EventArgs e)
-        {
-            SaveFileAs();
+            SaveSourceFile();
         }
 
         private void OpenFileImportMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileImport();
+            OpenImportedFile();
         }
 
         private void SettingsMenuItem_Click(object sender, EventArgs e)
         {
-            ShowMapSettingsForm();
+            ShowSettingsDialog();
         }
 
         private void ImportLogMenuItem_Click(object sender, EventArgs e)
         {
-            Core.Core.Instance.ShowImportLog();
+            //Core.Core.Instance.ShowImportLog();
         }
 
         private void SourceGotoLineMenuItem_Click(object sender, EventArgs e)
         {
-            if (Core.Core.Instance.Store.Data == null)
-                return;
-
-            GotoLineNumber(mainGrid);
+            if (_matchingManager.SourceData.Any())
+                GotoLineNumber(gridSource);
         }
 
-        private void ImportGotoLineMenuItem_Click(object sender, EventArgs e)
+        private void ImportedGotoLineMenuItem_Click(object sender, EventArgs e)
         {
-            if (Core.Core.Instance.Store.ImportedData == null)
-                return;
-
-            GotoLineNumber(importGrid);
+            if (_matchingManager.ImportedData.Any())
+                GotoLineNumber(gridImported);
         }
 
         private void ExitMenuItem_Click(object sender, EventArgs e)
         {
-            Core.Core.Instance.ExitApplication();
+            Application.Exit();
         }
 
         private void InjectImportTool1_Click(object sender, EventArgs e)
@@ -354,55 +403,55 @@ namespace Schukin.XDataConv.UI
 
         private void filterTool_Click(object sender, EventArgs e)
         {
-            if (Core.Core.Instance.Store.Data == null)
-            {
-                Core.Core.Instance.ShowMessage("Файл источника не загружен.");
-                return;
-            }
+            //if (Core.Core.Instance.Store.Data == null)
+            //{
+            //    Core.Core.Instance.ShowMessage("Файл источника не загружен.");
+            //    return;
+            //}
 
-            if (filterTool.Checked)
-            {
-                if (Core.Core.Instance.ShowQuestion("Отключить фильтрацию и отобразить все строки?") != DialogResult.Yes)
-                    return;
+            //if (filterTool.Checked)
+            //{
+            //    if (Core.Core.Instance.ShowQuestion("Отключить фильтрацию и отобразить все строки?") != DialogResult.Yes)
+            //        return;
 
-                mainGrid.DataSource = Core.Core.Instance.Store.Data;
-                filterTool.Checked = !filterTool.Checked;
-            }
-            else
-            {
-                if (Core.Core.Instance.ShowQuestion("Будут отображены только те строки, в которые не были загружены сведения в соответствии с настройкой \"Копировать в источник\". \r\n Продолжить?") != DialogResult.Yes)
-                    return;
+            //    gridSource.DataSource = Core.Core.Instance.Store.Data;
+            //    filterTool.Checked = !filterTool.Checked;
+            //}
+            //else
+            //{
+            //    if (Core.Core.Instance.ShowQuestion("Будут отображены только те строки, в которые не были загружены сведения в соответствии с настройкой \"Копировать в источник\". \r\n Продолжить?") != DialogResult.Yes)
+            //        return;
 
-                mainGrid.DataSource = Core.Core.Instance.GetUnassignedRows();
-                filterTool.Checked = !filterTool.Checked;
-            }
+            //    gridSource.DataSource = Core.Core.Instance.GetUnassignedRows();
+            //    filterTool.Checked = !filterTool.Checked;
+            //}
         }
 
         private void AboutMenuItem_Click(object sender, EventArgs e)
         {
-            Core.Core.Instance.ShowAboutDialog();
+            ShowAboutDialog();
         }
 
-        private void ImportGrid_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
-        {
-            var item = (DataItem)importGrid.Rows[e.RowIndex].DataBoundItem;
-            var style = importGrid.Rows[e.RowIndex].DefaultCellStyle;
+        //private void ImportGrid_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        //{
+        //    var item = (DataItem)gridImported.Rows[e.RowIndex].DataBoundItem;
+        //    var style = gridImported.Rows[e.RowIndex].DefaultCellStyle;
 
-            switch (item.State)
-            {
-                case DataItemState.None:
-                    style.BackColor = importGrid.DefaultCellStyle.BackColor;
-                    break;
-                case DataItemState.ImportError:
-                    style.BackColor = Color.Red;
-                    break;
-                case DataItemState.InjectNotFound:
-                    style.BackColor = Color.Yellow;
-                    break;
-                case DataItemState.InjectAmbigous:
-                    style.BackColor = Color.Orange;
-                    break;
-            }
-        }
+        //    switch (item.State)
+        //    {
+        //        case DataItemState.None:
+        //            style.BackColor = gridImported.DefaultCellStyle.BackColor;
+        //            break;
+        //        case DataItemState.ImportError:
+        //            style.BackColor = Color.Red;
+        //            break;
+        //        case DataItemState.InjectNotFound:
+        //            style.BackColor = Color.Yellow;
+        //            break;
+        //        case DataItemState.InjectAmbigous:
+        //            style.BackColor = Color.Orange;
+        //            break;
+        //    }
+        //}
     }
 }
