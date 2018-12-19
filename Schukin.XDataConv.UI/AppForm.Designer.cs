@@ -71,6 +71,14 @@
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.injectImportTool1 = new System.Windows.Forms.ToolStripButton();
             this.injectImportTool2 = new System.Windows.Forms.ToolStripButton();
+            this.tabImported = new System.Windows.Forms.TabControl();
+            this.tbImported = new System.Windows.Forms.TabPage();
+            this.tbImportedMatched = new System.Windows.Forms.TabPage();
+            this.tabSource = new System.Windows.Forms.TabControl();
+            this.tbSource = new System.Windows.Forms.TabPage();
+            this.tbSourceMatched = new System.Windows.Forms.TabPage();
+            this.gridImportedMatched = new System.Windows.Forms.DataGridView();
+            this.gridSourceMatched = new System.Windows.Forms.DataGridView();
             this.menuMain.SuspendLayout();
             this.mainTool.SuspendLayout();
             this.statusBarMain.SuspendLayout();
@@ -81,6 +89,14 @@
             this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridImported)).BeginInit();
             this.importTool.SuspendLayout();
+            this.tabImported.SuspendLayout();
+            this.tbImported.SuspendLayout();
+            this.tbImportedMatched.SuspendLayout();
+            this.tabSource.SuspendLayout();
+            this.tbSource.SuspendLayout();
+            this.tbSourceMatched.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gridImportedMatched)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridSourceMatched)).BeginInit();
             this.SuspendLayout();
             // 
             // menuMain
@@ -259,7 +275,7 @@
             this.openFileTool.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openFileTool.Name = "openFileTool";
             this.openFileTool.Size = new System.Drawing.Size(23, 22);
-            this.openFileTool.Text = "Открыть файл";
+            this.openFileTool.Text = "Открыть";
             // 
             // saveFileTool
             // 
@@ -268,7 +284,7 @@
             this.saveFileTool.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveFileTool.Name = "saveFileTool";
             this.saveFileTool.Size = new System.Drawing.Size(23, 22);
-            this.saveFileTool.Text = "Сохранить файл";
+            this.saveFileTool.Text = "Сохранить";
             // 
             // labelSource
             // 
@@ -290,6 +306,7 @@
             this.filterTool.Name = "filterTool";
             this.filterTool.Size = new System.Drawing.Size(68, 22);
             this.filterTool.Text = "Фильтр";
+            this.filterTool.Visible = false;
             this.filterTool.Click += new System.EventHandler(this.filterTool_Click);
             // 
             // statusBarMain
@@ -352,9 +369,9 @@
             this.gridSource.AllowUserToResizeRows = false;
             this.gridSource.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gridSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridSource.Location = new System.Drawing.Point(0, 25);
+            this.gridSource.Location = new System.Drawing.Point(3, 3);
             this.gridSource.Name = "gridSource";
-            this.gridSource.Size = new System.Drawing.Size(832, 240);
+            this.gridSource.Size = new System.Drawing.Size(818, 208);
             this.gridSource.TabIndex = 3;
             // 
             // splitContainer1
@@ -366,12 +383,12 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.gridSource);
+            this.splitContainer1.Panel1.Controls.Add(this.tabSource);
             this.splitContainer1.Panel1.Controls.Add(this.mainTool);
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.gridImported);
+            this.splitContainer1.Panel2.Controls.Add(this.tabImported);
             this.splitContainer1.Panel2.Controls.Add(this.importTool);
             this.splitContainer1.Size = new System.Drawing.Size(832, 530);
             this.splitContainer1.SplitterDistance = 265;
@@ -384,9 +401,9 @@
             this.gridImported.AllowUserToResizeRows = false;
             this.gridImported.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gridImported.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridImported.Location = new System.Drawing.Point(0, 25);
+            this.gridImported.Location = new System.Drawing.Point(3, 3);
             this.gridImported.Name = "gridImported";
-            this.gridImported.Size = new System.Drawing.Size(832, 236);
+            this.gridImported.Size = new System.Drawing.Size(818, 204);
             this.gridImported.TabIndex = 4;
             // 
             // importTool
@@ -411,15 +428,14 @@
             this.openFileImportTool.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openFileImportTool.Name = "openFileImportTool";
             this.openFileImportTool.Size = new System.Drawing.Size(23, 22);
-            this.openFileImportTool.Text = "Открыть файл";
-            this.openFileImportTool.ToolTipText = "Открыть файл";
+            this.openFileImportTool.Text = "Загрузить файл поставщика";
             // 
             // labelImported
             // 
             this.labelImported.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.labelImported.Name = "labelImported";
-            this.labelImported.Size = new System.Drawing.Size(137, 22);
-            this.labelImported.Text = "Импортируемый файл:";
+            this.labelImported.Size = new System.Drawing.Size(123, 22);
+            this.labelImported.Text = "Данные поставщика:";
             this.labelImported.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // settingsImportTool
@@ -454,6 +470,96 @@
             this.injectImportTool2.Text = "Перенос данных (ИД2)";
             this.injectImportTool2.ToolTipText = "Осуществить перенос, используя правила вторичной идентификации";
             // 
+            // tabImported
+            // 
+            this.tabImported.Controls.Add(this.tbImported);
+            this.tabImported.Controls.Add(this.tbImportedMatched);
+            this.tabImported.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabImported.Location = new System.Drawing.Point(0, 25);
+            this.tabImported.Name = "tabImported";
+            this.tabImported.SelectedIndex = 0;
+            this.tabImported.Size = new System.Drawing.Size(832, 236);
+            this.tabImported.TabIndex = 5;
+            // 
+            // tbImported
+            // 
+            this.tbImported.Controls.Add(this.gridImported);
+            this.tbImported.Location = new System.Drawing.Point(4, 22);
+            this.tbImported.Name = "tbImported";
+            this.tbImported.Padding = new System.Windows.Forms.Padding(3);
+            this.tbImported.Size = new System.Drawing.Size(824, 210);
+            this.tbImported.TabIndex = 0;
+            this.tbImported.Text = "Нет соответствий";
+            this.tbImported.UseVisualStyleBackColor = true;
+            // 
+            // tbImportedMatched
+            // 
+            this.tbImportedMatched.Controls.Add(this.gridImportedMatched);
+            this.tbImportedMatched.Location = new System.Drawing.Point(4, 22);
+            this.tbImportedMatched.Name = "tbImportedMatched";
+            this.tbImportedMatched.Padding = new System.Windows.Forms.Padding(3);
+            this.tbImportedMatched.Size = new System.Drawing.Size(824, 210);
+            this.tbImportedMatched.TabIndex = 1;
+            this.tbImportedMatched.Text = "Обработаны";
+            this.tbImportedMatched.UseVisualStyleBackColor = true;
+            // 
+            // tabSource
+            // 
+            this.tabSource.Controls.Add(this.tbSource);
+            this.tabSource.Controls.Add(this.tbSourceMatched);
+            this.tabSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabSource.Location = new System.Drawing.Point(0, 25);
+            this.tabSource.Name = "tabSource";
+            this.tabSource.SelectedIndex = 0;
+            this.tabSource.Size = new System.Drawing.Size(832, 240);
+            this.tabSource.TabIndex = 4;
+            // 
+            // tbSource
+            // 
+            this.tbSource.Controls.Add(this.gridSource);
+            this.tbSource.Location = new System.Drawing.Point(4, 22);
+            this.tbSource.Name = "tbSource";
+            this.tbSource.Padding = new System.Windows.Forms.Padding(3);
+            this.tbSource.Size = new System.Drawing.Size(824, 214);
+            this.tbSource.TabIndex = 0;
+            this.tbSource.Text = "Не обработаны";
+            this.tbSource.UseVisualStyleBackColor = true;
+            // 
+            // tbSourceMatched
+            // 
+            this.tbSourceMatched.Controls.Add(this.gridSourceMatched);
+            this.tbSourceMatched.Location = new System.Drawing.Point(4, 22);
+            this.tbSourceMatched.Name = "tbSourceMatched";
+            this.tbSourceMatched.Padding = new System.Windows.Forms.Padding(3);
+            this.tbSourceMatched.Size = new System.Drawing.Size(824, 214);
+            this.tbSourceMatched.TabIndex = 1;
+            this.tbSourceMatched.Text = "Обработаны";
+            this.tbSourceMatched.UseVisualStyleBackColor = true;
+            // 
+            // gridImportedMatched
+            // 
+            this.gridImportedMatched.AllowUserToAddRows = false;
+            this.gridImportedMatched.AllowUserToDeleteRows = false;
+            this.gridImportedMatched.AllowUserToResizeRows = false;
+            this.gridImportedMatched.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridImportedMatched.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridImportedMatched.Location = new System.Drawing.Point(3, 3);
+            this.gridImportedMatched.Name = "gridImportedMatched";
+            this.gridImportedMatched.Size = new System.Drawing.Size(818, 204);
+            this.gridImportedMatched.TabIndex = 5;
+            // 
+            // gridSourceMatched
+            // 
+            this.gridSourceMatched.AllowUserToAddRows = false;
+            this.gridSourceMatched.AllowUserToDeleteRows = false;
+            this.gridSourceMatched.AllowUserToResizeRows = false;
+            this.gridSourceMatched.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridSourceMatched.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridSourceMatched.Location = new System.Drawing.Point(3, 3);
+            this.gridSourceMatched.Name = "gridSourceMatched";
+            this.gridSourceMatched.Size = new System.Drawing.Size(818, 208);
+            this.gridSourceMatched.TabIndex = 4;
+            // 
             // AppForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -482,6 +588,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.gridImported)).EndInit();
             this.importTool.ResumeLayout(false);
             this.importTool.PerformLayout();
+            this.tabImported.ResumeLayout(false);
+            this.tbImported.ResumeLayout(false);
+            this.tbImportedMatched.ResumeLayout(false);
+            this.tabSource.ResumeLayout(false);
+            this.tbSource.ResumeLayout(false);
+            this.tbSourceMatched.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.gridImportedMatched)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gridSourceMatched)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -531,5 +645,13 @@
         private System.Windows.Forms.ToolStripButton filterTool;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.TabControl tabImported;
+        private System.Windows.Forms.TabPage tbImported;
+        private System.Windows.Forms.TabPage tbImportedMatched;
+        private System.Windows.Forms.TabControl tabSource;
+        private System.Windows.Forms.TabPage tbSource;
+        private System.Windows.Forms.TabPage tbSourceMatched;
+        private System.Windows.Forms.DataGridView gridSourceMatched;
+        private System.Windows.Forms.DataGridView gridImportedMatched;
     }
 }

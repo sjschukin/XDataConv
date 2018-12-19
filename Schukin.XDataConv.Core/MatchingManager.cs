@@ -97,9 +97,12 @@ namespace Schukin.XDataConv.Core
 
                 int foundCount = sourceFoundItems.Count();
 
+                Console.WriteLine("index {0}, found {1}", index, foundCount);
+
                 if (foundCount == 0)
                 {
                     index++;
+
                     matchingErrors.Add(new DataItemError
                     {
                         RowId = importedItem.RowId,
@@ -108,7 +111,7 @@ namespace Schukin.XDataConv.Core
                     continue;
                 }
 
-                if (!Settings.IsFindAllMatches && foundCount > 1)
+                if (foundCount > 1 && Settings.IsFindAllMatches)
                 {
                     AssignValuesAndMoveToMatched(importedItem, sourceFoundItems);
                     continue;
@@ -117,7 +120,10 @@ namespace Schukin.XDataConv.Core
                 if (foundCount == 1)
                 {
                     AssignValuesAndMoveToMatched(importedItem, sourceFoundItems.First());
+                    continue;
                 }
+
+                index++;
 
                 matchingErrors.Add(new DataItemError
                 {
@@ -148,8 +154,22 @@ namespace Schukin.XDataConv.Core
 
         private void AssignValuesAndMoveToMatched(DataItem importedItem, IEnumerable<DataItem> sourceItems)
         {
-            foreach (var sourceItem in sourceItems)
-                AssignValuesAndMoveToMatched(importedItem, sourceItem);
+            var sourceArray = sourceItems as DataItem[] ?? sourceItems.ToArray();
+
+            for (int i = 0; i < sourceArray.Length; i++)
+            {
+                foreach (var mapItem in Settings.Mapping.GetUseForAssign())
+                {
+                    var importedValue = typeof(DataItem).GetProperty(mapItem.Name)?.GetValue(importedItem);
+                    typeof(DataItem).GetProperty(mapItem.Name)?.SetValue(sourceArray[i], importedValue);
+                }
+
+                _sourceData.Remove(sourceArray[i]);
+                _sourceMatchedData.Add(sourceArray[i]);
+            }
+
+            _importedData.Remove(importedItem);
+            _importedMatchedData.Add(importedItem);
         }
     }
 }

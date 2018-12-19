@@ -49,7 +49,6 @@
     <Compile Include="AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="AppCore.cs" />
     <Compile Include="AppForm.cs">
       <SubType>Form</SubType>
     </Compile>

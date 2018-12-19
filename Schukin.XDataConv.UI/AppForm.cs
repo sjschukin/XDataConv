@@ -17,6 +17,11 @@ namespace Schukin.XDataConv.UI
         private readonly OpenFileDialog _openSourceFileDialog;
         private readonly OpenFileDialog _openImportedFileDialog;
 
+        private const string SourceNotMatchedTabTextFormat = "Не обработаны [{0}]";
+        private const string SourceMatchedTabTextFormat = "Обработаны [{0}]";
+        private const string ImportedNotMatchedTabTextFormat = "Нет соответствий [{0}]";
+        private const string ImportedMatchedTabTextFormat = "Обработаны [{0}]";
+
         private Settings _settings;
         // private string _currentFileName;
         // private string _currentImportFileName;
@@ -52,7 +57,9 @@ namespace Schukin.XDataConv.UI
             _openImportedFileDialog.CheckFileExists = true;
 
             gridSource.AutoGenerateColumns = false;
+            gridSourceMatched.AutoGenerateColumns = false;
             gridImported.AutoGenerateColumns = false;
+            gridImportedMatched.AutoGenerateColumns = false;
 
             PopulateModules();
             InitializeEventHandlers();
@@ -89,10 +96,6 @@ namespace Schukin.XDataConv.UI
             importedGotoLineMenuItem.Click += ImportedGotoLineMenuItem_Click;
             exitMenuItem.Click += ExitMenuItem_Click;
             aboutMenuItem.Click += AboutMenuItem_Click;
-
-            gridSource.DataSourceChanged += delegate { labelSource.Text = $"Источник: (Строк: {gridSource.RowCount})"; };
-            //gridImported.RowPostPaint += ImportGrid_RowPostPaint;
-            gridImported.DataSourceChanged += delegate { labelImported.Text = $"Импортируемый файл: (Строк: {gridImported.RowCount})"; };
         }
 
         private void BindSourceDataGrid()
@@ -128,30 +131,59 @@ namespace Schukin.XDataConv.UI
                 new DataGridViewTextBoxColumn { HeaderText = "YEAR", DataPropertyName = "Year", Width = 70, ReadOnly = true }
             );
 
+            gridSourceMatched.Columns.AddRange(
+                new DataGridViewTextBoxColumn { HeaderText = "FAMIL", DataPropertyName = "Famil", Width = 120, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "IMJA", DataPropertyName = "Imja", Width = 120, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "OTCH", DataPropertyName = "Otch", Width = 120, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "DROG", DataPropertyName = "Drog", Width = 90, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "POSEL", DataPropertyName = "Posel", Width = 120, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "NASP", DataPropertyName = "Nasp", Width = 120, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "YLIC", DataPropertyName = "Ylic", Width = 120, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "NDOM", DataPropertyName = "Ndom", Width = 70, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "NKORP", DataPropertyName = "Nkorp", Width = 70, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "NKW", DataPropertyName = "Nkw", Width = 70, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "NKOMN", DataPropertyName = "Nkomn", Width = 70, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "ILCHET", DataPropertyName = "IlChet", Width = 90, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "ILCHET_NEW", DataPropertyName = "IlChetNew", Width = 90 },
+                new DataGridViewTextBoxColumn { HeaderText = "VIDGF", DataPropertyName = "VidGf", Width = 160, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "OPL", DataPropertyName = "Opl", Width = 70 },
+                new DataGridViewTextBoxColumn { HeaderText = "OTPL", DataPropertyName = "Otpl", Width = 70 },
+                new DataGridViewTextBoxColumn { HeaderText = "KOLZR", DataPropertyName = "KolZr", Width = 50 },
+                new DataGridViewTextBoxColumn { HeaderText = "GKU", DataPropertyName = "Gku", Width = 160, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "ORG", DataPropertyName = "Org", Width = 160, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "VIDTAR", DataPropertyName = "VidTar", Width = 50 },
+                new DataGridViewTextBoxColumn { HeaderText = "TARIF", DataPropertyName = "Tarif", Width = 70 },
+                new DataGridViewTextBoxColumn { HeaderText = "FAKT", DataPropertyName = "Fakt", Width = 70 },
+                new DataGridViewTextBoxColumn { HeaderText = "SUMTAR", DataPropertyName = "SumTar", Width = 70 },
+                new DataGridViewTextBoxColumn { HeaderText = "SUMDOLG", DataPropertyName = "SumDolg", Width = 70 },
+                new DataGridViewTextBoxColumn { HeaderText = "OPLDOLG", DataPropertyName = "OplDolg", Width = 70 },
+                new DataGridViewTextBoxColumn { HeaderText = "DATDOLG", DataPropertyName = "DatDolg", Width = 90 },
+                new DataGridViewTextBoxColumn { HeaderText = "MONTH", DataPropertyName = "Month", Width = 70, ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "YEAR", DataPropertyName = "Year", Width = 70, ReadOnly = true }
+            );
+
             gridSource.DataSource = _matchingManager.SourceData;
+            gridSourceMatched.DataSource = _matchingManager.SourceMatchedData;
         }
 
         private void BindImportedDataGrid()
         {
-            gridImported.AutoGenerateColumns = false;
             gridImported.Columns.Clear();
+            gridImportedMatched.Columns.Clear();
 
             foreach (var mapItem in _settings.Mapping.GetActiveItems())
             {
                 gridImported.Columns.Add(
                     new DataGridViewTextBoxColumn { HeaderText = mapItem.ImportFieldName, DataPropertyName = mapItem.Name }
                 );
+
+                gridImportedMatched.Columns.Add(
+                    new DataGridViewTextBoxColumn { HeaderText = mapItem.ImportFieldName, DataPropertyName = mapItem.Name }
+                );
             }
 
             gridImported.DataSource = _matchingManager.ImportedData;
-
-            //importGrid.Columns.Add(new DataGridViewTextBoxColumn
-            //{
-            //    HeaderText = "Ошибка",
-            //    DataPropertyName = "StateMessage",
-            //    Width = 600,
-            //    ReadOnly = true
-            //});
+            gridImportedMatched.DataSource = _matchingManager.ImportedMatchedData;
         }
 
         private void OpenSourceFile()
@@ -171,15 +203,22 @@ namespace Schukin.XDataConv.UI
 
                 foreach (var item in items)
                     _matchingManager.SourceData.Add(item);
-                
-                gridSource.ResumeLayout();
+
                 fileNameStatusLabel.Text = Path.GetFileName(_openSourceFileDialog.FileName);
+
+                MessageBox.Show($"Загрузка файла {_openSourceFileDialog.FileName} завершена.", "XDataConv",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 _logger.Error($"Error opening file {_openSourceFileDialog.FileName}", ex);
                 MessageBox.Show($"Ошибка открытия файла {_openSourceFileDialog.FileName}.\r\n{ex.Message}",
                     "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                gridSource.ResumeLayout();
+                UpdateSourceTabsCounters();
             }
         }
 
@@ -230,7 +269,8 @@ namespace Schukin.XDataConv.UI
 
                 var fileExtension = Path.GetExtension(_openImportedFileDialog.FileName);
                 var module = _importModules
-                    .FirstOrDefault(item => item.SupportedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase));
+                    .FirstOrDefault(item =>
+                        item.SupportedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase));
 
                 if (module == null)
                 {
@@ -242,8 +282,9 @@ namespace Schukin.XDataConv.UI
 
                 var items = module.LoadDataItems(_settings.Mapping, _openImportedFileDialog.FileName);
 
-                gridImported.DataSource = null;
                 gridImported.SuspendLayout();
+
+                gridImported.DataSource = null;
                 _matchingManager.ImportedData.Clear();
                 _matchingManager.ImportedMatchedData.Clear();
 
@@ -251,14 +292,8 @@ namespace Schukin.XDataConv.UI
                     _matchingManager.ImportedData.Add(item);
 
                 BindImportedDataGrid();
-                gridSource.ResumeLayout();
-                gridImported.ResumeLayout();
-
+                
                 importFileNameStatusLabel.Text = _openImportedFileDialog.FileName;
-
-                //importErrorLabel.Text = data.Count(item => item.State == DataItemState.ImportError).ToString();
-                //injectNotFoundLabel.Text = "0";
-                //injectAmbiguousLabel.Text = "0";
 
                 MessageBox.Show($"Импорт файла {_openImportedFileDialog.FileName} завершен.", "XDataConv",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -269,6 +304,11 @@ namespace Schukin.XDataConv.UI
                 MessageBox.Show($"Ошибка импорта файла {_openImportedFileDialog.FileName}.\r\n{ex.Message}",
                     "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally
+            {
+                gridImported.ResumeLayout();
+                UpdateImportedTabsCounters();
+            }
         }
 
         private void InjectData(int methodNumber)
@@ -276,27 +316,32 @@ namespace Schukin.XDataConv.UI
             try
             {
                 gridSource.SuspendLayout();
+                gridSourceMatched.SuspendLayout();
                 gridImported.SuspendLayout();
+                gridImportedMatched.SuspendLayout();
+
+                _matchingManager.Settings = _settings;
 
                 if (methodNumber == 1)
                     _matchingManager.InjectDataByIdentify1();
                 else
                     _matchingManager.InjectDataByIdentify2();
-
-                //var data = Core.Core.Instance.Store.ImportedData;
-                //injectNotFoundLabel.Text = data.Count(item => item.State == DataItemState.InjectNotFound).ToString();
-                //injectAmbiguousLabel.Text = data.Count(item => item.State == DataItemState.InjectAmbigous).ToString();
-                //gridSource.Invalidate();
-                //gridImported.Invalidate();
-
-                gridSource.ResumeLayout(true);
-                gridImported.ResumeLayout(true);
             }
             catch (Exception ex)
             {
                 _logger.Error($"Error matching file. Method number is {methodNumber}.", ex);
                 MessageBox.Show($"Ошибка операции переноса данных.\r\n{ex.Message}",
                     "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                gridSource.ResumeLayout(true);
+                gridSourceMatched.ResumeLayout(true);
+                gridImported.ResumeLayout(true);
+                gridImportedMatched.ResumeLayout(true);
+
+                UpdateSourceTabsCounters();
+                UpdateImportedTabsCounters();
             }
         }
 
@@ -354,6 +399,20 @@ namespace Schukin.XDataConv.UI
             return String.Concat(String.Join(", ", fileExtensions.Select(item => "*" + item)), "|",
                 String.Join(";", fileExtensions.Select(item => "*" + item)));
         }
+
+        private void UpdateSourceTabsCounters()
+        {
+            tbSource.Text = String.Format(SourceNotMatchedTabTextFormat, gridSource.RowCount);
+            tbSourceMatched.Text = String.Format(SourceMatchedTabTextFormat, gridSourceMatched.RowCount);
+        }
+
+        private void UpdateImportedTabsCounters()
+        {
+            tbImported.Text = String.Format(ImportedNotMatchedTabTextFormat, gridImported.RowCount);
+            tbImportedMatched.Text = String.Format(ImportedMatchedTabTextFormat, gridImportedMatched.RowCount);
+        }
+
+        #region Event handlers
 
         private void OpenMenuItem_Click(object sender, EventArgs e)
         {
@@ -459,5 +518,7 @@ namespace Schukin.XDataConv.UI
         //            break;
         //    }
         //}
+
+        #endregion
     }
 }
