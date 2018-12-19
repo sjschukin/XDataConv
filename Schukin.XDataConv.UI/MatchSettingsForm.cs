@@ -5,24 +5,28 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Schukin.XDataConv.Core;
+using Schukin.XDataConv.Core.Interfaces;
 
 namespace Schukin.XDataConv.UI
 {
     public sealed partial class MatchSettingsForm : Form
     {
-        private readonly List<MatchingItem> _currentDatasource;
         private readonly List<MatchingItem> _originalDatasource;
+        private readonly List<MatchingItem> _currentDatasource;
 
         private readonly SettingsMapItem _mapItem;
+        private readonly IMatchingManager _matchingManager;
 
-        public MatchSettingsForm(SettingsMapItem mapItem)
+        public MatchSettingsForm(SettingsMapItem mapItem, IMatchingManager matchingManager)
         {
+            _mapItem = mapItem ?? throw new ArgumentNullException(nameof(mapItem));
+            _matchingManager = matchingManager ?? throw new ArgumentNullException(nameof(matchingManager));
+
             InitializeComponent();
 
             _originalDatasource = mapItem.MatchingItems;
             _currentDatasource = new List<MatchingItem>(_originalDatasource);
 
-            _mapItem = mapItem;
             Text = $"Настройка соответствий для {_mapItem.FieldName}";
 
             clearAllTool.Click += ClearAllTool_Click;
@@ -92,17 +96,11 @@ namespace Schukin.XDataConv.UI
 
         private async void ShowPossibleWordsAsync()
         {
-            //if (Core.Core.Instance.Store.Data != null)
-            //{
-            //    var list = Task.Run(() => GetDistinctValues(Core.Core.Instance.Store.Data.AsQueryable()).Select(x => new { Value = x }).ToList());
-            //    gridSource.DataSource = await list;
-            //}
+                var listSource = Task.Run(() => GetDistinctValues(_matchingManager.SourceData.AsQueryable()).Select(x => new { Value = x }).ToList());
+                gridSource.DataSource = await listSource;
 
-            //if (Core.Core.Instance.Store.ImportedData != null)
-            //{
-            //    var list = Task.Run(() => GetDistinctValues(Core.Core.Instance.Store.ImportedData.AsQueryable()).Select(x => new { Value = x }).ToList());
-            //    gridImport.DataSource = await list;
-            //}
+                var listImported = Task.Run(() => GetDistinctValues(_matchingManager.ImportedData.AsQueryable()).Select(x => new { Value = x }).ToList());
+                gridImport.DataSource = await listImported;
         }
 
         private void CopyNewLine(string[] values)

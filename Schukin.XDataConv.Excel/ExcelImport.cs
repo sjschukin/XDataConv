@@ -108,11 +108,6 @@ namespace Schukin.XDataConv.Excel
                                 value = Convert.ChangeType(value, info);
                             }
 
-                            //propertyInfo.SetValue(dataItem,
-                            //    Convert.ChangeType(strValue,
-                            //        Nullable.GetUnderlyingType(propertyInfo.PropertyType) ??
-                            //        propertyInfo.PropertyType));
-
                             propertyInfo.SetValue(dataItem, value);
                         }
                     }

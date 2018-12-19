@@ -10,12 +10,14 @@ namespace Schukin.XDataConv.UI
     public partial class MapSettingsForm : Form
     {
         private readonly ILogger _logger;
+        private readonly IMatchingManager _matchingManager;
         private readonly SaveFileDialog _saveFileDialog;
         private readonly OpenFileDialog _openFileDialog;
 
-        public MapSettingsForm(ILogger logger, Settings settings)
+        public MapSettingsForm(ILogger logger, Settings settings, IMatchingManager matchingManager)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _matchingManager = matchingManager ?? throw new ArgumentNullException(nameof(matchingManager));
             CurrentSettings = settings ?? throw new ArgumentNullException(nameof(settings));
 
             InitializeComponent();
@@ -129,7 +131,7 @@ namespace Schukin.XDataConv.UI
 
         private void ShowMatchSettingsForm(SettingsMapItem mapItem)
         {
-            var formMatching = new MatchSettingsForm(mapItem);
+            var formMatching = new MatchSettingsForm(mapItem, _matchingManager);
             formMatching.ShowDialog();
         }
 

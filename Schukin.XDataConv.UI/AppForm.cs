@@ -331,7 +331,7 @@ namespace Schukin.XDataConv.UI
         private DialogResult ShowSettingsDialog()
         {
             var settings = (Settings) _settings.Clone();
-            var mapSettingsForm = new MapSettingsForm(_logger, settings);
+            var mapSettingsForm = new MapSettingsForm(_logger, settings, _matchingManager);
             var result = mapSettingsForm.ShowDialog();
 
             if (result == DialogResult.OK)
