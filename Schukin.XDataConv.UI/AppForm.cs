@@ -29,30 +29,34 @@ namespace Schukin.XDataConv.UI
 
             InitializeComponent();
 
+            _saveSourceFileDialog = new SaveFileDialog();
+            _openSourceFileDialog = new OpenFileDialog();
+            _openImportedFileDialog = new OpenFileDialog();
+
+            InitializeComponentCustom();
+        }
+
+        private void InitializeComponentCustom()
+        {
             _settings = new Settings();
             _settings.LoadDefault();
 
-            _saveSourceFileDialog = new SaveFileDialog
-            {
-                CheckPathExists = true,
-                AddExtension = true,
-                Filter = "Файл ЭСРН (*.csv)|*.csv",
-                DefaultExt = "csv"
-            };
-            _openSourceFileDialog = new OpenFileDialog
-            {
-                CheckFileExists = true,
-                Filter = "Файл ЭСРН (*.csv)|*.csv"
-            };
+            _saveSourceFileDialog.CheckPathExists = true;
+            _saveSourceFileDialog.AddExtension = true;
+            _saveSourceFileDialog.Filter = "Файл ЭСРН (*.csv)|*.csv";
+            _saveSourceFileDialog.DefaultExt = "csv";
 
-            _openImportedFileDialog = new OpenFileDialog
-            {
-                CheckFileExists = true,
-            };
+            _openSourceFileDialog.CheckFileExists = true;
+            _openSourceFileDialog.Filter = "Файл ЭСРН (*.csv)|*.csv";
+
+            _openImportedFileDialog.CheckFileExists = true;
+
+            gridSource.AutoGenerateColumns = false;
+            gridImported.AutoGenerateColumns = false;
 
             PopulateModules();
             InitializeEventHandlers();
-            BindDataGrid();
+            BindSourceDataGrid();
         }
 
         private void PopulateModules()
@@ -91,9 +95,8 @@ namespace Schukin.XDataConv.UI
             gridImported.DataSourceChanged += delegate { labelImported.Text = $"Импортируемый файл: (Строк: {gridImported.RowCount})"; };
         }
 
-        private void BindDataGrid()
+        private void BindSourceDataGrid()
         {
-            gridSource.AutoGenerateColumns = false;
             gridSource.Columns.AddRange(
                 new DataGridViewTextBoxColumn { HeaderText = "FAMIL", DataPropertyName = "Famil", Width = 120, ReadOnly = true },
                 new DataGridViewTextBoxColumn { HeaderText = "IMJA", DataPropertyName = "Imja", Width = 120, ReadOnly = true },
@@ -126,10 +129,9 @@ namespace Schukin.XDataConv.UI
             );
 
             gridSource.DataSource = _matchingManager.SourceData;
-            gridImported.DataSource = _matchingManager.ImportedData;
         }
 
-        private void BindImportDataGrid()
+        private void BindImportedDataGrid()
         {
             gridImported.AutoGenerateColumns = false;
             gridImported.Columns.Clear();
@@ -140,6 +142,8 @@ namespace Schukin.XDataConv.UI
                     new DataGridViewTextBoxColumn { HeaderText = mapItem.ImportFieldName, DataPropertyName = mapItem.Name }
                 );
             }
+
+            gridImported.DataSource = _matchingManager.ImportedData;
 
             //importGrid.Columns.Add(new DataGridViewTextBoxColumn
             //{
@@ -226,7 +230,7 @@ namespace Schukin.XDataConv.UI
 
                 var fileExtension = Path.GetExtension(_openImportedFileDialog.FileName);
                 var module = _importModules
-                    .First(item => item.SupportedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase));
+                    .FirstOrDefault(item => item.SupportedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase));
 
                 if (module == null)
                 {
@@ -238,6 +242,7 @@ namespace Schukin.XDataConv.UI
 
                 var items = module.LoadDataItems(_settings.Mapping, _openImportedFileDialog.FileName);
 
+                gridImported.DataSource = null;
                 gridImported.SuspendLayout();
                 _matchingManager.ImportedData.Clear();
                 _matchingManager.ImportedMatchedData.Clear();
@@ -245,8 +250,9 @@ namespace Schukin.XDataConv.UI
                 foreach (var item in items)
                     _matchingManager.ImportedData.Add(item);
 
-                BindImportDataGrid();
+                BindImportedDataGrid();
                 gridSource.ResumeLayout();
+                gridImported.ResumeLayout();
 
                 importFileNameStatusLabel.Text = _openImportedFileDialog.FileName;
 
@@ -345,8 +351,8 @@ namespace Schukin.XDataConv.UI
             if (fileExtensions == null || fileExtensions.Length == 0)
                 return null;
 
-            return String.Concat(String.Join(", ", fileExtensions.Select(item => "*." + item)), "|",
-                String.Join(";", fileExtensions.Select(item => "*." + item)));
+            return String.Concat(String.Join(", ", fileExtensions.Select(item => "*" + item)), "|",
+                String.Join(";", fileExtensions.Select(item => "*" + item)));
         }
 
         private void OpenMenuItem_Click(object sender, EventArgs e)

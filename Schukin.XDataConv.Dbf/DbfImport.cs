@@ -10,7 +10,7 @@ namespace Schukin.XDataConv.Dbf
         where T : IDataItem, new()
         where TError : IDataItemError, new()
     {
-        private readonly string[] _supportedFileExtensions = { "dbf" };
+        private readonly string[] _supportedFileExtensions = { ".dbf" };
 
         public DbfImport(ILogger logger) : base(logger)
         {

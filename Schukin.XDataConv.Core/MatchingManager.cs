@@ -21,6 +21,7 @@ namespace Schukin.XDataConv.Core
             _sourceData = new SortableBindingList<DataItem>();
             _sourceMatchedData = new SortableBindingList<DataItem>();
             _importedData = new SortableBindingList<DataItem>();
+            _importedMatchedData = new SortableBindingList<DataItem>();
         }
 
         public SortableBindingList<DataItem> SourceData => _sourceData;

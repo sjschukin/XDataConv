@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using ExcelDataReader;
@@ -14,7 +15,7 @@ namespace Schukin.XDataConv.Excel
         where T : IDataItem, new()
         where TError : IDataItemError, new()
     {
-        private readonly string[] _supportedFileExtensions = {"xls", "xlsx"};
+        private readonly string[] _supportedFileExtensions = {".xls", ".xlsx"};
         
         public ExcelImport(ILogger logger) : base (logger)
         {
@@ -76,7 +77,7 @@ namespace Schukin.XDataConv.Excel
                 // read the body
                 int lineNumber = 1;
                 var properties = activeMapItems
-                    .Select(mapItem => typeof(IDataItem).GetProperty(mapItem.Name))
+                    .Select(mapItem => typeof(T).GetProperty(mapItem.Name))
                     .ToArray();
 
                 while (reader.Read())
@@ -95,22 +96,29 @@ namespace Schukin.XDataConv.Excel
                             if (value == null)
                                 continue;
 
-                            var strValue = value.ToString().Trim();
+                            var info = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ??
+                                       propertyInfo.PropertyType;
 
-                            if (strValue == String.Empty)
-                                continue;
+                            if (info.Name == "String" && mapping[propertyInfo.Name].IsConvertImportToUpperCase)
+                            {
+                                value = ((string) value).ToUpper(CultureInfo.InvariantCulture);
+                            }
+                            else
+                            {
+                                value = Convert.ChangeType(value, info);
+                            }
 
-                            if (mapping[propertyInfo.Name].IsConvertImportToUpperCase)
-                                strValue = strValue.ToUpper();
+                            //propertyInfo.SetValue(dataItem,
+                            //    Convert.ChangeType(strValue,
+                            //        Nullable.GetUnderlyingType(propertyInfo.PropertyType) ??
+                            //        propertyInfo.PropertyType));
 
-                            propertyInfo.SetValue(dataItem,
-                                Convert.ChangeType(strValue,
-                                    Nullable.GetUnderlyingType(propertyInfo.PropertyType) ??
-                                    propertyInfo.PropertyType));
+                            propertyInfo.SetValue(dataItem, value);
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Logger.Error($"Error occured during import file {filename}.", ex);
                         Errors.Add(new TError
                         {
                             RowId = lineNumber,

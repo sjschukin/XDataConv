@@ -10,7 +10,7 @@ namespace Schukin.XDataConv.Csv
         where T : IDataItem, new()
         where TError : IDataItemError, new()
     {
-        private readonly string[] _supportedFileExtensions = { "csv" };
+        private readonly string[] _supportedFileExtensions = { ".csv" };
 
         public CsvImport(ILogger logger) : base(logger)
         {
