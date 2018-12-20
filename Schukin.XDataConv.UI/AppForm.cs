@@ -24,8 +24,6 @@ namespace Schukin.XDataConv.UI
         private const string ImportedMatchedTabTextFormat = "Обработаны [{0}]";
 
         private Settings _settings;
-        // private string _currentFileName;
-        // private string _currentImportFileName;
 
         public AppForm(ILogger logger, IMatchingManager matchingManager, IImportModule<DataItem, DataItemError>[] importModules = null)
         {
@@ -85,28 +83,32 @@ namespace Schukin.XDataConv.UI
 
         private void InitializeEventHandlers()
         {
-            openMenuItem.Click += OpenMenuItem_Click;
-            openFileTool.Click += OpenMenuItem_Click;
+            mnuSourceOpen.Click += SourceOpen_Click;
+            tbSourceOpen.Click += SourceOpen_Click;
 
-            saveMenuItem.Click += SaveMenuItem_Click;
-            saveFileTool.Click += SaveMenuItem_Click;
+            tbSourceSave.Click += SourceSave_Click;
 
-            openFileImportMenuItem.Click += OpenFileImportMenuItem_Click;
-            openFileImportTool.Click += OpenFileImportMenuItem_Click;
+            mnuSourceMatchedSave.Click += SourceMatchedSave_Click;
+            tbSourceMatchedSave.Click += SourceMatchedSave_Click;
 
-            settingsMenuItem.Click += SettingsMenuItem_Click;
-            settingsImportTool.Click += SettingsMenuItem_Click;
+            mnuImportedOpen.Click += ImportedOpen_Click;
+            tbImportedOpen.Click += ImportedOpen_Click;
 
-            injectMenuItem1.Click += InjectImportTool1_Click;
-            injectImportTool1.Click += InjectImportTool1_Click;
-            injectMenuItem2.Click += InjectImportTool2_Click;
-            injectImportTool2.Click += InjectImportTool2_Click;
+            mnuSettings.Click += Settings_Click;
+            tbSettings.Click += Settings_Click;
+
+            mnuPerformMatching1.Click += PerformMatching1_Click;
+            tbPerformMatching1.Click += PerformMatching1_Click;
+            mnuPerformMatching2.Click += PerformMatching2_Click;
+            tbPerformMatching2.Click += PerformMatching2_Click;
+
+            tbFilter.Click += Filter_Click;
 
             importLogMenuItem.Click += ImportLogMenuItem_Click;
-            sourceGotoLineMenuItem.Click += SourceGotoLineMenuItem_Click;
-            importedGotoLineMenuItem.Click += ImportedGotoLineMenuItem_Click;
-            exitMenuItem.Click += ExitMenuItem_Click;
-            aboutMenuItem.Click += AboutMenuItem_Click;
+            mnuSourceGotoLine.Click += SourceGotoLine_Click;
+            mnuImportedGotoLine.Click += ImportedGotoLine_Click;
+            mnuExit.Click += Exit_Click;
+            mnuAbout.Click += About_Click;
         }
 
         private void BindSourceDataGrid()
@@ -233,9 +235,9 @@ namespace Schukin.XDataConv.UI
             }
         }
 
-        private void SaveSourceFile()
+        private void SaveSourceFile(SortableBindingList<DataItem> data)
         {
-            if (!_matchingManager.SourceMatchedData.Any())
+            if (!data.Any())
             {
                 MessageBox.Show("Отсутствуют данные для сохранения.", "XDataConv", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
@@ -252,7 +254,7 @@ namespace Schukin.XDataConv.UI
             {
                 var fileManager = new CsvFileManager(_logger);
 
-                fileManager.WriteToFile(_saveSourceFileDialog.FileName, _matchingManager.SourceMatchedData);
+                fileManager.WriteToFile(_saveSourceFileDialog.FileName, data);
 
                 MessageBox.Show($"Данные сохранены в файл {_saveSourceFileDialog.FileName}.", "XDataConv",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -425,22 +427,27 @@ namespace Schukin.XDataConv.UI
 
         #region Event handlers
 
-        private void OpenMenuItem_Click(object sender, EventArgs e)
+        private void SourceOpen_Click(object sender, EventArgs e)
         {
             OpenSourceFile();
         }
 
-        private void SaveMenuItem_Click(object sender, EventArgs e)
+        private void SourceSave_Click(object sender, EventArgs e)
         {
-            SaveSourceFile();
+            SaveSourceFile(_matchingManager.SourceData);
         }
 
-        private void OpenFileImportMenuItem_Click(object sender, EventArgs e)
+        private void SourceMatchedSave_Click(object sender, EventArgs e)
+        {
+            SaveSourceFile(_matchingManager.SourceMatchedData);
+        }
+
+        private void ImportedOpen_Click(object sender, EventArgs e)
         {
             OpenImportedFile();
         }
 
-        private void SettingsMenuItem_Click(object sender, EventArgs e)
+        private void Settings_Click(object sender, EventArgs e)
         {
             ShowSettingsDialog();
         }
@@ -450,34 +457,34 @@ namespace Schukin.XDataConv.UI
             //Core.Core.Instance.ShowImportLog();
         }
 
-        private void SourceGotoLineMenuItem_Click(object sender, EventArgs e)
+        private void SourceGotoLine_Click(object sender, EventArgs e)
         {
             if (_matchingManager.SourceData.Any())
                 GotoLineNumber(gridSource);
         }
 
-        private void ImportedGotoLineMenuItem_Click(object sender, EventArgs e)
+        private void ImportedGotoLine_Click(object sender, EventArgs e)
         {
             if (_matchingManager.ImportedData.Any())
                 GotoLineNumber(gridImported);
         }
 
-        private void ExitMenuItem_Click(object sender, EventArgs e)
+        private void Exit_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        private void InjectImportTool1_Click(object sender, EventArgs e)
+        private void PerformMatching1_Click(object sender, EventArgs e)
         {
             InjectData(1);
         }
 
-        private void InjectImportTool2_Click(object sender, EventArgs e)
+        private void PerformMatching2_Click(object sender, EventArgs e)
         {
             InjectData(2);
         }
 
-        private void filterTool_Click(object sender, EventArgs e)
+        private void Filter_Click(object sender, EventArgs e)
         {
             //if (Core.Core.Instance.Store.Data == null)
             //{
@@ -503,32 +510,10 @@ namespace Schukin.XDataConv.UI
             //}
         }
 
-        private void AboutMenuItem_Click(object sender, EventArgs e)
+        private void About_Click(object sender, EventArgs e)
         {
             ShowAboutDialog();
         }
-
-        //private void ImportGrid_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
-        //{
-        //    var item = (DataItem)gridImported.Rows[e.RowIndex].DataBoundItem;
-        //    var style = gridImported.Rows[e.RowIndex].DefaultCellStyle;
-
-        //    switch (item.State)
-        //    {
-        //        case DataItemState.None:
-        //            style.BackColor = gridImported.DefaultCellStyle.BackColor;
-        //            break;
-        //        case DataItemState.ImportError:
-        //            style.BackColor = Color.Red;
-        //            break;
-        //        case DataItemState.InjectNotFound:
-        //            style.BackColor = Color.Yellow;
-        //            break;
-        //        case DataItemState.InjectAmbigous:
-        //            style.BackColor = Color.Orange;
-        //            break;
-        //    }
-        //}
 
         #endregion
     }
