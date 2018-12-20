@@ -68,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\ImportModuleBase.cs" />
-    <Compile Include="CoreOld.cs" />
     <Compile Include="Csv\MemberMapInfo.cs" />
     <Compile Include="Csv\SourceMapInfo.cs" />
     <Compile Include="MatchingManager.cs" />
@@ -76,8 +75,6 @@
     <Compile Include="Csv\SourceMap.cs" />
     <Compile Include="DataItem.cs" />
     <Compile Include="DataItemError.cs" />
-    <Compile Include="Identify\IdentifyDetailsItem.cs" />
-    <Compile Include="Identify\IdentifyResultItem.cs" />
     <Compile Include="Interfaces\IMatchingManager.cs" />
     <Compile Include="Interfaces\IDataItem.cs" />
     <Compile Include="Interfaces\IDataItemError.cs" />
