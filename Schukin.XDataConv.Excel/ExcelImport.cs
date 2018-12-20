@@ -64,7 +64,7 @@ namespace Schukin.XDataConv.Excel
 
                     if (ordinal[mapItem.Name] == -1)
                     {
-                        Logger.Info("The column {mapItem.ImportFieldName} not found.");
+                        Logger.Info($"The column {mapItem.ImportFieldName} not found.");
                         notFoundHeaderNames.Add(mapItem.ImportFieldName);
                     }
                 }
@@ -100,13 +100,9 @@ namespace Schukin.XDataConv.Excel
                                        propertyInfo.PropertyType;
 
                             if (info.Name == "String" && mapping[propertyInfo.Name].IsConvertImportToUpperCase)
-                            {
                                 value = ((string) value).ToUpper(CultureInfo.InvariantCulture);
-                            }
                             else
-                            {
                                 value = Convert.ChangeType(value, info);
-                            }
 
                             propertyInfo.SetValue(dataItem, value);
                         }
