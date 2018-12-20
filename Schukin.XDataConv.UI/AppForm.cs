@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -68,7 +69,17 @@ namespace Schukin.XDataConv.UI
 
         private void PopulateModules()
         {
-            _openImportedFileDialog.Filter = String.Join("|",
+            if (_importModules.Length == 0)
+                return;
+
+            var allExtensionMasks = new List<string>();
+
+            foreach (var module in _importModules)
+                allExtensionMasks.AddRange(module.SupportedFileExtensions.Select(item=>String.Concat("*", item)));
+
+            var strAllFormatsFilter = "Все форматы|" + String.Join(";", allExtensionMasks);
+
+            _openImportedFileDialog.Filter = strAllFormatsFilter + "|" + String.Join("|",
                 _importModules.Select(item => GetFilterStringForFileDialog(item.SupportedFileExtensions.ToArray())));
         }
 
