@@ -19,8 +19,9 @@ namespace Schukin.XDataConv.Csv
     {
         private class CsvImportMap : ClassMap<T> { }
 
+        private const int ErrorCountLimit = 300;
         private readonly string[] _supportedFileExtensions = { ".csv" };
-
+        
         public CsvImport(ILogger logger) : base(logger)
         {
         }
@@ -31,6 +32,8 @@ namespace Schukin.XDataConv.Csv
         {
             Logger.Info($"Opening file {filename} for import.");
             Errors.Clear();
+
+            int errorCount = 0;
 
             using (var reader = new StreamReader(filename, Encoding.GetEncoding(1251)))
             using (var csv = new CsvReader(reader))
@@ -44,6 +47,11 @@ namespace Schukin.XDataConv.Csv
                 csv.Configuration.RegisterClassMap(csvImportMap);
                 csv.Configuration.ReadingExceptionOccurred = ex =>
                 {
+                    errorCount++;
+
+                    if (errorCount>ErrorCountLimit)
+                        return;
+
                     Logger.Error($"Error occured during import file {filename}.", ex);
                     Errors.Add(new TError
                     {
@@ -59,7 +67,7 @@ namespace Schukin.XDataConv.Csv
         private void ConfigureMap(CsvImportMap csvImportMap, SettingsMapCollection mapping)
         {
             csvImportMap.AutoMap();
-            csvImportMap.Map(item => item.RowId).Ignore().ConvertUsing(row => row.Context.RawRow);
+            csvImportMap.Map(item => item.RowId).Ignore().ConvertUsing(row => row.Context.RawRow - 2);
 
             foreach (var memberMap in csvImportMap.MemberMaps)
             {
