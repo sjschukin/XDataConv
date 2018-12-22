@@ -15,6 +15,7 @@ namespace Schukin.XDataConv.Excel
         where T : IDataItem, new()
         where TError : IDataItemError, new()
     {
+        private const int ErrorCountLimit = 300;
         private readonly string[] _supportedFileExtensions = {".xls", ".xlsx"};
         
         public ExcelImport(ILogger logger) : base (logger)
@@ -76,11 +77,12 @@ namespace Schukin.XDataConv.Excel
 
                 // read the body
                 int lineNumber = 1;
+                int errorCount = 0;
                 var properties = activeMapItems
                     .Select(mapItem => typeof(T).GetProperty(mapItem.Name))
                     .ToArray();
 
-                while (reader.Read())
+                while (errorCount <= ErrorCountLimit && reader.Read())
                 {
                     lineNumber++;
                     string currentFieldName = null;
@@ -109,6 +111,8 @@ namespace Schukin.XDataConv.Excel
                     }
                     catch (Exception ex)
                     {
+                        errorCount++;
+
                         Logger.Error($"Error occured during import file {filename}.", ex);
                         Errors.Add(new TError
                         {

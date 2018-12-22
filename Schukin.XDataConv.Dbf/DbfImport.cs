@@ -14,6 +14,7 @@ namespace Schukin.XDataConv.Dbf
         where T : IDataItem, new()
         where TError : IDataItemError, new()
     {
+        private const int ErrorCountLimit = 300;
         private readonly string[] _supportedFileExtensions = { ".dbf" };
 
         public DbfImport(ILogger logger) : base(logger)
@@ -25,6 +26,7 @@ namespace Schukin.XDataConv.Dbf
         public override IEnumerable<T> LoadDataItems(SettingsMapCollection mapping, string filename)
         {
             var importedData = new List<T>();
+            int errorCount = 0;
 
             Logger.Info($"Opening file {filename} for import.");
             Errors.Clear();
@@ -64,7 +66,7 @@ namespace Schukin.XDataConv.Dbf
 
                 var reader = table.OpenReader(Encoding.GetEncoding(866));
 
-                while (reader.Read())
+                while (errorCount<= ErrorCountLimit && reader.Read())
                 {
                     lineNumber++;
                     string currentFieldName = null;
@@ -93,6 +95,8 @@ namespace Schukin.XDataConv.Dbf
                     }
                     catch (Exception ex)
                     {
+                        errorCount++;
+
                         Logger.Error($"Error occured during import file {filename}.", ex);
                         Errors.Add(new TError
                         {
