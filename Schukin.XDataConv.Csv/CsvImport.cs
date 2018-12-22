@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -16,7 +17,7 @@ namespace Schukin.XDataConv.Csv
         where T : IDataItem, new()
         where TError : IDataItemError, new()
     {
-        private class CsvImportMap : ClassMap<T> {}
+        private class CsvImportMap : ClassMap<T> { }
 
         private readonly string[] _supportedFileExtensions = { ".csv" };
 
@@ -64,7 +65,7 @@ namespace Schukin.XDataConv.Csv
             {
                 var mappingItem = mapping.FirstOrDefault(item => item.Name == memberMap.Data.Member.Name);
 
-                if (mappingItem ==null)
+                if (mappingItem == null)
                     continue;
 
                 memberMap.Data.Names.Clear();
@@ -72,7 +73,15 @@ namespace Schukin.XDataConv.Csv
                 if (String.IsNullOrWhiteSpace(mappingItem.ImportFieldName))
                     memberMap.Data.Ignore = true;
                 else
+                {
+                    if (((PropertyInfo)memberMap.Data.Member).PropertyType == typeof(decimal) ||
+                        ((PropertyInfo)memberMap.Data.Member).PropertyType == typeof(decimal?))
+                    {
+                        memberMap.Data.TypeConverterOptions.CultureInfo = CultureInfo.GetCultureInfo("en-US");
+                    }
+
                     memberMap.Data.Names.Add(mappingItem.ImportFieldName);
+                }
             }
         }
     }
