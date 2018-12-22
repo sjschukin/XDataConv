@@ -225,7 +225,7 @@ namespace Schukin.XDataConv.UI
             catch (Exception ex)
             {
                 _logger.Error($"Error opening file {_openSourceFileDialog.FileName}", ex);
-                MessageBox.Show($"Ошибка открытия файла {_openSourceFileDialog.FileName}.\r\n{ex.Message}",
+                MessageBox.Show($"Ошибка открытия файла {_openSourceFileDialog.FileName}.{Environment.NewLine}{ex.Message}",
                     "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -262,7 +262,7 @@ namespace Schukin.XDataConv.UI
             catch (Exception ex)
             {
                 _logger.Error($"Error writing file {_saveSourceFileDialog.FileName}", ex);
-                MessageBox.Show($"Ошибка сохранения файла {_saveSourceFileDialog.FileName}.\r\n{ex.Message}",
+                MessageBox.Show($"Ошибка сохранения файла {_saveSourceFileDialog.FileName}.{Environment.NewLine}{ex.Message}",
                     "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -314,7 +314,7 @@ namespace Schukin.XDataConv.UI
             catch (Exception ex)
             {
                 _logger.Error($"Error import file {_openImportedFileDialog.FileName}", ex);
-                MessageBox.Show($"Ошибка импорта файла {_openImportedFileDialog.FileName}.\r\n{ex.Message}",
+                MessageBox.Show($"Ошибка импорта файла {_openImportedFileDialog.FileName}.{Environment.NewLine}{ex.Message}",
                     "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -343,7 +343,7 @@ namespace Schukin.XDataConv.UI
             catch (Exception ex)
             {
                 _logger.Error($"Error matching file. Method number is {methodNumber}.", ex);
-                MessageBox.Show($"Ошибка операции переноса данных.\r\n{ex.Message}",
+                MessageBox.Show($"Ошибка операции переноса данных.{Environment.NewLine}{ex.Message}",
                     "XDataConv", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
