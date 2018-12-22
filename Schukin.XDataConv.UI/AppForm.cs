@@ -11,12 +11,15 @@ namespace Schukin.XDataConv.UI
 {
     public partial class AppForm : Form
     {
+        #region fields
+
         private readonly ILogger _logger;
         private readonly IMatchingManager _matchingManager;
         private readonly IImportModule<DataItem, DataItemError>[] _importModules;
         private readonly SaveFileDialog _saveSourceFileDialog;
         private readonly OpenFileDialog _openSourceFileDialog;
         private readonly OpenFileDialog _openImportedFileDialog;
+        private readonly ImportErrorsForm _importErrorsForm;
 
         private const string SourceNotMatchedTabTextFormat = "Не обработаны [{0}]";
         private const string SourceMatchedTabTextFormat = "Обработаны [{0}]";
@@ -24,6 +27,10 @@ namespace Schukin.XDataConv.UI
         private const string ImportedMatchedTabTextFormat = "Обработаны [{0}]";
 
         private Settings _settings;
+
+        #endregion
+
+        #region ctor
 
         public AppForm(ILogger logger, IMatchingManager matchingManager, IImportModule<DataItem, DataItemError>[] importModules = null)
         {
@@ -36,9 +43,14 @@ namespace Schukin.XDataConv.UI
             _saveSourceFileDialog = new SaveFileDialog();
             _openSourceFileDialog = new OpenFileDialog();
             _openImportedFileDialog = new OpenFileDialog();
+            _importErrorsForm = new ImportErrorsForm();
 
             InitializeComponentCustom();
         }
+
+        #endregion
+
+        #region initialize components
 
         private void InitializeComponentCustom()
         {
@@ -65,24 +77,10 @@ namespace Schukin.XDataConv.UI
             BindSourceDataGrid();
         }
 
-        private void PopulateModules()
-        {
-            if (_importModules.Length == 0)
-                return;
-
-            var allExtensionMasks = new List<string>();
-
-            foreach (var module in _importModules)
-                allExtensionMasks.AddRange(module.SupportedFileExtensions.Select(item=>String.Concat("*", item)));
-
-            var strAllFormatsFilter = "Все форматы|" + String.Join(";", allExtensionMasks);
-
-            _openImportedFileDialog.Filter = strAllFormatsFilter + "|" + String.Join("|",
-                _importModules.Select(item => GetFilterStringForFileDialog(item.SupportedFileExtensions.ToArray())));
-        }
-
         private void InitializeEventHandlers()
         {
+            _importErrorsForm.ItemActivated += (sender, error) => { SetRowIdFocusInGrid(gridImported, error.RowId); };
+
             mnuSourceOpen.Click += SourceOpen_Click;
             tbSourceOpen.Click += SourceOpen_Click;
 
@@ -93,6 +91,8 @@ namespace Schukin.XDataConv.UI
 
             mnuImportedOpen.Click += ImportedOpen_Click;
             tbImportedOpen.Click += ImportedOpen_Click;
+
+            tbImportedShowErrors.Click += ImportedShowErrors_Click;
 
             mnuSettings.Click += Settings_Click;
             tbSettings.Click += Settings_Click;
@@ -199,6 +199,24 @@ namespace Schukin.XDataConv.UI
             gridImportedMatched.DataSource = _matchingManager.ImportedMatchedData;
         }
 
+        #endregion
+
+        private void PopulateModules()
+        {
+            if (_importModules.Length == 0)
+                return;
+
+            var allExtensionMasks = new List<string>();
+
+            foreach (var module in _importModules)
+                allExtensionMasks.AddRange(module.SupportedFileExtensions.Select(item => String.Concat("*", item)));
+
+            var strAllFormatsFilter = "Все форматы|" + String.Join(";", allExtensionMasks);
+
+            _openImportedFileDialog.Filter = strAllFormatsFilter + "|" + String.Join("|",
+                                                 _importModules.Select(item => GetFilterStringForFileDialog(item.SupportedFileExtensions.ToArray())));
+        }
+
         private void OpenSourceFile()
         {
             if (_openSourceFileDialog.ShowDialog() != DialogResult.OK)
@@ -293,8 +311,10 @@ namespace Schukin.XDataConv.UI
                     return;
                 }
 
+                // perform import data
                 var items = module.LoadDataItems(_settings.Mapping, _openImportedFileDialog.FileName);
 
+                // populate data
                 gridImported.SuspendLayout();
 
                 gridImported.DataSource = null;
@@ -305,7 +325,11 @@ namespace Schukin.XDataConv.UI
                     _matchingManager.ImportedData.Add(item);
 
                 BindImportedDataGrid();
-                
+
+                // show errors if needed
+                PopulateImportErrors(module.ImportErrors);
+
+
                 importFileNameStatusLabel.Text = _openImportedFileDialog.FileName;
 
                 MessageBox.Show($"Импорт файла {_openImportedFileDialog.FileName} завершен.", "XDataConv",
@@ -358,32 +382,14 @@ namespace Schukin.XDataConv.UI
             }
         }
 
-        private void GotoLineNumber(DataGridView grid)
+        private void ShowGotoLineNumber(DataGridView grid)
         {
             var form = new GotoLineNumberForm();
 
             if (form.ShowDialog() != DialogResult.OK)
                 return;
 
-            bool isFound = false;
-
-            foreach (DataGridViewRow row in grid.Rows)
-            {
-                var item = (DataItem)row.DataBoundItem;
-
-                if (item.RowId != form.LineNumber)
-                    continue;
-
-                isFound = true;
-
-                grid.FirstDisplayedScrollingRowIndex = row.Index;
-                grid.CurrentCell = row.Cells[0];
-                break;
-            }
-
-            if (!isFound)
-                MessageBox.Show($"Строка с номером '{form.LineNumber}' отсутствует в списке.", "XDataConv",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            SetRowIdFocusInGrid(grid, form.LineNumber);
         }
 
         private DialogResult ShowSettingsDialog()
@@ -396,6 +402,11 @@ namespace Schukin.XDataConv.UI
                 _settings = mapSettingsForm.CurrentSettings;
 
             return result;
+        }
+
+        private void ShowImportErrorsForm()
+        {
+            _importErrorsForm.Show();
         }
 
         private void ShowAboutDialog()
@@ -425,6 +436,43 @@ namespace Schukin.XDataConv.UI
             tbImportedMatched.Text = String.Format(ImportedMatchedTabTextFormat, gridImportedMatched.RowCount);
         }
 
+        private void PopulateImportErrors(IEnumerable<IDataItemError> items)
+        {
+            var errors = items.ToArray();
+            var isErrorExists = errors.Any();
+
+            tssImported1.Visible = tbImportedShowErrors.Visible = isErrorExists;
+            _importErrorsForm.Clear();
+
+            if (!isErrorExists)
+            {
+                _importErrorsForm.Hide();
+                return;
+            }
+
+            tbImportedShowErrors.Text = $"Ошибки импорта [{errors.Length}]";
+
+            _importErrorsForm.PopulateData(errors);
+        }
+
+        private void SetRowIdFocusInGrid(DataGridView grid, int rowId)
+        {
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                var item = (DataItem)row.DataBoundItem;
+
+                if (item.RowId != rowId)
+                    continue;
+
+                grid.FirstDisplayedScrollingRowIndex = row.Index;
+                grid.CurrentCell = row.Cells[0];
+                return;
+            }
+
+            MessageBox.Show($"Строка с номером '{rowId}' отсутствует в списке.", "XDataConv",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         #region Event handlers
 
         private void SourceOpen_Click(object sender, EventArgs e)
@@ -447,6 +495,11 @@ namespace Schukin.XDataConv.UI
             OpenImportedFile();
         }
 
+        private void ImportedShowErrors_Click(object sender, EventArgs e)
+        {
+            ShowImportErrorsForm();
+        }
+
         private void Settings_Click(object sender, EventArgs e)
         {
             ShowSettingsDialog();
@@ -460,13 +513,13 @@ namespace Schukin.XDataConv.UI
         private void SourceGotoLine_Click(object sender, EventArgs e)
         {
             if (_matchingManager.SourceData.Any())
-                GotoLineNumber(gridSource);
+                ShowGotoLineNumber(gridSource);
         }
 
         private void ImportedGotoLine_Click(object sender, EventArgs e)
         {
             if (_matchingManager.ImportedData.Any())
-                GotoLineNumber(gridImported);
+                ShowGotoLineNumber(gridImported);
         }
 
         private void Exit_Click(object sender, EventArgs e)

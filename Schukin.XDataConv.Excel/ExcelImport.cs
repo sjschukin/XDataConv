@@ -117,7 +117,7 @@ namespace Schukin.XDataConv.Excel
                         Errors.Add(new TError
                         {
                             RowId = lineNumber,
-                            Message = $"Ошибка при импорте поля {currentFieldName} в строке {lineNumber}."
+                            Message = $"Ошибка при импорте поля {currentFieldName}. {ex.Message}"
                         });
                     }
 

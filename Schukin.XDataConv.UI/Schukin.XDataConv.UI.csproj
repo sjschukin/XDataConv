@@ -61,6 +61,12 @@
     <Compile Include="GotoLineNumberForm.Designer.cs">
       <DependentUpon>GotoLineNumberForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ImportErrorsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ImportErrorsForm.Designer.cs">
+      <DependentUpon>ImportErrorsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MapSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -89,6 +95,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GotoLineNumberForm.resx">
       <DependentUpon>GotoLineNumberForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ImportErrorsForm.resx">
+      <DependentUpon>ImportErrorsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MapSettingsForm.resx">
       <DependentUpon>MapSettingsForm.cs</DependentUpon>
@@ -127,6 +136,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\xdataconv.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\if_33_62690.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

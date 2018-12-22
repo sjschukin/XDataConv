@@ -31,12 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AppForm));
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.mnuFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuSourceOpen = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuSourceMatchedSave = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuPerformMatching1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuPerformMatching2 = new System.Windows.Forms.ToolStripMenuItem();
             this.importLogMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuImportedOpen = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,11 +45,7 @@
             this.mnuHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.tsMain = new System.Windows.Forms.ToolStrip();
-            this.tbSettings = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.tbPerformMatching1 = new System.Windows.Forms.ToolStripButton();
-            this.tbPerformMatching2 = new System.Windows.Forms.ToolStripButton();
-            this.tbFilter = new System.Windows.Forms.ToolStripButton();
             this.statusBarMain = new System.Windows.Forms.StatusStrip();
             this.importFileNameStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.fileNameStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -63,22 +54,33 @@
             this.tabSource = new System.Windows.Forms.TabControl();
             this.tbSource = new System.Windows.Forms.TabPage();
             this.tsSource = new System.Windows.Forms.ToolStrip();
-            this.tbSourceOpen = new System.Windows.Forms.ToolStripButton();
-            this.tbSourceSave = new System.Windows.Forms.ToolStripButton();
             this.tbSourceMatched = new System.Windows.Forms.TabPage();
             this.gridSourceMatched = new System.Windows.Forms.DataGridView();
             this.tsSourceImported = new System.Windows.Forms.ToolStrip();
-            this.tbSourceMatchedSave = new System.Windows.Forms.ToolStripButton();
             this.labelSource = new System.Windows.Forms.Label();
             this.tabImported = new System.Windows.Forms.TabControl();
             this.tbImported = new System.Windows.Forms.TabPage();
             this.gridImported = new System.Windows.Forms.DataGridView();
             this.tsImported = new System.Windows.Forms.ToolStrip();
-            this.tbImportedOpen = new System.Windows.Forms.ToolStripButton();
-            this.tbImportedSave = new System.Windows.Forms.ToolStripButton();
             this.tbImportedMatched = new System.Windows.Forms.TabPage();
             this.gridImportedMatched = new System.Windows.Forms.DataGridView();
             this.labelImported = new System.Windows.Forms.Label();
+            this.tssImported1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tbSourceOpen = new System.Windows.Forms.ToolStripButton();
+            this.tbSourceSave = new System.Windows.Forms.ToolStripButton();
+            this.tbSourceMatchedSave = new System.Windows.Forms.ToolStripButton();
+            this.tbImportedOpen = new System.Windows.Forms.ToolStripButton();
+            this.tbImportedSave = new System.Windows.Forms.ToolStripButton();
+            this.tbImportedShowErrors = new System.Windows.Forms.ToolStripButton();
+            this.tbSettings = new System.Windows.Forms.ToolStripButton();
+            this.tbPerformMatching1 = new System.Windows.Forms.ToolStripButton();
+            this.tbPerformMatching2 = new System.Windows.Forms.ToolStripButton();
+            this.tbFilter = new System.Windows.Forms.ToolStripButton();
+            this.mnuSourceOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuSourceMatchedSave = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuPerformMatching1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuPerformMatching2 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuMain.SuspendLayout();
             this.tsMain.SuspendLayout();
             this.statusBarMain.SuspendLayout();
@@ -131,47 +133,10 @@
             this.mnuFile.Size = new System.Drawing.Size(48, 20);
             this.mnuFile.Text = "&Файл";
             // 
-            // mnuSourceOpen
-            // 
-            this.mnuSourceOpen.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
-            this.mnuSourceOpen.Name = "mnuSourceOpen";
-            this.mnuSourceOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.mnuSourceOpen.Size = new System.Drawing.Size(239, 22);
-            this.mnuSourceOpen.Text = "&Открыть...";
-            // 
-            // mnuSourceMatchedSave
-            // 
-            this.mnuSourceMatchedSave.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
-            this.mnuSourceMatchedSave.Name = "mnuSourceMatchedSave";
-            this.mnuSourceMatchedSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.mnuSourceMatchedSave.Size = new System.Drawing.Size(239, 22);
-            this.mnuSourceMatchedSave.Text = "&Сохранить...";
-            // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(236, 6);
-            // 
-            // mnuSettings
-            // 
-            this.mnuSettings.Image = global::Schukin.XDataConv.UI.Properties.Resources.Settings;
-            this.mnuSettings.Name = "mnuSettings";
-            this.mnuSettings.Size = new System.Drawing.Size(239, 22);
-            this.mnuSettings.Text = "&Параметры...";
-            // 
-            // mnuPerformMatching1
-            // 
-            this.mnuPerformMatching1.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
-            this.mnuPerformMatching1.Name = "mnuPerformMatching1";
-            this.mnuPerformMatching1.Size = new System.Drawing.Size(239, 22);
-            this.mnuPerformMatching1.Text = "Перено&с данных (ИД1)";
-            // 
-            // mnuPerformMatching2
-            // 
-            this.mnuPerformMatching2.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
-            this.mnuPerformMatching2.Name = "mnuPerformMatching2";
-            this.mnuPerformMatching2.Size = new System.Drawing.Size(239, 22);
-            this.mnuPerformMatching2.Text = "Перено&с данных (ИД2)";
             // 
             // importLogMenuItem
             // 
@@ -270,46 +235,10 @@
             this.tsMain.TabIndex = 1;
             this.tsMain.Text = "toolStrip1";
             // 
-            // tbSettings
-            // 
-            this.tbSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tbSettings.Image = global::Schukin.XDataConv.UI.Properties.Resources.Settings;
-            this.tbSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tbSettings.Name = "tbSettings";
-            this.tbSettings.Size = new System.Drawing.Size(23, 22);
-            this.tbSettings.Text = "Параметры";
-            // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
             this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tbPerformMatching1
-            // 
-            this.tbPerformMatching1.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
-            this.tbPerformMatching1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tbPerformMatching1.Name = "tbPerformMatching1";
-            this.tbPerformMatching1.Size = new System.Drawing.Size(152, 22);
-            this.tbPerformMatching1.Text = "Перенос данных (ИД1)";
-            this.tbPerformMatching1.ToolTipText = "Осуществить перенос, используя правила первичной идентификации";
-            // 
-            // tbPerformMatching2
-            // 
-            this.tbPerformMatching2.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
-            this.tbPerformMatching2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tbPerformMatching2.Name = "tbPerformMatching2";
-            this.tbPerformMatching2.Size = new System.Drawing.Size(152, 22);
-            this.tbPerformMatching2.Text = "Перенос данных (ИД2)";
-            this.tbPerformMatching2.ToolTipText = "Осуществить перенос, используя правила вторичной идентификации";
-            // 
-            // tbFilter
-            // 
-            this.tbFilter.Image = global::Schukin.XDataConv.UI.Properties.Resources.Filter;
-            this.tbFilter.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tbFilter.Name = "tbFilter";
-            this.tbFilter.Size = new System.Drawing.Size(68, 22);
-            this.tbFilter.Text = "Фильтр";
-            this.tbFilter.Visible = false;
             // 
             // statusBarMain
             // 
@@ -404,24 +333,6 @@
             this.tsSource.TabIndex = 4;
             this.tsSource.Text = "toolStrip1";
             // 
-            // tbSourceOpen
-            // 
-            this.tbSourceOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tbSourceOpen.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
-            this.tbSourceOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tbSourceOpen.Name = "tbSourceOpen";
-            this.tbSourceOpen.Size = new System.Drawing.Size(23, 22);
-            this.tbSourceOpen.Text = "Открыть";
-            // 
-            // tbSourceSave
-            // 
-            this.tbSourceSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tbSourceSave.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
-            this.tbSourceSave.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tbSourceSave.Name = "tbSourceSave";
-            this.tbSourceSave.Size = new System.Drawing.Size(23, 22);
-            this.tbSourceSave.Text = "Сохранить";
-            // 
             // tbSourceMatched
             // 
             this.tbSourceMatched.Controls.Add(this.gridSourceMatched);
@@ -456,15 +367,6 @@
             this.tsSourceImported.Size = new System.Drawing.Size(818, 25);
             this.tsSourceImported.TabIndex = 5;
             this.tsSourceImported.Text = "toolStrip1";
-            // 
-            // tbSourceMatchedSave
-            // 
-            this.tbSourceMatchedSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tbSourceMatchedSave.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
-            this.tbSourceMatchedSave.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tbSourceMatchedSave.Name = "tbSourceMatchedSave";
-            this.tbSourceMatchedSave.Size = new System.Drawing.Size(23, 22);
-            this.tbSourceMatchedSave.Text = "Сохранить";
             // 
             // labelSource
             // 
@@ -519,30 +421,14 @@
             this.tsImported.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.tsImported.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tbImportedOpen,
-            this.tbImportedSave});
+            this.tbImportedSave,
+            this.tssImported1,
+            this.tbImportedShowErrors});
             this.tsImported.Location = new System.Drawing.Point(3, 3);
             this.tsImported.Name = "tsImported";
             this.tsImported.Size = new System.Drawing.Size(818, 25);
             this.tsImported.TabIndex = 2;
             this.tsImported.Text = "toolImport";
-            // 
-            // tbImportedOpen
-            // 
-            this.tbImportedOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tbImportedOpen.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
-            this.tbImportedOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tbImportedOpen.Name = "tbImportedOpen";
-            this.tbImportedOpen.Size = new System.Drawing.Size(23, 22);
-            this.tbImportedOpen.Text = "Открыть";
-            // 
-            // tbImportedSave
-            // 
-            this.tbImportedSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tbImportedSave.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
-            this.tbImportedSave.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tbImportedSave.Name = "tbImportedSave";
-            this.tbImportedSave.Size = new System.Drawing.Size(23, 22);
-            this.tbImportedSave.Text = "Сохранить";
             // 
             // tbImportedMatched
             // 
@@ -579,6 +465,139 @@
             this.labelImported.TabIndex = 6;
             this.labelImported.Text = "Данные поставщика";
             this.labelImported.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tssImported1
+            // 
+            this.tssImported1.Name = "tssImported1";
+            this.tssImported1.Size = new System.Drawing.Size(6, 25);
+            this.tssImported1.Visible = false;
+            // 
+            // tbSourceOpen
+            // 
+            this.tbSourceOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tbSourceOpen.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
+            this.tbSourceOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbSourceOpen.Name = "tbSourceOpen";
+            this.tbSourceOpen.Size = new System.Drawing.Size(23, 22);
+            this.tbSourceOpen.Text = "Открыть";
+            // 
+            // tbSourceSave
+            // 
+            this.tbSourceSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tbSourceSave.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
+            this.tbSourceSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbSourceSave.Name = "tbSourceSave";
+            this.tbSourceSave.Size = new System.Drawing.Size(23, 22);
+            this.tbSourceSave.Text = "Сохранить";
+            // 
+            // tbSourceMatchedSave
+            // 
+            this.tbSourceMatchedSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tbSourceMatchedSave.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
+            this.tbSourceMatchedSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbSourceMatchedSave.Name = "tbSourceMatchedSave";
+            this.tbSourceMatchedSave.Size = new System.Drawing.Size(23, 22);
+            this.tbSourceMatchedSave.Text = "Сохранить";
+            // 
+            // tbImportedOpen
+            // 
+            this.tbImportedOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tbImportedOpen.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
+            this.tbImportedOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbImportedOpen.Name = "tbImportedOpen";
+            this.tbImportedOpen.Size = new System.Drawing.Size(23, 22);
+            this.tbImportedOpen.Text = "Открыть";
+            // 
+            // tbImportedSave
+            // 
+            this.tbImportedSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tbImportedSave.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
+            this.tbImportedSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbImportedSave.Name = "tbImportedSave";
+            this.tbImportedSave.Size = new System.Drawing.Size(23, 22);
+            this.tbImportedSave.Text = "Сохранить";
+            // 
+            // tbImportedShowErrors
+            // 
+            this.tbImportedShowErrors.Image = global::Schukin.XDataConv.UI.Properties.Resources.Error;
+            this.tbImportedShowErrors.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbImportedShowErrors.Name = "tbImportedShowErrors";
+            this.tbImportedShowErrors.Size = new System.Drawing.Size(125, 22);
+            this.tbImportedShowErrors.Text = "Ошибки импорта";
+            this.tbImportedShowErrors.Visible = false;
+            // 
+            // tbSettings
+            // 
+            this.tbSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tbSettings.Image = global::Schukin.XDataConv.UI.Properties.Resources.Settings;
+            this.tbSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbSettings.Name = "tbSettings";
+            this.tbSettings.Size = new System.Drawing.Size(23, 22);
+            this.tbSettings.Text = "Параметры";
+            // 
+            // tbPerformMatching1
+            // 
+            this.tbPerformMatching1.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
+            this.tbPerformMatching1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbPerformMatching1.Name = "tbPerformMatching1";
+            this.tbPerformMatching1.Size = new System.Drawing.Size(152, 22);
+            this.tbPerformMatching1.Text = "Перенос данных (ИД1)";
+            this.tbPerformMatching1.ToolTipText = "Осуществить перенос, используя правила первичной идентификации";
+            // 
+            // tbPerformMatching2
+            // 
+            this.tbPerformMatching2.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
+            this.tbPerformMatching2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbPerformMatching2.Name = "tbPerformMatching2";
+            this.tbPerformMatching2.Size = new System.Drawing.Size(152, 22);
+            this.tbPerformMatching2.Text = "Перенос данных (ИД2)";
+            this.tbPerformMatching2.ToolTipText = "Осуществить перенос, используя правила вторичной идентификации";
+            // 
+            // tbFilter
+            // 
+            this.tbFilter.Image = global::Schukin.XDataConv.UI.Properties.Resources.Filter;
+            this.tbFilter.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tbFilter.Name = "tbFilter";
+            this.tbFilter.Size = new System.Drawing.Size(68, 22);
+            this.tbFilter.Text = "Фильтр";
+            this.tbFilter.Visible = false;
+            // 
+            // mnuSourceOpen
+            // 
+            this.mnuSourceOpen.Image = global::Schukin.XDataConv.UI.Properties.Resources.Open;
+            this.mnuSourceOpen.Name = "mnuSourceOpen";
+            this.mnuSourceOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.mnuSourceOpen.Size = new System.Drawing.Size(239, 22);
+            this.mnuSourceOpen.Text = "&Открыть...";
+            // 
+            // mnuSourceMatchedSave
+            // 
+            this.mnuSourceMatchedSave.Image = global::Schukin.XDataConv.UI.Properties.Resources.Save;
+            this.mnuSourceMatchedSave.Name = "mnuSourceMatchedSave";
+            this.mnuSourceMatchedSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.mnuSourceMatchedSave.Size = new System.Drawing.Size(239, 22);
+            this.mnuSourceMatchedSave.Text = "&Сохранить...";
+            // 
+            // mnuSettings
+            // 
+            this.mnuSettings.Image = global::Schukin.XDataConv.UI.Properties.Resources.Settings;
+            this.mnuSettings.Name = "mnuSettings";
+            this.mnuSettings.Size = new System.Drawing.Size(239, 22);
+            this.mnuSettings.Text = "&Параметры...";
+            // 
+            // mnuPerformMatching1
+            // 
+            this.mnuPerformMatching1.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
+            this.mnuPerformMatching1.Name = "mnuPerformMatching1";
+            this.mnuPerformMatching1.Size = new System.Drawing.Size(239, 22);
+            this.mnuPerformMatching1.Text = "Перено&с данных (ИД1)";
+            // 
+            // mnuPerformMatching2
+            // 
+            this.mnuPerformMatching2.Image = global::Schukin.XDataConv.UI.Properties.Resources.Import;
+            this.mnuPerformMatching2.Name = "mnuPerformMatching2";
+            this.mnuPerformMatching2.Size = new System.Drawing.Size(239, 22);
+            this.mnuPerformMatching2.Text = "Перено&с данных (ИД2)";
             // 
             // AppForm
             // 
@@ -679,5 +698,7 @@
         private System.Windows.Forms.ToolStripButton tbPerformMatching1;
         private System.Windows.Forms.ToolStripButton tbPerformMatching2;
         private System.Windows.Forms.ToolStripButton tbImportedSave;
+        private System.Windows.Forms.ToolStripSeparator tssImported1;
+        private System.Windows.Forms.ToolStripButton tbImportedShowErrors;
     }
 }

@@ -56,7 +56,7 @@ namespace Schukin.XDataConv.Csv
                     Errors.Add(new TError
                     {
                         RowId = ex.ReadingContext.RawRow,
-                        Message = $"Ошибка при импорте поля {ex.ReadingContext.Field} в строке {ex.ReadingContext.RawRow}."
+                        Message = $"Ошибка импорта строки. {ex.InnerException?.Message}"
                     });
                 };
 
