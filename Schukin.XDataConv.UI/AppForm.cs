@@ -473,7 +473,7 @@ namespace Schukin.XDataConv.UI
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        #region Event handlers
+        #region event handlers
 
         private void SourceOpen_Click(object sender, EventArgs e)
         {

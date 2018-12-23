@@ -55,8 +55,7 @@ namespace Schukin.XDataConv.UI
             matchGrid.AutoGenerateColumns = false;
 
             matchGrid.Columns.AddRange(
-                new DataGridViewTextBoxColumn
-                    { HeaderText = "Значение из файла поставщика", DataPropertyName = "Source", Width = 250 },
+                new DataGridViewTextBoxColumn { HeaderText = "Значение из файла поставщика", DataPropertyName = "Source", Width = 250 },
                 new DataGridViewTextBoxColumn { HeaderText = "Считать как", DataPropertyName = "Alias", Width = 250 }
             );
 
