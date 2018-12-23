@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using Schukin.XDataConv.Core;
 using Schukin.XDataConv.Core.Interfaces;
@@ -22,36 +23,61 @@ namespace Schukin.XDataConv.UI
 
             InitializeComponent();
 
-            _saveFileDialog = new SaveFileDialog
-            {
-                InitialDirectory = Path.Combine(Application.StartupPath, "templates"),
-                CheckPathExists = true,
-                AddExtension = true,
-                FileName = "template",
-                Filter = "Файлы шаблонов XDataConv (*.xml)|*.xml",
-                DefaultExt = "xml"
-            };
+            _saveFileDialog = new SaveFileDialog();
+            _openFileDialog = new OpenFileDialog();
 
-            _openFileDialog = new OpenFileDialog
-            {
-                InitialDirectory = Path.Combine(Application.StartupPath, "templates"),
-                CheckFileExists = true,
-                Filter = "Файлы шаблонов XDataConv (*.xml)|*.xml"
-            };
+            InitializeComponentCustom();
+        }
 
+        public Settings CurrentSettings { get; }
+
+        #region initialize component
+
+        private void InitializeComponentCustom()
+        {
+            _saveFileDialog.InitialDirectory = Path.Combine(Application.StartupPath, "templates");
+            _saveFileDialog.CheckPathExists = true;
+            _saveFileDialog.AddExtension = true;
+            _saveFileDialog.FileName = "template";
+            _saveFileDialog.Filter = "Файлы шаблонов XDataConv (*.xml)|*.xml";
+            _saveFileDialog.DefaultExt = "xml";
+
+            _openFileDialog.InitialDirectory = Path.Combine(Application.StartupPath, "templates");
+            _openFileDialog.CheckFileExists = true;
+            _openFileDialog.Filter = "Файлы шаблонов XDataConv (*.xml)|*.xml";
+
+            gridMapping.AutoGenerateColumns = false;
+
+            InitializeEventHandlers();
+            BindControls();
+        }
+
+        private void InitializeEventHandlers()
+        {
             buttonOk.Click += ButtonOk_Click;
             buttonSaveTemplate.Click += ButtonSaveTemplate_Click;
             buttonLoadTemplate.Click += ButtonLoadTemplate_Click;
             gridMapping.CellClick += GridMapping_CellClick;
-
-            // binding
-            gridMapping.AutoGenerateColumns = false;
-            gridMapping.DataSource = settings.Mapping.ToArray();
-
-            checkFindAllMatches.DataBindings.Add("Checked", settings, "IsFindAllMatches");
         }
 
-        public Settings CurrentSettings { get; }
+        private void BindControls()
+        {
+            gridMapping.Columns.AddRange(
+                new DataGridViewTextBoxColumn { HeaderText = "Поле", DataPropertyName = "FieldName", ReadOnly = true },
+                new DataGridViewTextBoxColumn { HeaderText = "Поле в импортируемом файле", DataPropertyName = "ImportFieldName" },
+                new DataGridViewCheckBoxColumn { HeaderText = "Преобразовать при импорте в верхний регистр", DataPropertyName = "IsConvertImportToUpperCase" },
+                new DataGridViewCheckBoxColumn { HeaderText = "Использовать для первичной идентификации", DataPropertyName = "IsUseForCompare1" },
+                new DataGridViewCheckBoxColumn { HeaderText = "Использовать для вторичной идентификации", DataPropertyName = "IsUseForCompare2" },
+                new DataGridViewCheckBoxColumn { HeaderText = "Копировать в источник", DataPropertyName = "IsUseForInject" },
+                new DataGridViewButtonColumn { Name = "colMatchingList", HeaderText = "Справочник соответствий", DataPropertyName = "MatchingItemsCount", Width = 90, Resizable = DataGridViewTriState.False }
+            );
+
+            gridMapping.DataSource = CurrentSettings.Mapping.ToArray();
+
+            checkFindAllMatches.DataBindings.Add("Checked", CurrentSettings, "IsFindAllMatches");
+        }
+
+        #endregion
 
         private bool ValidateForm()
         {
@@ -135,6 +161,8 @@ namespace Schukin.XDataConv.UI
             formMatching.ShowDialog();
         }
 
+        #region event handlers
+
         private void GridMapping_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             var matchingColumn = gridMapping.Columns["colMatchingList"];
@@ -148,8 +176,10 @@ namespace Schukin.XDataConv.UI
             if (!(gridMapping.Rows[e.RowIndex].DataBoundItem is SettingsMapItem item))
                 return;
 
-            if (((System.Reflection.PropertyInfo)item.MemberInfo).PropertyType.Name != "String")
+            if (((PropertyInfo) item.MemberInfo).PropertyType.Name != "String")
+            {
                 return;
+            }
 
             ShowMatchSettingsForm(item);
         }
@@ -172,5 +202,7 @@ namespace Schukin.XDataConv.UI
         {
             LoadTemplate();
         }
+
+        #endregion
     }
 }

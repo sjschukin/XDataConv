@@ -37,13 +37,6 @@
             this.tabSettings = new System.Windows.Forms.TabControl();
             this.tabMappingSettings = new System.Windows.Forms.TabPage();
             this.gridMapping = new System.Windows.Forms.DataGridView();
-            this.colFieldName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colImportFieldName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colIsConvertImportToUpperCase = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colIsUseForCompare1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colIsUseForCompare2 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colIsUseForInject = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.colMatchingList = new System.Windows.Forms.DataGridViewButtonColumn();
             this.tabAdditionalSettings = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
             this.checkFindAllMatches = new System.Windows.Forms.CheckBox();
@@ -114,14 +107,6 @@
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.gridMapping.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.gridMapping.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.gridMapping.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colFieldName,
-            this.colImportFieldName,
-            this.colIsConvertImportToUpperCase,
-            this.colIsUseForCompare1,
-            this.colIsUseForCompare2,
-            this.colIsUseForInject,
-            this.colMatchingList});
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
@@ -143,54 +128,6 @@
             this.gridMapping.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.gridMapping.Size = new System.Drawing.Size(757, 373);
             this.gridMapping.TabIndex = 0;
-            // 
-            // colFieldName
-            // 
-            this.colFieldName.DataPropertyName = "FieldName";
-            this.colFieldName.HeaderText = "Поле";
-            this.colFieldName.Name = "colFieldName";
-            this.colFieldName.ReadOnly = true;
-            this.colFieldName.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.colFieldName.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // colImportFieldName
-            // 
-            this.colImportFieldName.DataPropertyName = "ImportFieldName";
-            this.colImportFieldName.HeaderText = "Поле в импортируемом файле";
-            this.colImportFieldName.Name = "colImportFieldName";
-            // 
-            // colIsConvertImportToUpperCase
-            // 
-            this.colIsConvertImportToUpperCase.DataPropertyName = "IsConvertImportToUpperCase";
-            this.colIsConvertImportToUpperCase.HeaderText = "Преобразовать при импорте в верхний регистр";
-            this.colIsConvertImportToUpperCase.Name = "colIsConvertImportToUpperCase";
-            // 
-            // colIsUseForCompare1
-            // 
-            this.colIsUseForCompare1.DataPropertyName = "IsUseForCompare1";
-            this.colIsUseForCompare1.HeaderText = "Использовать для первичной идентификации";
-            this.colIsUseForCompare1.Name = "colIsUseForCompare1";
-            // 
-            // colIsUseForCompare2
-            // 
-            this.colIsUseForCompare2.DataPropertyName = "IsUseForCompare2";
-            this.colIsUseForCompare2.HeaderText = "Использовать для вторичной идентификации";
-            this.colIsUseForCompare2.Name = "colIsUseForCompare2";
-            // 
-            // colIsUseForInject
-            // 
-            this.colIsUseForInject.DataPropertyName = "IsUseForInject";
-            this.colIsUseForInject.HeaderText = "Копировать в источник";
-            this.colIsUseForInject.Name = "colIsUseForInject";
-            // 
-            // colMatchingList
-            // 
-            this.colMatchingList.DataPropertyName = "ImportMatchLinesCount";
-            this.colMatchingList.HeaderText = "Справочник соответствий";
-            this.colMatchingList.Name = "colMatchingList";
-            this.colMatchingList.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.colMatchingList.Text = "Список...";
-            this.colMatchingList.Width = 90;
             // 
             // tabAdditionalSettings
             // 
@@ -288,12 +225,5 @@
         private System.Windows.Forms.TabPage tabAdditionalSettings;
         private System.Windows.Forms.CheckBox checkFindAllMatches;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colFieldName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colImportFieldName;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colIsConvertImportToUpperCase;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colIsUseForCompare1;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colIsUseForCompare2;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn colIsUseForInject;
-        private System.Windows.Forms.DataGridViewButtonColumn colMatchingList;
     }
 }
