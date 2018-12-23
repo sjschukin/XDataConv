@@ -11,8 +11,8 @@ namespace Schukin.XDataConv.UI
 {
     public sealed partial class MatchSettingsForm : Form
     {
-        private readonly List<MatchingItem> _originalDatasource;
-        private readonly List<MatchingItem> _currentDatasource;
+        private readonly List<MatchingItem> _originalDataSource;
+        private readonly List<MatchingItem> _currentDataSource;
 
         private readonly SettingsMapItem _mapItem;
         private readonly IMatchingManager _matchingManager;
@@ -24,44 +24,57 @@ namespace Schukin.XDataConv.UI
 
             InitializeComponent();
 
-            _originalDatasource = mapItem.MatchingItems;
-            _currentDatasource = new List<MatchingItem>(_originalDatasource);
+            _originalDataSource = mapItem.MatchingItems;
+            _currentDataSource = new List<MatchingItem>(_originalDataSource);
 
-            Text = $"Настройка соответствий для {_mapItem.FieldName}";
-
-            clearAllTool.Click += ClearAllTool_Click;
-            copyNewLineImportTool.Click += CopyNewLineImportTool_Click;
-            copyCellImportTool.Click += CopyCellImportTool_Click;
-            copyNewLineSourceTool.Click += CopyNewLineSourceTool_Click;
-            copyCellSourceTool.Click += CopyCellSourceTool_Click;
+            InitializeComponentCustom();
+            InitializeEventHandlers();
 
             BindDataGrid();
             ShowPossibleWordsAsync();
         }
 
+        #region initialize component
+
+        private void InitializeComponentCustom()
+        {
+            Text = $"Настройка соответствий для {_mapItem.FieldName}";
+        }
+
+        private void InitializeEventHandlers()
+        {
+            clearAllTool.Click += ClearAllTool_Click;
+            copyNewLineImportTool.Click += CopyNewLineImportTool_Click;
+            copyCellImportTool.Click += CopyCellImportTool_Click;
+            copyNewLineSourceTool.Click += CopyNewLineSourceTool_Click;
+            copyCellSourceTool.Click += CopyCellSourceTool_Click;
+        }
 
         private void BindDataGrid()
         {
             matchGrid.AutoGenerateColumns = false;
 
             matchGrid.Columns.AddRange(
-                new DataGridViewTextBoxColumn { HeaderText = "Значение из файла поставщика", DataPropertyName = "SourceWord", Width = 250 },
-                new DataGridViewTextBoxColumn { HeaderText = "Считать как", DataPropertyName = "AliasWord", Width = 250 }
-                );
+                new DataGridViewTextBoxColumn
+                    { HeaderText = "Значение из файла поставщика", DataPropertyName = "Source", Width = 250 },
+                new DataGridViewTextBoxColumn { HeaderText = "Считать как", DataPropertyName = "Alias", Width = 250 }
+            );
 
-            bindingSource.DataSource = _currentDatasource;
+            bindingSource.DataSource = _currentDataSource;
         }
+
+        #endregion
 
         private bool ValidateForm()
         {
-            if (_currentDatasource.Any(item => String.IsNullOrWhiteSpace(item.Alias) && String.IsNullOrWhiteSpace(item.Source)))
+            if (_currentDataSource.Any(item => String.IsNullOrWhiteSpace(item.Alias) || String.IsNullOrWhiteSpace(item.Source)))
             {
                 MessageBox.Show("Список не может содержать пустые строки.", "Внимание", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 return false;
             }
 
-            if (_currentDatasource.GroupBy(item => item.Source).Any(item => item.Count() > 1))
+            if (_currentDataSource.GroupBy(item => item.Source).Any(item => item.Count() > 1))
             {
                 MessageBox.Show("Список не может содержать дубликаты в столбце 'Значение из файла'.", "Внимание", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
@@ -179,8 +192,8 @@ namespace Schukin.XDataConv.UI
             if (!ValidateForm())
                 return;
 
-            _originalDatasource.Clear();
-            _originalDatasource.AddRange(_currentDatasource);
+            _originalDataSource.Clear();
+            _originalDataSource.AddRange(_currentDataSource);
 
             DialogResult = DialogResult.OK;
             Close();
