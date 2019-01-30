@@ -58,6 +58,9 @@
     <ApplicationIcon>favicon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
@@ -69,16 +72,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Schukin.XDataConv.Core\Schukin.XDataConv.Core.csproj">
       <Project>{f89d19b2-7f9f-4269-bb56-b2e2169b8b0b}</Project>
       <Name>Schukin.XDataConv.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Schukin.XDataConv.Csv\Schukin.XDataConv.Csv.csproj">
+      <Project>{8468a70f-db76-4383-8f7a-5f8be6d7cabd}</Project>
+      <Name>Schukin.XDataConv.Csv</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Schukin.XDataConv.Dbf\Schukin.XDataConv.Dbf.csproj">
+      <Project>{0eec5366-bb69-4ed3-bcb1-0acce4abb53a}</Project>
+      <Name>Schukin.XDataConv.Dbf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Schukin.XDataConv.Excel\Schukin.XDataConv.Excel.csproj">
+      <Project>{ac69b975-74a2-4c2e-b2a1-56885cf75739}</Project>
+      <Name>Schukin.XDataConv.Excel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Schukin.XDataConv.UI\Schukin.XDataConv.UI.csproj">
+      <Project>{7087c744-2559-4ce5-8cf7-fb455fa19dee}</Project>
+      <Name>Schukin.XDataConv.UI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

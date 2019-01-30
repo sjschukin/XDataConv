@@ -49,13 +49,13 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CsvHelper, Version=4.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.4.0.3\lib\net45\CsvHelper.dll</HintPath>
+    </Reference>
     <Reference Include="ExcelDataReader, Version=3.2.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
       <HintPath>..\packages\ExcelDataReader.3.2.0\lib\net45\ExcelDataReader.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -67,115 +67,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AboutForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AboutForm.Designer.cs">
-      <DependentUpon>AboutForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core.cs" />
-    <Compile Include="AppForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AppForm.Designer.cs">
-      <DependentUpon>AppForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GotoLineNumberForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="GotoLineNumberForm.Designer.cs">
-      <DependentUpon>GotoLineNumberForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Identify\IdentifyDetailsItem.cs" />
-    <Compile Include="Identify\IdentifyResultItem.cs" />
-    <Compile Include="IModule.cs" />
-    <Compile Include="LogForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="LogForm.Designer.cs">
-      <DependentUpon>LogForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Mapping\MapSettings.cs" />
-    <Compile Include="Modules\XlsModule.cs" />
-    <Compile Include="Mapping\MapCollection.cs" />
-    <Compile Include="Mapping\MatchLine.cs" />
-    <Compile Include="Mapping\MapItem.cs" />
-    <Compile Include="Mapping\MatchSettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Mapping\MatchSettingsForm.Designer.cs">
-      <DependentUpon>MatchSettingsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Mapping\MapSettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Mapping\MapSettingsForm.Designer.cs">
-      <DependentUpon>MapSettingsForm.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Base\ImportModuleBase.cs" />
+    <Compile Include="Csv\MemberMapInfo.cs" />
+    <Compile Include="Csv\SourceMapInfo.cs" />
+    <Compile Include="MatchingManager.cs" />
+    <Compile Include="Csv\CsvFileManager.cs" />
+    <Compile Include="Csv\SourceMap.cs" />
+    <Compile Include="DataItem.cs" />
+    <Compile Include="DataItemError.cs" />
+    <Compile Include="Interfaces\IMatchingManager.cs" />
+    <Compile Include="Interfaces\IDataItem.cs" />
+    <Compile Include="Interfaces\IDataItemError.cs" />
+    <Compile Include="Interfaces\IDataSource.cs" />
+    <Compile Include="Interfaces\IFileDataSource.cs" />
+    <Compile Include="Interfaces\IImportModule.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="SettingsMapCollection.cs" />
+    <Compile Include="StringMatchingItem.cs" />
+    <Compile Include="SettingsMapItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="RichTextBoxExtensions.cs" />
+    <Compile Include="SortableBindingList.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="AboutForm.resx">
-      <DependentUpon>AboutForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AppForm.resx">
-      <DependentUpon>AppForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="GotoLineNumberForm.resx">
-      <DependentUpon>GotoLineNumberForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="LogForm.resx">
-      <DependentUpon>LogForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Mapping\MatchSettingsForm.resx">
-      <DependentUpon>MatchSettingsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Mapping\MapSettingsForm.resx">
-      <DependentUpon>MapSettingsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Schukin.XDataConv.Data\Schukin.XDataConv.Data.csproj">
-      <Project>{95614eed-6f3f-4188-b384-0207571730c3}</Project>
-      <Name>Schukin.XDataConv.Data</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\if_52_62709.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\if_22_62679.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\if_35_62692.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\if_tool_62671.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\if_20_62677.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\if_61_62718.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\xdataconv.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Windows.Forms;
 using Schukin.XDataConv.Core;
+using Schukin.XDataConv.Core.Interfaces;
+using Schukin.XDataConv.Csv;
+using Schukin.XDataConv.Dbf;
+using Schukin.XDataConv.Excel;
+using Schukin.XDataConv.UI;
 
 namespace Schukin.XDataConv
 {
@@ -10,7 +15,17 @@ namespace Schukin.XDataConv
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();
-            Application.Run(new AppForm());
+
+            var logger = new Logger();
+            var matchingManager = new MatchingManager(logger);
+            IImportModule<DataItem, DataItemError>[] modules =
+            {
+                new ExcelImport<DataItem, DataItemError>(logger),
+                new DbfImport<DataItem, DataItemError>(logger),
+                new CsvImport<DataItem, DataItemError>(logger)
+            };
+
+            Application.Run(new AppForm(logger, matchingManager, modules));
         }
     }
 }

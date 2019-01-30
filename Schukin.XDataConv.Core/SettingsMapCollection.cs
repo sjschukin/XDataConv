@@ -5,21 +5,21 @@ using System.Linq;
 
 namespace Schukin.XDataConv.Core
 {
-    public class MapCollection : IEnumerable<MapItem>
+    public class SettingsMapCollection : IEnumerable<SettingsMapItem>
     {
-        private readonly MapItem[] _items;
+        private readonly SettingsMapItem[] _items;
 
-        public MapCollection(MapItem[] items)
+        public SettingsMapCollection(SettingsMapItem[] items)
         {
             _items = items;
         }
 
-        public MapItem this[string name]
+        public SettingsMapItem this[string name]
         {
             get { return _items.First(item => item.Name == name); }
         }
 
-        public IEnumerator<MapItem> GetEnumerator()
+        public IEnumerator<SettingsMapItem> GetEnumerator()
         {
             return _items.ToList().GetEnumerator();
         }
@@ -29,22 +29,22 @@ namespace Schukin.XDataConv.Core
             return GetEnumerator();
         }
 
-        public IEnumerable<MapItem> GetActiveItems()
+        public IEnumerable<SettingsMapItem> GetActiveItems()
         {
             return _items.Where(item => !String.IsNullOrWhiteSpace(item.ImportFieldName));
         }
 
-        public IEnumerable<MapItem> GetUseForIdentify1()
+        public IEnumerable<SettingsMapItem> GetUseForIdentify1()
         {
             return GetActiveItems().Where(item => item.IsUseForCompare1);
         }
 
-        public IEnumerable<MapItem> GetUseForIdentify2()
+        public IEnumerable<SettingsMapItem> GetUseForIdentify2()
         {
             return GetActiveItems().Where(item => item.IsUseForCompare2);
         }
 
-        public IEnumerable<MapItem> GetUseForAssign()
+        public IEnumerable<SettingsMapItem> GetUseForAssign()
         {
             return GetActiveItems().Where(item => item.IsUseForInject);
         }
